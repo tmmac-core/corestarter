@@ -22,8 +22,8 @@ offizielle App von Core oder CoDeTech. [English: README.md](README.md)
 | anderes Linux (x86_64) | `core-starter_<version>_linux_amd64.tar.gz` |
 | macOS ab 15, Apple Silicon (ab M1) | `CoreStarter-<version>-mac-arm64.dmg` |
 
-Download prüfen: `shasum -a 256 -c SHA256SUMS --ignore-missing` (macOS, Linux), unter Windows in der PowerShell
-`Get-FileHash CoreStarter.exe` und mit `SHA256SUMS` vergleichen.
+Download prüfen: `shasum -a 256 -c SHA256SUMS --ignore-missing` (macOS, Linux), unter Windows
+`certutil -hashfile CoreStarter.exe SHA256` und mit `SHA256SUMS` vergleichen.
 
 **Noch nicht signiert:**
 - **Windows:** SmartScreen zeigt „Der Computer wurde durch Windows geschützt“: „Weitere Informationen“, dann

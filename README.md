@@ -27,8 +27,8 @@ Check your download against `SHA256SUMS` from the same release:
 ```bash
 shasum -a 256 -c SHA256SUMS --ignore-missing     # macOS, Linux
 ```
-```powershell
-Get-FileHash CoreStarter.exe                       # Windows PowerShell, compare with SHA256SUMS
+```
+certutil -hashfile CoreStarter.exe SHA256          # Windows, compare with SHA256SUMS
 ```
 
 ### Not signed yet
