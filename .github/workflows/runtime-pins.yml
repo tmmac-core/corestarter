@@ -17,6 +17,9 @@ permissions:
 
 jobs:
   check:
+    # The weekly run is a reminder for the maintainers: it only runs where the
+    # repository variable RUNTIME_PINS_WEEKLY is "1", not in forks or mirrors.
+    if: github.event_name != 'schedule' || vars.RUNTIME_PINS_WEEKLY == '1'
     runs-on: ubuntu-24.04
     container: ubuntu:24.04
     timeout-minutes: 10

@@ -1,6 +1,6 @@
 # Übersetzungen JA/NL/RO: Prüfliste für Muttersprachler
 
-Die Texte stehen in `ui/index.html` (`L.ja`, `L.nl`, `L.ro`) und `texts_ja.go`, `texts_nl.go`, `texts_ro.go`. Begriffe folgen dem Core Mobile Miner. Unten die Stellen, bei denen die Übersetzung unsicher ist (von den Übersetzungs-Agenten am 19.10.2026 notiert).
+Die Texte stehen in `ui/index.html` (`L.ja`, `L.nl`, `L.ro`) und `texts_ja.go`, `texts_nl.go`, `texts_ro.go`. Begriffe folgen dem Core Mobile Miner. Die Übersetzungen sind maschinell erstellt; unten die Stellen, bei denen sie unsicher sind. Hinweise von Muttersprachlern sind willkommen (Issue oder Pull Request).
 
 ## CoreStarter ja – Punkte fuer Muttersprachler-Review
 

@@ -454,6 +454,8 @@ func TestWindowsWindowUnderOverlay(t *testing.T) {
 	}
 	stop := startOverlay(t)
 	defer stop()
+	// The test before used the default switches; same race as below (public CI 01.11.).
+	waitWebViewGone(t)
 	t.Run("unpatched", func(t *testing.T) {
 		args := uiBrowserArgs
 		uiBrowserArgs = []string{"--disable-gpu"}

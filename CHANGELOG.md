@@ -11,7 +11,8 @@ First public release. The programs are not signed yet.
   once installed, the release page ("Check for a new version") on
   tellmemoreaboutcore.com.
 - Every release carries `third-party-sources-<version>.tar`, the unchanged
-  source of the bundled GCC runtime, winpthreads and glibc.
+  source of the bundled gocore (with its Go modules), RandomY, GCC runtime,
+  winpthreads and glibc.
 - Linux packages ship the full GPL-2, GPL-3 and LGPL-2.1 texts (Fedora and
   openSUSE lack `/usr/share/common-licenses`).
 

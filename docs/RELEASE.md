@@ -16,9 +16,15 @@ mit allen Dateien aus genau diesem Stand. Die Programme sind noch nicht signiert
    - Quellen der mitgelieferten Bibliotheken: `./scripts/third-party-sources.sh`
      (`dist/third-party-sources-<v>.tar`).
 4. `SHA256SUMS` über alle Dateien des Releases bilden (`shasum -a 256 * > SHA256SUMS`).
-5. Tag `v<v>` auf den Release-Commit, GitHub Release mit allen Dateien und `SHA256SUMS` und der Release-Notiz (Hinweis auf die fehlende Signatur).
-6. Website: `apps/core-starter.json` mit Version, Datei-URLs und SHA-256 auf beide Docroots, dann `/core-starter/`
-   und `/de/core-starter/` prüfen und jede Datei einmal über die Seite herunterladen und mit `SHA256SUMS` vergleichen.
+5. Tag `v<v>` auf den Release-Commit, als TMMAC:
+   `GIT_COMMITTER_NAME=TMMAC GIT_COMMITTER_EMAIL=contact@tellmemoreaboutcore.com git tag -a v<v> -m "CoreStarter <v>"`.
+   GitHub Release mit allen Dateien, `SHA256SUMS` und der Release-Notiz (Hinweis auf die fehlende Signatur).
+6. Downloadseite (tellmemoreaboutcore.com/core-starter/) auf die neue Version stellen und jede Datei einmal über
+   die Seite laden und mit `SHA256SUMS` vergleichen.
+
+Der Wochenlauf `runtime-pins` prüft, ob die für ältere Linux-Systeme mitgelieferte glibc/GCC-Laufzeit noch der
+aktuellen Ubuntu-Version entspricht. Schlägt er fehl, ist ein neues Release mit neu gepinnten Dateien nötig; der
+Build selbst ist dann nicht kaputt.
 
 ## Prüfen eines Downloads
 
