@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Application
+Name=CoreStarter
+GenericName=Core Blockchain Node
+GenericName[de]=Core-Blockchain-Node
+Comment=Run a Core Blockchain node and mine XCB
+Comment[de]=Eine Core-Blockchain-Node betreiben und XCB minen
+Comment[ja]=Coreブロックチェーンのノードを運用し、XCBをマイニング
+Comment[nl]=Een node van de Core-blockchain draaien en XCB minen
+Comment[ro]=Rulează un nod al blockchain-ului Core și minează XCB
+Exec=core-starter
+Icon=core-starter
+Terminal=false
+Categories=Network;P2P;
+Keywords=core;blockchain;node;xcb;mining;miner;
+StartupNotify=true
+StartupWMClass=core-starter

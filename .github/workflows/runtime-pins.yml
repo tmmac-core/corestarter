@@ -1,0 +1,26 @@
+# Weekly: are the glibc/GCC runtime packages bundled for older systems
+# (scripts/build-linux.sh, RUNTIME_PKGS) still Ubuntu 24.04's current ones?
+# A newer version (usually a security update) fails this run: then pin the
+# new files and build a new release, the bundled copy gets no updates itself.
+name: runtime-pins
+
+# schedule and workflow_dispatch only work from the default branch (main).
+on:
+  push:
+    paths: [scripts/build-linux.sh, ci/runtime-pins.sh, .github/workflows/runtime-pins.yml]
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    container: ubuntu:24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Pinned vs. current (noble, noble-updates, noble-security)
+        run: bash ci/runtime-pins.sh

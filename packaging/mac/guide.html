@@ -1,0 +1,353 @@
+<!doctype html>
+<!-- Guide inside the Mac DMG (scripts/build-mac.sh copies it next to
+     the app). Offline: no fonts, images or scripts from the network. Button
+     names of macOS in ja/nl/ro are assumptions, see docs/i18n-review.md. -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoreStarter für Mac · Anleitung</title>
+<style>
+  :root { --canvas: #0d110f; --surface: #161a18; --ink: #f1f4f2; --muted: #b9c0bc; --quiet: #8a918d; --border: #2a2f2c; --green: #4fbf7a; --warn: #e0a44a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--canvas); color: var(--ink); font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Helvetica Neue", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+  nav a { color: var(--ink); text-decoration: none; border: 1px solid var(--border); border-radius: 6px; padding: 6px 12px; font-size: 14px; }
+  nav a:hover { border-color: var(--green); }
+  section { border-top: 1px solid var(--border); padding-top: 24px; margin-top: 40px; }
+  section:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+  h1 { font-size: 28px; line-height: 1.2; margin: 0 0 8px; }
+  h2 { font-size: 19px; margin: 28px 0 8px; }
+  p, li { color: var(--muted); }
+  strong, b { color: var(--ink); }
+  ol, ul { padding-left: 22px; }
+  li { margin: 6px 0; }
+  .lead { color: var(--ink); }
+  .warn { background: var(--surface); border-left: 3px solid var(--warn); border-radius: 6px; padding: 12px 16px; margin: 16px 0; }
+  .warn p { margin: 0; color: var(--ink); }
+  code { font: 14px/1.4 ui-monospace, Menlo, monospace; background: var(--surface); border-radius: 4px; padding: 1px 5px; color: var(--ink); word-break: break-all; }
+  .small { font-size: 14px; color: var(--quiet); }
+</style>
+</head>
+<body>
+<main>
+<nav>
+  <a href="#de" hreflang="de">Deutsch</a>
+  <a href="#en" hreflang="en">English</a>
+  <a href="#ja" hreflang="ja">日本語</a>
+  <a href="#nl" hreflang="nl">Nederlands</a>
+  <a href="#ro" hreflang="ro">Română</a>
+</nav>
+
+<section id="de" lang="de">
+<h1>CoreStarter für Mac</h1>
+<p class="lead">Mit CoreStarter betreibst du eine Core-Blockchain-Node und kannst auf Wunsch XCB minen. CoreStarter ist Beta-Software: Lade die App nur von tellmemoreaboutcore.com herunter.</p>
+
+<h2>Voraussetzungen</h2>
+<ul>
+  <li>Mac mit Apple-Chip (M1 oder neuer) und <b>macOS 15 Sequoia oder neuer</b>. Intel-Macs werden nicht unterstützt.</li>
+  <li>Rund <b>15 GB freier Speicher</b> für die Blockchain-Daten und 2–3 GB Arbeitsspeicher.</li>
+</ul>
+
+<h2>1. Installieren</h2>
+<ol>
+  <li>Ziehe <b>CoreStarter</b> in diesem Fenster auf den Ordner <b>Programme · Applications</b>.</li>
+  <li>Öffne CoreStarter aus dem Ordner Programme (nicht aus diesem Fenster).</li>
+</ol>
+
+<h2>2. Die Warnung von macOS: so geht es weiter</h2>
+<p>CoreStarter ist noch nicht bei Apple registriert (signiert). Darum blockiert macOS den ersten Start mit der Meldung <b>„CoreStarter“ nicht geöffnet</b>. Das ist bei einer nicht signierten App normal und heißt nicht, dass etwas mit der App nicht stimmt.</p>
+<div class="warn"><p>Drücke <b>„Fertig“</b>. Drücke <b>nicht</b> den blauen Knopf „In den Papierkorb legen“.</p></div>
+<ol>
+  <li>Öffne <b>Systemeinstellungen → Datenschutz & Sicherheit</b>.</li>
+  <li>Scrolle nach unten bis <b>Sicherheit</b>. Dort steht ein Hinweis zu CoreStarter. Klicke auf <b>„Dennoch öffnen“</b>.</li>
+  <li>Bestätige im nächsten Fenster noch einmal mit <b>„Dennoch öffnen“</b> und deinem Passwort oder Touch ID.</li>
+</ol>
+<p>Danach startet CoreStarter. Diese Freigabe ist nur einmal pro Version nötig. Erscheint der Knopf nicht, öffne CoreStarter noch einmal aus Programme und sieh dann wieder nach.</p>
+
+<h2>3. Einrichten</h2>
+<ol>
+  <li>Wähle im Fenster, ob du <b>„Node betreiben“</b> und <b>„XCB minen“</b> einschalten willst. Zum Minen brauchst du deine Core-Adresse aus CorePass.</li>
+  <li>Klicke auf <b>„Einrichten und starten“</b>.</li>
+  <li>Fragt macOS, ob CoreStarter Geräte im <b>lokalen Netzwerk</b> finden darf, klicke auf <b>„Erlauben“</b>. Die Node braucht das, um andere Nodes zu erreichen.</li>
+  <li>Nutzt du Norton oder eine andere Firewall: Erlaube eingehende Verbindungen zu CoreStarter (Port 30300). Bei Norton: „Alle eingehenden Verbindungen zulassen“, dann „Erlauben“.</li>
+</ol>
+
+<h2>4. Im Betrieb</h2>
+<ul>
+  <li>CoreStarter läuft im Hintergrund. Das grüne Symbol oben rechts in der Menüleiste zeigt den Stand und öffnet das Fenster.</li>
+  <li>Die erste Synchronisierung der Blockchain dauert einige Stunden. Lass den Mac so lange an.</li>
+  <li>Das Minen läuft gedrosselt, solange die Node synchronisiert. Im Akkubetrieb und wenn der Mac zu heiß wird, pausiert es automatisch.</li>
+  <li>Pausieren: im Fenster unter „Live-Ansicht des Miners öffnen“ → „Minen pausieren“.</li>
+</ul>
+
+<h2>5. Update auf eine neue Version</h2>
+<ol>
+  <li>Öffne die neue DMG und ziehe CoreStarter wieder auf Programme. Wähle <b>„Ersetzen“</b>.</li>
+  <li>macOS blockiert die neue Version erneut, auch im Hintergrund. Gehe wie in Schritt 2 vor: „Fertig“, dann Datenschutz & Sicherheit → „Dennoch öffnen“.</li>
+</ol>
+<p>Deine Einstellungen und die Blockchain-Daten bleiben erhalten.</p>
+
+<h2>6. Beenden und Deinstallieren</h2>
+<ul>
+  <li><b>Beenden:</b> Menüleisten-Symbol → „Beenden“. Node und Miner stoppen.</li>
+  <li><b>Deinstallieren:</b> im Fenster ganz unten „Deinstallieren …“. Die Blockchain-Daten bleiben im Ordner <code>~/Library/Application Support/Core Starter</code>. Lösche ihn von Hand, wenn du den Speicher zurück willst.</li>
+</ul>
+
+<h2>Probleme melden</h2>
+<p>Schick uns kurz, was passiert ist, und wenn möglich die Logs: im Fenster unten auf „Logs“ klicken, die Dateien anhängen. CoreStarter selbst sendet keine Daten an uns.</p>
+<p class="small">Prüfsumme der DMG (für Fortgeschrittene): im Terminal <code>shasum -a 256 CoreStarter-*.dmg</code> und mit dem Wert vergleichen, den du von uns bekommen hast.</p>
+</section>
+
+<section id="en" lang="en">
+<h1>CoreStarter for Mac</h1>
+<p class="lead">With CoreStarter you run a Core blockchain node and can mine XCB if you want. CoreStarter is beta software: only download the app from tellmemoreaboutcore.com.</p>
+
+<h2>Requirements</h2>
+<ul>
+  <li>A Mac with Apple silicon (M1 or newer) and <b>macOS 15 Sequoia or newer</b>. Intel Macs are not supported.</li>
+  <li>About <b>15 GB of free disk space</b> for the blockchain data and 2–3 GB of memory.</li>
+</ul>
+
+<h2>1. Install</h2>
+<ol>
+  <li>In this window, drag <b>CoreStarter</b> onto the <b>Programme · Applications</b> folder.</li>
+  <li>Open CoreStarter from the Applications folder (not from this window).</li>
+</ol>
+
+<h2>2. The macOS warning: how to continue</h2>
+<p>CoreStarter is not yet registered (signed) with Apple. That is why macOS blocks the first start with the message <b>“CoreStarter” Not Opened</b>. This is normal for an app that is not signed and does not mean something is wrong with the app.</p>
+<div class="warn"><p>Click <b>“Done”</b>. Do <b>not</b> click the blue “Move to Trash” button.</p></div>
+<ol>
+  <li>Open <b>System Settings → Privacy & Security</b>.</li>
+  <li>Scroll down to <b>Security</b>. There is a note about CoreStarter. Click <b>“Open Anyway”</b>.</li>
+  <li>Confirm once more with <b>“Open Anyway”</b> and your password or Touch ID.</li>
+</ol>
+<p>CoreStarter then starts. You only need to do this once per version. If the button does not show, open CoreStarter from Applications once more and look again.</p>
+
+<h2>3. Set up</h2>
+<ol>
+  <li>In the window, choose whether to switch on <b>“Run a node”</b> and <b>“Mine XCB”</b>. For mining you need your Core address from CorePass.</li>
+  <li>Click <b>“Set up and start”</b>.</li>
+  <li>If macOS asks whether CoreStarter may find devices on your <b>local network</b>, click <b>“Allow”</b>. The node needs this to reach other nodes.</li>
+  <li>If you use Norton or another firewall: allow incoming connections to CoreStarter (port 30300). In Norton: “Allow all incoming connections”, then “Allow”.</li>
+</ol>
+
+<h2>4. While it runs</h2>
+<ul>
+  <li>CoreStarter runs in the background. The green icon at the top right of the menu bar shows the status and opens the window.</li>
+  <li>The first sync of the blockchain takes several hours. Keep the Mac on until then.</li>
+  <li>Mining is throttled while the node syncs. It pauses by itself on battery and when the Mac gets too hot.</li>
+  <li>To pause: in the window, “Open the live miner view” → “Pause mining”.</li>
+</ul>
+
+<h2>5. Updating to a new version</h2>
+<ol>
+  <li>Open the new DMG and drag CoreStarter onto Applications again. Choose <b>“Replace”</b>.</li>
+  <li>macOS blocks the new version again, even in the background. Do as in step 2: “Done”, then Privacy & Security → “Open Anyway”.</li>
+</ol>
+<p>Your settings and the blockchain data are kept.</p>
+
+<h2>6. Quit and uninstall</h2>
+<ul>
+  <li><b>Quit:</b> menu bar icon → “Quit”. Node and miner stop.</li>
+  <li><b>Uninstall:</b> at the bottom of the window, “Uninstall …”. The blockchain data stays in the folder <code>~/Library/Application Support/Core Starter</code>. Delete it by hand if you want the space back.</li>
+</ul>
+
+<h2>Reporting problems</h2>
+<p>Send us a short note on what happened and, if you can, the logs: click “Logs” at the bottom of the window and attach the files. CoreStarter itself sends no data to us.</p>
+<p class="small">Checksum of the DMG (for advanced users): in Terminal run <code>shasum -a 256 CoreStarter-*.dmg</code> and compare it with the value you got from us.</p>
+</section>
+
+<section id="ja" lang="ja">
+<h1>Mac版 CoreStarter</h1>
+<p class="lead">CoreStarterを使うと、Coreブロックチェーンのノードを動かし、希望すればXCBをマイニングできます。CoreStarterはベータ版のソフトウェアです。アプリはtellmemoreaboutcore.comからのみダウンロードしてください。</p>
+
+<h2>動作条件</h2>
+<ul>
+  <li>Appleシリコン（M1以降）搭載のMacと<b>macOS 15 Sequoia以降</b>。Intel搭載のMacには対応していません。</li>
+  <li>ブロックチェーンのデータ用に約<b>15 GBの空き容量</b>と、2〜3 GBのメモリ。</li>
+</ul>
+
+<h2>1. インストール</h2>
+<ol>
+  <li>このウインドウで<b>CoreStarter</b>を<b>Programme · Applications</b>フォルダへドラッグします。</li>
+  <li>「アプリケーション」フォルダからCoreStarterを開きます（このウインドウからではありません）。</li>
+</ol>
+
+<h2>2. macOSの警告が出たら</h2>
+<p>CoreStarterはまだAppleに登録（署名）されていません。そのためmacOSは最初の起動を<b>「“CoreStarter”は開かれませんでした」</b>という表示で止めます。署名のないアプリでは普通のことで、アプリに問題があるという意味ではありません。</p>
+<div class="warn"><p><b>「完了」</b>を押してください。青い「ゴミ箱に入れる」ボタンは<b>押さないでください</b>。</p></div>
+<ol>
+  <li><b>システム設定 → プライバシーとセキュリティ</b>を開きます。</li>
+  <li>下の<b>セキュリティ</b>までスクロールすると、CoreStarterについての表示があります。<b>「このまま開く」</b>をクリックします。</li>
+  <li>次のウインドウでもう一度<b>「このまま開く」</b>を押し、パスワードまたはTouch IDで確認します。</li>
+</ol>
+<p>これでCoreStarterが起動します。この許可はバージョンごとに一度だけ必要です。ボタンが表示されないときは、「アプリケーション」からもう一度CoreStarterを開いてから確認してください。</p>
+
+<h2>3. 設定</h2>
+<ol>
+  <li>ウインドウで<b>「ノードを運用」</b>と<b>「XCBをマイニング」</b>をそれぞれオンにするか選びます。マイニングにはCorePassのCoreアドレスが必要です。</li>
+  <li><b>「設定して開始」</b>をクリックします。</li>
+  <li>macOSが<b>ローカルネットワーク</b>上のデバイスの検出を許可するか尋ねたら、<b>「許可」</b>をクリックします。ノードがほかのノードに接続するために必要です。</li>
+  <li>Nortonなどのファイアウォールを使っている場合は、CoreStarterへの着信接続（ポート30300）を許可してください。</li>
+</ol>
+
+<h2>4. 動作中</h2>
+<ul>
+  <li>CoreStarterはバックグラウンドで動きます。メニューバー右上の緑のアイコンで状態を確認でき、ウインドウも開けます。</li>
+  <li>ブロックチェーンの最初の同期には数時間かかります。それまでMacの電源を入れたままにしてください。</li>
+  <li>ノードの同期中はマイニングが抑えられます。バッテリー駆動中やMacが高温になったときは自動で一時停止します。</li>
+  <li>一時停止するには、ウインドウで「マイナーのライブ表示を開く」を押し、「マイニングを一時停止」を押します。</li>
+</ul>
+
+<h2>5. 新しいバージョンへの更新</h2>
+<ol>
+  <li>新しいDMGを開き、CoreStarterをもう一度「アプリケーション」へドラッグして<b>「置き換える」</b>を選びます。</li>
+  <li>macOSは新しいバージョンをバックグラウンドでも再びブロックします。手順2と同じように「完了」、続けてプライバシーとセキュリティ →「このまま開く」です。</li>
+</ol>
+<p>設定とブロックチェーンのデータはそのまま残ります。</p>
+
+<h2>6. 終了とアンインストール</h2>
+<ul>
+  <li><b>終了：</b>メニューバーのアイコン →「終了」。ノードとマイナーが止まります。</li>
+  <li><b>アンインストール：</b>ウインドウの一番下の「アンインストール…」。ブロックチェーンのデータは<code>~/Library/Application Support/Core Starter</code>に残ります。容量を空けたい場合は手動で削除してください。</li>
+</ul>
+
+<h2>問題の報告</h2>
+<p>何が起きたかを簡単に書いて送ってください。できればログも添えてください（ウインドウ下の「ログ」をクリックしてファイルを添付）。CoreStarter自体は私たちにデータを送りません。</p>
+<p class="small">DMGのチェックサム（上級者向け）：ターミナルで<code>shasum -a 256 CoreStarter-*.dmg</code>を実行し、私たちから受け取った値と比べてください。</p>
+</section>
+
+<section id="nl" lang="nl">
+<h1>CoreStarter voor Mac</h1>
+<p class="lead">Met CoreStarter draai je een node van de Core-blockchain en kun je als je wilt XCB minen. CoreStarter is bètasoftware: download de app alleen van tellmemoreaboutcore.com.</p>
+
+<h2>Vereisten</h2>
+<ul>
+  <li>Een Mac met Apple-chip (M1 of nieuwer) en <b>macOS 15 Sequoia of nieuwer</b>. Intel-Macs worden niet ondersteund.</li>
+  <li>Ongeveer <b>15 GB vrije opslag</b> voor de blockchaindata en 2–3 GB werkgeheugen.</li>
+</ul>
+
+<h2>1. Installeren</h2>
+<ol>
+  <li>Sleep in dit venster <b>CoreStarter</b> naar de map <b>Programme · Applications</b>.</li>
+  <li>Open CoreStarter vanuit de map Apps (niet vanuit dit venster).</li>
+</ol>
+
+<h2>2. De waarschuwing van macOS: zo ga je verder</h2>
+<p>CoreStarter is nog niet bij Apple geregistreerd (ondertekend). Daarom blokkeert macOS de eerste start met de melding <b>‘CoreStarter’ niet geopend</b>. Bij een app zonder handtekening is dat normaal en het betekent niet dat er iets mis is met de app.</p>
+<div class="warn"><p>Klik op <b>‘Gereed’</b>. Klik <b>niet</b> op de blauwe knop ‘Verplaats naar prullenmand’.</p></div>
+<ol>
+  <li>Open <b>Systeeminstellingen → Privacy en beveiliging</b>.</li>
+  <li>Scrol omlaag naar <b>Beveiliging</b>. Daar staat een melding over CoreStarter. Klik op <b>‘Open toch’</b>.</li>
+  <li>Bevestig in het volgende venster nog een keer met <b>‘Open toch’</b> en je wachtwoord of Touch ID.</li>
+</ol>
+<p>Daarna start CoreStarter. Dit is één keer per versie nodig. Zie je de knop niet, open CoreStarter dan nog een keer vanuit Apps en kijk opnieuw.</p>
+
+<h2>3. Instellen</h2>
+<ol>
+  <li>Kies in het venster of je <b>‘Node draaien’</b> en <b>‘XCB minen’</b> aanzet. Om te minen heb je je Core-adres uit CorePass nodig.</li>
+  <li>Klik op <b>‘Instellen en starten’</b>.</li>
+  <li>Vraagt macOS of CoreStarter apparaten in je <b>lokale netwerk</b> mag zoeken, klik dan op <b>‘Sta toe’</b>. De node heeft dat nodig om andere nodes te bereiken.</li>
+  <li>Gebruik je Norton of een andere firewall: sta inkomende verbindingen naar CoreStarter toe (poort 30300).</li>
+</ol>
+
+<h2>4. Tijdens het draaien</h2>
+<ul>
+  <li>CoreStarter draait op de achtergrond. Het groene symbool rechtsboven in de menubalk toont de stand en opent het venster.</li>
+  <li>De eerste synchronisatie van de blockchain duurt een paar uur. Laat de Mac zo lang aan.</li>
+  <li>Minen gaat afgeremd zolang de node synchroniseert. Op de accu en als de Mac te warm wordt, pauzeert het vanzelf.</li>
+  <li>Pauzeren: in het venster ‘Liveweergave van de miner openen’ → ‘Minen pauzeren’.</li>
+</ul>
+
+<h2>5. Bijwerken naar een nieuwe versie</h2>
+<ol>
+  <li>Open de nieuwe DMG en sleep CoreStarter weer naar Apps. Kies <b>‘Vervang’</b>.</li>
+  <li>macOS blokkeert de nieuwe versie opnieuw, ook op de achtergrond. Doe hetzelfde als in stap 2: ‘Gereed’, dan Privacy en beveiliging → ‘Open toch’.</li>
+</ol>
+<p>Je instellingen en de blockchaindata blijven bewaard.</p>
+
+<h2>6. Afsluiten en verwijderen</h2>
+<ul>
+  <li><b>Afsluiten:</b> symbool in de menubalk → ‘Afsluiten’. Node en miner stoppen.</li>
+  <li><b>Verwijderen:</b> onderaan in het venster ‘Verwijderen …’. De blockchaindata blijft in de map <code>~/Library/Application Support/Core Starter</code>. Verwijder die met de hand als je de ruimte terug wilt.</li>
+</ul>
+
+<h2>Problemen melden</h2>
+<p>Stuur ons kort wat er gebeurde en zo mogelijk de logs: klik onderaan in het venster op ‘Logs’ en voeg de bestanden toe. CoreStarter zelf stuurt geen gegevens naar ons.</p>
+<p class="small">Controlegetal van de DMG (voor gevorderden): voer in Terminal <code>shasum -a 256 CoreStarter-*.dmg</code> uit en vergelijk met de waarde die je van ons kreeg.</p>
+</section>
+
+<section id="ro" lang="ro">
+<h1>CoreStarter pentru Mac</h1>
+<p class="lead">Cu CoreStarter rulezi un nod al blockchain-ului Core și, dacă vrei, poți mina XCB. CoreStarter este software beta: descarcă aplicația doar de pe tellmemoreaboutcore.com.</p>
+
+<h2>Cerințe</h2>
+<ul>
+  <li>Un Mac cu cip Apple (M1 sau mai nou) și <b>macOS 15 Sequoia sau mai nou</b>. Mac-urile cu Intel nu sunt acceptate.</li>
+  <li>Aproximativ <b>15 GB spațiu liber</b> pentru datele blockchain și 2–3 GB memorie.</li>
+</ul>
+
+<h2>1. Instalare</h2>
+<ol>
+  <li>În această fereastră, trage <b>CoreStarter</b> peste dosarul <b>Programme · Applications</b>.</li>
+  <li>Deschide CoreStarter din dosarul Aplicații (nu din această fereastră).</li>
+</ol>
+
+<h2>2. Avertismentul macOS: cum continui</h2>
+<p>CoreStarter nu este încă înregistrat (semnat) la Apple. De aceea macOS blochează prima pornire cu mesajul <b>„CoreStarter” nu a fost deschis</b>. La o aplicație nesemnată este normal și nu înseamnă că aplicația are o problemă.</p>
+<div class="warn"><p>Apasă <b>„Gata”</b>. <b>Nu</b> apăsa butonul albastru „Mută în coș”.</p></div>
+<ol>
+  <li>Deschide <b>Configurări sistem → Confidențialitate și securitate</b>.</li>
+  <li>Derulează în jos până la <b>Securitate</b>. Acolo apare o notă despre CoreStarter. Apasă <b>„Deschide oricum”</b>.</li>
+  <li>Confirmă încă o dată cu <b>„Deschide oricum”</b> și parola sau Touch ID.</li>
+</ol>
+<p>Apoi CoreStarter pornește. Aprobarea e necesară o singură dată pentru fiecare versiune. Dacă butonul nu apare, deschide încă o dată CoreStarter din Aplicații și verifică din nou.</p>
+
+<h2>3. Configurare</h2>
+<ol>
+  <li>Alege în fereastră dacă pornești <b>„Rulează un nod”</b> și <b>„Minează XCB”</b>. Pentru minare ai nevoie de adresa ta Core din CorePass.</li>
+  <li>Apasă <b>„Configurează și pornește”</b>.</li>
+  <li>Dacă macOS întreabă dacă CoreStarter poate găsi dispozitive în <b>rețeaua locală</b>, apasă <b>„Permite”</b>. Nodul are nevoie de asta ca să ajungă la alte noduri.</li>
+  <li>Dacă folosești Norton sau alt firewall: permite conexiunile de intrare către CoreStarter (portul 30300).</li>
+</ol>
+
+<h2>4. În funcționare</h2>
+<ul>
+  <li>CoreStarter rulează în fundal. Simbolul verde din dreapta sus, din bara de meniu, arată starea și deschide fereastra.</li>
+  <li>Prima sincronizare a blockchain-ului durează câteva ore. Lasă Mac-ul pornit până atunci.</li>
+  <li>Minarea e redusă cât timp nodul se sincronizează. Pe baterie și când Mac-ul se încălzește prea tare, se oprește singură pe pauză.</li>
+  <li>Pauză: în fereastră, „Deschide vizualizarea live a minerului” → „Pune minarea pe pauză”.</li>
+</ul>
+
+<h2>5. Actualizare la o versiune nouă</h2>
+<ol>
+  <li>Deschide noul DMG și trage din nou CoreStarter peste Aplicații. Alege <b>„Înlocuiește”</b>.</li>
+  <li>macOS blochează din nou noua versiune, chiar și în fundal. Procedează ca la pasul 2: „Gata”, apoi Confidențialitate și securitate → „Deschide oricum”.</li>
+</ol>
+<p>Setările și datele blockchain se păstrează.</p>
+
+<h2>6. Închidere și dezinstalare</h2>
+<ul>
+  <li><b>Închidere:</b> simbolul din bara de meniu → „Ieșire”. Nodul și minerul se opresc.</li>
+  <li><b>Dezinstalare:</b> jos în fereastră, „Dezinstalează …”. Datele blockchain rămân în dosarul <code>~/Library/Application Support/Core Starter</code>. Șterge-l manual dacă vrei să recuperezi spațiul.</li>
+</ul>
+
+<h2>Raportarea problemelor</h2>
+<p>Trimite-ne pe scurt ce s-a întâmplat și, dacă poți, jurnalele: apasă „Jurnale” jos în fereastră și atașează fișierele. CoreStarter însuși nu ne trimite date.</p>
+<p class="small">Suma de control a DMG-ului (pentru avansați): în Terminal rulează <code>shasum -a 256 CoreStarter-*.dmg</code> și compar-o cu valoarea primită de la noi.</p>
+</section>
+</main>
+<script>
+  // Opens at the reader's language; the links above switch.
+  (function () {
+    if (location.hash) return;
+    var l = (navigator.language || "de").slice(0, 2);
+    var s = document.getElementById(l);
+    if (s && l !== "de") s.scrollIntoView();
+  })();
+</script>
+</body>
+</html>

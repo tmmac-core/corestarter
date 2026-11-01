@@ -1,0 +1,91 @@
+# Release build on Linux (gocore + DLLs + core-miner via MinGW), then tests on
+# a real Windows machine. The node runs offline (--nodiscover --maxpeers 0
+# --nat none) and the miner only talks to a pool on loopback: no contact with
+# the Core network or Catch That Rabbit.
+name: windows
+
+on:
+  push:
+    paths-ignore: ["**.md", "docs/**"]
+  workflow_dispatch:
+
+# A newer push to the same branch cancels the run still going (saves minutes).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: true
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: "1.25.14"
+          cache: false
+      - name: Tools (MinGW-w64, CMake; GTK/WebKit for the Linux code in the portable tests)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq mingw-w64 cmake libgtk-3-dev libwebkit2gtk-4.1-dev >/dev/null
+          # The compiler builds core-miner.exe for the release: record which one.
+          dpkg-query -W mingw-w64 gcc-mingw-w64-x86-64-posix g++-mingw-w64-x86-64-posix cmake
+          x86_64-w64-mingw32-gcc-posix --version | head -1
+      - name: Build (downloads + SHA-256 checks + miner + DLL import check)
+        run: ./scripts/build.sh
+      - name: Committed generated files unchanged
+        run: git diff --exit-code
+      - name: Portable tests
+        run: go test -race -count=1 . ./internal/...
+      - name: Miner tests (Linux, native RandomY)
+        run: |
+          cmake -S third_party/RandomY -B .cache/randomy-linux -DCMAKE_BUILD_TYPE=Release >/dev/null
+          cmake --build .cache/randomy-linux -j"$(nproc)" --target randomx >/dev/null
+          CGO_LDFLAGS="-L$PWD/.cache/randomy-linux" go test -count=1 -v ./cmd/core-miner
+      - name: Miner test binary for Windows
+        run: |
+          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 \
+            CC=x86_64-w64-mingw32-gcc-posix CXX=x86_64-w64-mingw32-g++-posix \
+            CGO_LDFLAGS="-L$PWD/.cache/randomy-win" \
+            go test -c -o dist/tests/core-miner-test.exe ./cmd/core-miner
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: build
+          path: |
+            payload/
+            payload_gen_windows.go
+            dist/
+          retention-days: 7
+
+  windows:
+    needs: build
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: build
+          path: .
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: "1.25.14"
+          cache: false
+      - name: Exe checksum
+        shell: pwsh
+        run: |
+          Get-FileHash dist/CoreStarter.exe -Algorithm SHA256
+          Get-Content dist/CoreStarter.exe.sha256
+      - name: go vet
+        run: go vet .
+      - name: Miner on Windows (self-test, verified shares against a loopback pool)
+        shell: bash # PowerShell splits -test.v into -test .v
+        run: dist/tests/core-miner-test.exe -test.v -test.count=1
+      - name: Integration tests (real gocore offline, miner supervisor, settings window)
+        env:
+          CORE_NODE_STARTER_WINDOWS_IT: "1"
+        run: go test -v -count=1 -timeout 30m -run Windows .

@@ -1,0 +1,22 @@
+# CoreStarter's background part (node + miner supervisor, tray icon).
+# Not enabled: the session's autostart entry or the window starts it, so it
+# always runs inside a graphical session and stops with it.
+[Unit]
+Description=CoreStarter (Core node and miner)
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/usr/lib/core-starter/core-starter --tray
+Restart=on-failure
+RestartSec=10
+# SIGTERM only to the tray: it ends the miner and stops gocore itself, once
+# gocore can take a signal (a node still opening its database must not get
+# one). If the tray crashes, gocore keeps running and the restarted tray adopts
+# it; the miner ends with the tray (parent-death signal). The stop budget lies
+# above the tray's wait for a gocore still starting (30 s) plus its stop (5 min).
+# At logout the session's
+# own limit wins: Ubuntu gives user@.service 5 s (timeout.conf), enough for a
+# clean gocore stop (<= 2.4 s measured); a gocore cut off later repairs itself
+# on the next start.
+KillMode=process
+TimeoutStopSec=345

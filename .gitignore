@@ -1,0 +1,7 @@
+.cache/
+dist/
+payload/*.gz
+payload_gen_windows.go
+
+# macOS
+.DS_Store

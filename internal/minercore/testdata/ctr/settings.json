@@ -1,0 +1,1 @@
+{"BlockUnlockDepth":120,"Difficulty":null,"GenesisHash":"0xacecc18e30188588d4932a29df096198bbbe01a955f05ecd32489a7740a9a13b","KeepTxFees":false,"PayoutInterval":"240m","PayoutThreshold":100000000,"PoolFee":0.5,"PoolFeeAddress":"cb7936b9b7980a0544a6da7ae1cea8424bac9046d997","Stratum":true,"StratumPool":"0.0.0.0:8008","XcbProxy":true,"XcbProxyPool":"0.0.0.0:8888"}

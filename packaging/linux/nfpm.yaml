@@ -1,0 +1,49 @@
+# Packages for scripts/build-linux.sh (run from the repo root): ${VERSION} comes
+# from there (nfpm expands env only in some fields), the files from its STAGE.
+name: core-starter
+arch: amd64
+platform: linux
+version: ${VERSION}
+version_schema: semver
+maintainer: TMMAC <contact@tellmemoreaboutcore.com>
+vendor: TMMAC
+homepage: https://tellmemoreaboutcore.com
+# GPL-3.0 with section 7 terms (NOTICE.md); bundled parts keep theirs (doc folder).
+license: GPL-3.0-only
+description: |
+  Run a Core Blockchain node and mine XCB.
+  CoreStarter installs the official gocore node and an optional XCB miner
+  (Catch That Rabbit pool), with a settings window and a tray icon.
+section: net
+priority: optional
+
+overrides:
+  deb:
+    depends:
+      - libwebkit2gtk-4.1-0
+      - libgtk-3-0
+      - xdg-utils
+  rpm:
+    # Sonames instead of package names: Fedora and openSUSE name them differently.
+    depends:
+      - libwebkit2gtk-4.1.so.0()(64bit)
+      - libjavascriptcoregtk-4.1.so.0()(64bit)
+      - libgtk-3.so.0()(64bit)
+      - xdg-utils
+
+contents:
+  - src: .cache/linux/stage/lib/
+    dst: /usr/lib/core-starter/
+    type: tree
+  - src: .cache/linux/stage/doc/
+    dst: /usr/share/doc/core-starter/
+    type: tree
+  - src: /usr/lib/core-starter/core-starter
+    dst: /usr/bin/core-starter
+    type: symlink
+  - src: packaging/linux/core-starter.desktop
+    dst: /usr/share/applications/core-starter.desktop
+  - src: packaging/linux/core-starter.service
+    dst: /usr/lib/systemd/user/core-starter.service
+  - src: assets/app.png
+    dst: /usr/share/icons/hicolor/256x256/apps/core-starter.png

@@ -1,0 +1,1 @@
+{"blockReward": "5000000000000000000", "candidatesTotal": 1, "hashrate": 6412239, "immatureTotal": 5, "maturedTotal": 1269963, "minersTotal": 104, "nodes": [{"blocktime": "7.8000", "difficulty": "533156878", "height": "19368794", "lastBeat": "1792140634", "name": "main"}], "now": 1792140636095, "stats": {"lastBlockFound": 1792140583, "nShares": 9001, "roundShares": 328601934}}

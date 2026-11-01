@@ -1,0 +1,116 @@
+# Linux packages built in ubuntu:22.04 (oldest supported glibc), then installed
+# and tested in a matrix of distro containers. The node runs offline
+# (--nodiscover --maxpeers 0 --nat none) and the miner only talks to a pool on
+# loopback: no contact with the Core network or Catch That Rabbit.
+name: linux
+
+on:
+  push:
+    paths-ignore: ["**.md", "docs/**"]
+  workflow_dispatch:
+    inputs:
+      only_systemd:
+        description: "Build + systemd test only (skips the distro matrix)"
+        type: boolean
+        default: false
+
+# A newer push to the same branch cancels the run still going (saves minutes).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    container: ubuntu:22.04
+    timeout-minutes: 40
+    steps:
+      - name: git (checkout with submodules needs it)
+        run: apt-get update -qq && apt-get install -y -qq git ca-certificates >/dev/null
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: true
+      - name: Build dependencies
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE/third_party/RandomY"
+          ./scripts/linux-build-deps.sh
+          dpkg-query -W libwebkit2gtk-4.1-dev libgtk-3-dev gcc cmake
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: "1.25.14"
+          cache: false
+      - name: Build packages (downloads + SHA-256 checks + miner + library check)
+        run: ./scripts/build-linux.sh
+      - name: go vet (Linux, with and without miner)
+        run: go vet . && go vet -tags nominer .
+      - name: Unit tests
+        run: go test -race -count=1 . ./internal/...
+      - name: Test binary and script for the distro matrix
+        run: go test -c -o dist/tests/starter-linux.test . && cp ci/distro-test.sh dist/tests/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: linux-packages
+          path: |
+            dist/core-starter*
+            dist/SHA256SUMS-linux
+            dist/tests/
+          retention-days: 7
+
+  distros:
+    needs: build
+    if: ${{ !inputs.only_systemd }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { image: "ubuntu:22.04", pkg: deb, runtime: "1" }
+          - { image: "debian:12", pkg: deb, runtime: "1" }
+          - { image: "ubuntu:24.04", pkg: deb, runtime: "0" }
+          - { image: "debian:13", pkg: deb, runtime: "0" }
+          - { image: "fedora:42", pkg: rpm, runtime: "0" }
+          - { image: "opensuse/leap:15.6", pkg: rpm, runtime: "0" }
+    container:
+      image: ${{ matrix.image }}
+      # WebKit's own sandbox (bubblewrap) needs user namespaces.
+      options: --security-opt seccomp=unconfined
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: linux-packages
+          path: dist
+      - name: Install the package, integration tests as a normal user, refuses root
+        env:
+          EXPECT: ${{ matrix.runtime }}
+        run: bash dist/tests/distro-test.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: screenshots-${{ strategy.job-index }}
+          path: /shots/
+          retention-days: 7
+
+  # The systemd user unit on a machine with a real systemd (Ubuntu 24.04),
+  # without network: tray crash and adoption, package update, stop, removal.
+  systemd:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: linux-packages
+          path: dist
+      - name: Image (network only for its packages)
+        run: docker build -q -t cs-systemd -f ci/systemd/Dockerfile .
+      - name: Unit tests under systemd, no network
+        run: |
+          docker run -d --name cs --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
+            --tmpfs /run --tmpfs /run/lock --network none cs-systemd
+          docker exec cs /ci/test.sh
