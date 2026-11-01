@@ -68,14 +68,14 @@ The programs are not signed with a Microsoft or Apple certificate yet, so your s
 - **Support share:** 0.42 % of the computing time (25 seconds every 100 minutes) goes to the TMMAC address. It is
   fixed and the same for everyone; this is how the project is funded.
 - Before every start the miner checks its own results against known values and does not mine if they are wrong.
-  It pauses on battery power.
+  It pauses on battery power, and on a Mac also when macOS reports the Mac is getting too hot.
 - No promised earnings: what mining brings depends on your device, the network and the pool.
 
 ### Network and privacy
 
 - **CoreStarter itself opens no connection:** no update check, no tracking, no telemetry.
-- The **node** connects to the Core peer-to-peer network (port 30300), may open a router port via UPnP, asks DNS
-  for start nodes and, if your clock is off, a time server (`pool.ntp.org`).
+- The **node** connects to the Core peer-to-peer network (port 30300, or the next free one up to 30320), may
+  open a router port via UPnP, asks DNS for start nodes and, if your clock is off, a time server (`pool.ntp.org`).
 - The **miner**, only while mining is on, connects to the Catch That Rabbit pool (`*.catchthatrabbit.com:8008`)
   and its earnings API. The pool sees your address, worker name, hash rate and IP address.
 - The window loads nothing from the internet. Links (privacy policy, source code, new version) open in your
