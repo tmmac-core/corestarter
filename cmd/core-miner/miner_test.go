@@ -335,8 +335,8 @@ func TestBench(t *testing.T) {
 	}
 	t.Logf("\n%s", outb)
 	rate := regexp.MustCompile(`\s(\d+) H/s`)
-	if n := len(rate.FindAllStringSubmatch(string(outb), -1)); n != 6 {
-		t.Fatalf("%d rates, want 6", n)
+	if n, want := len(rate.FindAllStringSubmatch(string(outb), -1)), len(benchVariants()); n != want {
+		t.Fatalf("%d rates, want %d", n, want)
 	}
 	for _, m := range rate.FindAllStringSubmatch(string(outb), -1) {
 		if v, _ := strconv.Atoi(m[1]); v <= 0 {

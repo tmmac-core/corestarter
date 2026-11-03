@@ -74,5 +74,15 @@ func pinThread(i int) {
 	procSetThreadAffinity.Call(h, uintptr(1)<<i)
 }
 
-// minerPriority: the Starter already starts the miner at idle priority.
-func minerPriority() {}
+// minerPriority: the Starter already starts the miner at idle priority, so
+// it still yields to every other program. Here it opts out of Windows' power
+// throttling, which otherwise slows it down whenever the Starter is not in
+// the foreground, even on an idle PC. Explicitly tagged threads get "High"
+// QoS; the priority heuristic only applies to untagged ones.
+func minerPriority() {
+	if err := setProcessPower(powerFull); err != nil {
+		powerNote = "Windows power throttling stays on (" + err.Error() + "); the miner may be slower in the background"
+		return
+	}
+	powerNote = "Windows power throttling off"
+}

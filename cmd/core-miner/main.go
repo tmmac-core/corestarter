@@ -188,6 +188,9 @@ func (m *miner) run(fullMem bool) int {
 	}
 	m.out.logf("RandomY ready in %.1f s (jit=%v, secure=%v, full memory=%v, hard AES=%v), up to %d threads",
 		time.Since(t0).Seconds(), ctx.Flags()&flagJIT != 0, ctx.Flags()&flagSecure != 0, ctx.Flags()&flagFullMem != 0, ctx.Flags()&flagHardAES != 0, m.maxThreads)
+	if powerNote != "" {
+		m.out.logf("%s", powerNote)
+	}
 
 	endpoints := m.pools
 	rank := false

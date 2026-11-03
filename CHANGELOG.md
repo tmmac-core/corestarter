@@ -2,6 +2,19 @@
 
 All notable changes to CoreStarter. Versions follow `appVersion` in `app.go`.
 
+## 1.0.1
+
+### Fixed
+- Windows: the miner opts out of Windows' power throttling. Windows 11 slowed
+  it down whenever CoreStarter was not in the foreground (reported: 25 % CPU
+  and ~1.2 instead of ~8.3 kH/s on an idle 16-thread PC, full speed only while
+  the tray menu was open). It still runs at idle priority and yields to every other
+  program. `miner.log` says whether the opt-out worked.
+
+### Added
+- `core-miner --bench` on Windows measures two more variants: "Windows
+  decides" (the behaviour of 1.0.0) and "efficiency mode".
+
 ## 1.0.0
 
 First public release. The programs are not signed yet.
