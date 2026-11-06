@@ -9,6 +9,8 @@ mit allen Dateien aus genau diesem Stand. Die Programme sind noch nicht signiert
    steigt die Version in `consent.go` (der Test `TestConsentVersion` erzwingt das).
 2. Prüfungen grün: `go test -race . ./internal/...`, `GOOS=windows go vet .` (mit und ohne `-tags nominer`), die
    Workflows `windows`, `linux` und `runtime-pins` auf dem Release-Commit.
+   Ändert der Release-Commit nur `*.md`/`docs/`, starten `windows` und `linux` nicht von selbst (`paths-ignore`):
+   dann `gh workflow run windows.yml --ref main` (ebenso `linux.yml`, `runtime-pins.yml`).
 3. Programme aus dem Release-Commit:
    - Windows: Artefakt `build` des Workflows `windows` (`CoreStarter.exe` + `.sha256`).
    - Linux: Artefakt `linux-packages` des Workflows `linux` (`.deb`, `.rpm`, `.tar.gz`).

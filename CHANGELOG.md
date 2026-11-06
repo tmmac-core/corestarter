@@ -2,6 +2,16 @@
 
 All notable changes to CoreStarter. Versions follow `appVersion` in `app.go`.
 
+## 1.0.2
+
+### Added
+- The miner view shows your Core address in groups of four, with a "Copy"
+  button. Selecting it by hand also copies it without spaces (reported: the
+  address could not be copied to look it up on the pool's page).
+- "View in the pool (Catch That Rabbit)" opens the pool's page for your
+  address in the browser, for the region holding the most. CoreStarter itself
+  still connects nowhere for this.
+
 ## 1.0.1
 
 ### Fixed

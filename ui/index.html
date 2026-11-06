@@ -218,6 +218,13 @@
   dl.mv-grid { display: grid; grid-template-columns: max-content 1fr; gap: 9px 18px; margin: 0; font-size: 13px; }
   dl.mv-grid dt { font: 700 10.5px/1.9 var(--font-mono); text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-quiet); }
   dl.mv-grid dd { margin: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
+  /* The address in groups of four for comparing with the wallet. The gaps are
+     margins, not spaces, so text selected by hand is the plain address too. */
+  .mv-addr-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .mv-addr { margin: 10px 0 0; font: 500 14px/1.6 var(--font-mono); color: var(--ink); user-select: all; -webkit-user-select: all; overflow-wrap: anywhere; }
+  .mv-addr span { display: inline-block; margin-right: 0.55em; }
+  .btn.small { padding: 6px 14px; font-size: 13px; }
+  .mv-addr-foot { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-top: 8px; }
   .mv-log { margin: 12px 0 0; height: 200px; overflow-y: auto; padding: 11px 13px; border-radius: var(--r-button); background: rgba(0, 0, 0, 0.35); border: 1px solid var(--edge); color: var(--ink-muted); font: 11.5px/1.6 var(--font-mono); white-space: pre-wrap; word-break: break-word; }
   /* Placeholders ("–" before the first value) stay quiet: a bold dash at 96 px reads like an error bar. */
   .empty { font-weight: 400 !important; color: var(--ink-quiet) !important; }
@@ -401,6 +408,12 @@
       <div class="stat"><div class="eyebrow" id="mvPayL"></div><div class="v" id="mvPay"></div><div class="s" id="mvPayS"></div></div>
     </div>
   </section>
+  <section class="card hidden" id="mvAddrCard">
+    <div class="mv-addr-head"><span class="kick" id="mvAddrL"></span><button class="btn small" id="mvCopy" type="button"></button></div>
+    <div class="mv-addr" id="mvAddr"></div>
+    <div class="mv-addr-foot"><button class="link" id="mvPoolPage" type="button"></button><span class="hint" id="mvCopied" role="status"></span></div>
+    <p class="hint" id="mvPoolHint" style="margin:4px 0 0"></p>
+  </section>
   <section class="card">
     <dl class="mv-grid">
       <dt id="mvLastL"></dt><dd id="mvLast">–</dd>
@@ -517,6 +530,11 @@ const L = {
     mvEarn: (fee) => `Bei der jetzigen Rechenleistung, nach ${fee}\u00a0% Pool-Gebühr und dem Anteil für die Weiterentwicklung. Ein Mittelwert, keine Zusage: Er schwankt von Stunde zu Stunde.`,
     mvEarnWait: "Wird beim Pool abgefragt (alle 10 min).", mvEarnPartial: " Nicht alle Pool-Regionen waren erreichbar.",
     mvBalL: "Noch im Pool", mvImm: (x) => `+ ${x} unbestätigt`, mvPayL: "Auszahlung", mvPay: (x) => `ab ${x}`, mvPayS: (h) => `XCB, Prüfung alle ${h} h`,
+    mvAddrL: "Deine Adresse", mvCopy: "Kopieren", mvCopied: "Kopiert.",
+    mvCopyFail: "Kopieren ging nicht. Die Adresse ist markiert: Strg+C drücken.",
+    mvPoolPage: "Im Pool ansehen (Catch That Rabbit)",
+    mvPoolFail: "Die Pool-Seite ließ sich nicht öffnen: Keine gespeicherte Adresse gefunden.",
+    mvPoolHint: (r) => `Öffnet catchthatrabbit.com im Browser, Server ${r}. Jeder Server ist ein eigener Pool; CoreStarter zählt oben alle zusammen.`,
     mvSupportL: "Weiterentwicklung", mvSupportNow: "rechnet gerade 25 s für TMMAC", mvSupportOn: (pct) => pct ? `0,42\u00a0% der Rechenzeit · bisher ${pct}\u00a0%` : "0,42\u00a0% der Rechenzeit für TMMAC",
     mvLogTitle: "Protokoll (miner.log)", mvLogEmpty: "Noch keine Einträge.",
     mvOpenLogs: "Log-Ordner öffnen", mvSettings: "Einstellungen", mvClose: "Schließen",
@@ -653,6 +671,11 @@ const L = {
     mvEarn: (fee) => `At the current computing power, after the ${fee}\u00a0% pool fee and the share for further development. An average, not a promise: it varies from hour to hour.`,
     mvEarnWait: "Being fetched from the pool (every 10 min).", mvEarnPartial: " Not all pool regions were reachable.",
     mvBalL: "Still in the pool", mvImm: (x) => `+ ${x} unconfirmed`, mvPayL: "Payout", mvPay: (x) => `from ${x}`, mvPayS: (h) => `XCB, checked every ${h} h`,
+    mvAddrL: "Your address", mvCopy: "Copy", mvCopied: "Copied.",
+    mvCopyFail: "Copying did not work. The address is selected: press Ctrl+C.",
+    mvPoolPage: "View in the pool (Catch That Rabbit)",
+    mvPoolFail: "The pool page could not be opened: no saved address found.",
+    mvPoolHint: (r) => `Opens catchthatrabbit.com in your browser, server ${r}. Each server is a pool of its own; CoreStarter adds them all up above.`,
     mvSupportL: "Development", mvSupportNow: "computing 25 s for TMMAC right now", mvSupportOn: (pct) => pct ? `0.42\u00a0% of computing time · so far ${pct}\u00a0%` : "0.42\u00a0% of computing time for TMMAC",
     mvLogTitle: "Log (miner.log)", mvLogEmpty: "No entries yet.",
     mvOpenLogs: "Open log folder", mvSettings: "Settings", mvClose: "Close",
@@ -761,6 +784,11 @@ const L = {
     mvEarn: (fee) => `現在の計算能力で、プール手数料${fee}%と開発支援分を差し引いた値です。平均値であり保証ではありません。時間ごとに変動します。`,
     mvEarnWait: "プールに問い合わせています（10分ごと）。", mvEarnPartial: "一部のプール地域に接続できませんでした。",
     mvBalL: "プール内（未払い）", mvImm: (x) => `＋${x} 未承認`, mvPayL: "支払い", mvPay: (x) => `${x}から`, mvPayS: (h) => `XCB、${h}時間ごとに確認`,
+    mvAddrL: "あなたのアドレス", mvCopy: "コピー", mvCopied: "コピーしました。",
+    mvCopyFail: "コピーできませんでした。アドレスを選択したので、Ctrl+Cを押してください。",
+    mvPoolPage: "プールで見る（Catch That Rabbit）",
+    mvPoolFail: "プールのページを開けませんでした。保存されたアドレスがありません。",
+    mvPoolHint: (r) => `ブラウザでcatchthatrabbit.comを開きます（サーバー${r}）。サーバーごとに別のプールで、CoreStarterは上の表示ですべてを合計しています。`,
     mvSupportL: "開発支援", mvSupportNow: "現在TMMACのために25秒間計算中", mvSupportOn: (pct) => pct ? `計算時間の0.42% · これまで${pct}%` : "計算時間の0.42%をTMMACに",
     mvLogTitle: "ログ（miner.log）", mvLogEmpty: "まだ記録はありません。",
     mvOpenLogs: "ログフォルダーを開く", mvSettings: "設定", mvClose: "閉じる",
@@ -897,6 +925,11 @@ const L = {
     mvEarn: (fee) => `Bij de huidige rekenkracht, na ${fee}% poolkosten en het aandeel voor de verdere ontwikkeling. Een gemiddelde, geen belofte: het schommelt van uur tot uur.`,
     mvEarnWait: "Wordt bij de pool opgevraagd (elke 10 min).", mvEarnPartial: " Niet alle poolregio’s waren bereikbaar.",
     mvBalL: "Nog in de pool", mvImm: (x) => `+ ${x} onbevestigd`, mvPayL: "Uitbetaling", mvPay: (x) => `vanaf ${x}`, mvPayS: (h) => `XCB, controle elke ${h} u`,
+    mvAddrL: "Je adres", mvCopy: "Kopiëren", mvCopied: "Gekopieerd.",
+    mvCopyFail: "Kopiëren lukte niet. Het adres is geselecteerd: druk op Ctrl+C.",
+    mvPoolPage: "Bekijken in de pool (Catch That Rabbit)",
+    mvPoolFail: "De poolpagina kon niet worden geopend: geen opgeslagen adres gevonden.",
+    mvPoolHint: (r) => `Opent catchthatrabbit.com in je browser, server ${r}. Elke server is een eigen pool; CoreStarter telt ze hierboven allemaal op.`,
     mvSupportL: "Verdere ontwikkeling", mvSupportNow: "rekent nu 25 s voor TMMAC", mvSupportOn: (pct) => pct ? `0,42% van de rekentijd · tot nu toe ${pct}%` : "0,42% van de rekentijd voor TMMAC",
     mvLogTitle: "Logboek (miner.log)", mvLogEmpty: "Nog geen meldingen.",
     mvOpenLogs: "Logmap openen", mvSettings: "Instellingen", mvClose: "Sluiten",
@@ -1033,6 +1066,11 @@ const L = {
     mvEarn: (fee) => `La puterea de calcul actuală, după taxa pool-ului de ${fee}\u00a0% și cota pentru dezvoltarea în continuare. O medie, nu o promisiune: variază de la oră la oră.`,
     mvEarnWait: "Se interoghează pool-ul (la fiecare 10 min).", mvEarnPartial: " Nu toate regiunile pool-ului au fost accesibile.",
     mvBalL: "Încă în pool", mvImm: (x) => `+ ${x} neconfirmat`, mvPayL: "Plată", mvPay: (x) => `de la ${x}`, mvPayS: (h) => `XCB, verificat la fiecare ${h} h`,
+    mvAddrL: "Adresa ta", mvCopy: "Copiază", mvCopied: "Copiată.",
+    mvCopyFail: "Copierea nu a reușit. Adresa este selectată: apasă Ctrl+C.",
+    mvPoolPage: "Vezi în pool (Catch That Rabbit)",
+    mvPoolFail: "Pagina pool-ului nu s-a putut deschide: nu există o adresă salvată.",
+    mvPoolHint: (r) => `Deschide catchthatrabbit.com în browser, serverul ${r}. Fiecare server este un pool separat; CoreStarter le adună pe toate mai sus.`,
     mvSupportL: "Cota de susținere", mvSupportNow: "calculează acum 25 s pentru TMMAC", mvSupportOn: (pct) => pct ? `0,42\u00a0% din timpul de calcul · până acum ${pct}\u00a0%` : "0,42\u00a0% din timpul de calcul pentru TMMAC",
     mvLogTitle: "Jurnal (miner.log)", mvLogEmpty: "Încă nicio intrare.",
     mvOpenLogs: "Deschide folderul de jurnale", mvSettings: "Setări", mvClose: "Închide",
@@ -1274,6 +1312,7 @@ const LX = {
 // JA/NL/RO: see docs/i18n-review.md.
 const MX = {
   de: {
+    mvCopyFail: "Kopieren ging nicht. Die Adresse ist markiert: ⌘C drücken.",
     install: "Einrichten und starten",
     intro: "Mit CoreStarter betreibst du eine Core-Blockchain-Node: Dein Mac speichert eine Kopie der Blockchain und tauscht sie mit anderen Nodes aus. Auf Wunsch kann er zusätzlich XCB minen. Alles läuft im Hintergrund, ein Symbol oben in der Menüleiste zeigt den Stand.",
     notes: { 2: "Wird es dem Mac zu warm, pausiert der Miner, bis er abgekühlt ist; zusätzlich bremst macOS den Prozessor. Ein MacBook Air (ohne Lüfter) wird beim Minen spürbar warm." },
@@ -1290,6 +1329,7 @@ const MX = {
     stopSub: "Beenden stoppt Node und Miner, bis du CoreStarter wieder öffnest (Ordner Programme). Deinstallieren stoppt alles, entfernt den Hintergrunddienst und legt die App in den Papierkorb. Die Blockchain-Daten (mehrere GB) bleiben im Ordner „Library/Application Support/Core Starter“ in deinem Benutzerordner (im Finder: Gehe zu → Gehe zum Ordner, „~/Library/Application Support“).",
   },
   en: {
+    mvCopyFail: "Copying did not work. The address is selected: press ⌘C.",
     install: "Set up and start",
     intro: "CoreStarter runs a Core Blockchain node: your Mac keeps a copy of the blockchain and shares it with other nodes. If you like, it can also mine XCB. Everything runs in the background; an icon at the top in the menu bar shows the progress.",
     notes: { 2: "If the Mac gets too warm, the miner pauses until it has cooled down; macOS also slows the processor. A MacBook Air (no fan) gets noticeably warm while mining." },
@@ -1306,6 +1346,7 @@ const MX = {
     stopSub: "Quit stops node and miner until you open CoreStarter again (Applications folder). Uninstall stops everything, removes the background service and moves the app to the Trash. The blockchain data (several GB) stays in the folder “Library/Application Support/Core Starter” in your home folder (in the Finder: Go → Go to Folder, “~/Library/Application Support”).",
   },
   ja: {
+    mvCopyFail: "コピーできませんでした。アドレスを選択したので、⌘Cを押してください。",
     install: "設定して開始",
     intro: "CoreStarterを使うと、Coreブロックチェーンのノードを運用できます。Macがブロックチェーンのコピーを保存し、他のノードと共有します。必要に応じてXCBのマイニングもできます。すべてバックグラウンドで動作し、上部のメニューバーのアイコンに状況が表示されます。",
     notes: { 2: "Macが熱くなりすぎると、冷えるまでマイナーが一時停止します。macOSもプロセッサーの性能を抑えます。ファンのないMacBook Airはマイニング中にかなり温かくなります。" },
@@ -1322,6 +1363,7 @@ const MX = {
     stopSub: "「終了」を選ぶと、CoreStarterをもう一度開く（「アプリケーション」フォルダー）まで、ノードとマイナーが止まります。「アンインストール」はすべてを停止し、バックグラウンドサービスを削除して、アプリをゴミ箱に移します。ブロックチェーンのデータ（数GB）は、ホームフォルダー内の「Library/Application Support/Core Starter」に残ります（Finderで：移動 → フォルダへ移動、「~/Library/Application Support」）。",
   },
   nl: {
+    mvCopyFail: "Kopiëren lukte niet. Het adres is geselecteerd: druk op ⌘C.",
     install: "Instellen en starten",
     intro: "Met CoreStarter draai je een node van de Core-blockchain: je Mac bewaart een kopie van de blockchain en deelt die met andere nodes. Desgewenst kan hij ook XCB minen. Alles draait op de achtergrond; een pictogram bovenaan in de menubalk toont de stand.",
     notes: { 2: "Wordt de Mac te warm, dan pauzeert de miner tot hij is afgekoeld; daarnaast remt macOS de processor af. Een MacBook Air (zonder ventilator) wordt bij het minen merkbaar warm." },
@@ -1338,6 +1380,7 @@ const MX = {
     stopSub: "Afsluiten stopt node en miner tot je CoreStarter weer opent (map Apps). Verwijderen stopt alles, haalt de achtergronddienst weg en verplaatst de app naar de prullenmand. De blockchaingegevens (meerdere GB) blijven in de map “Library/Application Support/Core Starter” in je gebruikersmap (in de Finder: Ga → Ga naar map, “~/Library/Application Support”).",
   },
   ro: {
+    mvCopyFail: "Copierea nu a reușit. Adresa este selectată: apasă ⌘C.",
     install: "Configurează și pornește",
     intro: "Cu CoreStarter rulezi un nod al blockchain-ului Core: Mac-ul tău păstrează o copie a blockchain-ului și o împarte cu alte noduri. Dacă vrei, poate și să mineze XCB. Totul rulează în fundal; o pictogramă sus, în bara de meniu, arată starea.",
     notes: { 2: "Dacă Mac-ul se încălzește prea tare, minerul face pauză până se răcește; în plus, macOS încetinește procesorul. Un MacBook Air (fără ventilator) se încălzește vizibil la minare." },
@@ -1375,6 +1418,7 @@ function texts(code) {
 }
 
 let T = L.en, lang = "en", init = null, power = 50, addrState = { ok: false };
+let poolRegion = "de", copiedTimer = 0;
 // Language menu: native names, so everyone finds their own. "" = Windows' language.
 const LANGS = [["de", "Deutsch"], ["en", "English"], ["ja", "日本語"], ["nl", "Nederlands"], ["ro", "Română"]];
 const LOCALE = { de: "de-DE", en: "en-US", ja: "ja-JP", nl: "nl-NL", ro: "ro-RO" };
@@ -1505,7 +1549,7 @@ function render() {
   $("doneText").textContent = T.doneText;
   $("doneClose").textContent = T.doneClose;
   $("mineLive").textContent = T.mineLive;
-  for (const k of ["mvAxisFrom", "mvAxisTo", "mvSharesL", "mvLastL", "mvDiffL", "mvThreadsL", "mvPoolL", "mvEarnL", "mvEarnUnit", "mvBalL", "mvPayL", "mvRateL", "mvSupportL", "mvLogTitle", "mvOpenLogs", "mvSettings"]) $(k).textContent = T[k];
+  for (const k of ["mvAxisFrom", "mvAxisTo", "mvSharesL", "mvLastL", "mvDiffL", "mvThreadsL", "mvPoolL", "mvEarnL", "mvEarnUnit", "mvBalL", "mvPayL", "mvRateL", "mvSupportL", "mvLogTitle", "mvOpenLogs", "mvSettings", "mvAddrL", "mvCopy", "mvPoolPage"]) $(k).textContent = T[k];
   $("mvClose").textContent = init.mode === "install" ? T.done : T.mvClose;
   $("mvSettings").classList.toggle("hidden", init.mode === "install"); // the install form is done by then
   $("doneBtn").textContent = T.done;
@@ -1663,6 +1707,7 @@ async function save() {
     if (sent.agree.mine) init.needMine = false;
     delete sent.agree;
     init.settings = Object.assign({}, init.settings, sent);
+    if (typeof r.address === "string") init.settings.address = r.address; // what Go kept (normalized, a bad one dropped)
     init.hasSaved = true;
     if (sent.mine) justStarted = Date.now();
     renderConsent();
@@ -1820,6 +1865,70 @@ function renderMiner(st) {
   let sup = T.mvSupportOn(supWindowDone(m) ? nf(100 * m.supportHashes / m.totalHashes, 2) : "");
   if (m && m.supportActive) sup = T.mvSupportNow;
   $("mvSupport").textContent = on ? sup : "–";
+  renderAddress(m);
+}
+
+// renderAddress: the saved address, a copy button and the pool's page for it.
+// Hidden without an address (node only). Only the checked form: a bad entry
+// saved with mining off is dropped by Go but stays in the page's copy.
+const savedAddress = () => /^cb[0-9a-f]{42}$/.test(init.settings.address || "") ? init.settings.address : "";
+function renderAddress(m) {
+  const a = savedAddress();
+  $("mvAddrCard").classList.toggle("hidden", !a);
+  if (!a) return;
+  if ($("mvAddr").dataset.a !== a) {
+    $("mvAddr").dataset.a = a;
+    $("mvAddr").replaceChildren(...a.match(/.{1,4}/g).map((g) => Object.assign(document.createElement("span"), { textContent: g })));
+  }
+  if ($("mvCopied").dataset.lang !== lang) { // a message in the old language goes
+    $("mvCopied").dataset.lang = lang;
+    $("mvCopied").textContent = "";
+  }
+  poolRegion = pickRegion(m);
+  $("mvPoolHint").textContent = T.mvPoolHint(poolRegion.toUpperCase());
+}
+
+// pickRegion: CTR shows one region per page. The one holding the most is the
+// useful one, else the server mined on now, else the first. Go checks the list again.
+function pickRegion(m) {
+  const regions = ["de", "fi", "sg", "hk"];
+  const open = ((m && m.earnings && m.earnings.regions) || [])
+    .filter((r) => r.account && regions.includes(r.region))
+    .map((r) => ({ r: r.region, v: (r.account.balance || 0) + (r.account.immature || 0) }))
+    .filter((x) => x.v > 0)
+    .sort((x, y) => y.v - x.v);
+  if (open.length) return open[0].r;
+  if (m && regions.includes(m.pool)) return m.pool;
+  return regions[0];
+}
+
+// copyAddress: a hidden text field and execCommand work after a click in all
+// three web views, also without a secure context (the page is loaded from a
+// string). If it fails, the address is selected for Ctrl+C.
+function copyAddress() {
+  const a = savedAddress();
+  if (!a) return;
+  const t = document.createElement("textarea");
+  t.value = a;
+  t.setAttribute("readonly", "");
+  t.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+  document.body.appendChild(t);
+  t.focus();
+  t.setSelectionRange(0, a.length);
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+  t.remove();
+  $("mvCopy").focus();
+  if (!ok) {
+    const r = document.createRange();
+    r.selectNodeContents($("mvAddr"));
+    const sel = getSelection();
+    sel.removeAllRanges();
+    sel.addRange(r);
+  }
+  $("mvCopied").textContent = ok ? T.mvCopied : T.mvCopyFail;
+  clearTimeout(copiedTimer);
+  if (ok) copiedTimer = setTimeout(() => { $("mvCopied").textContent = ""; }, 3000);
 }
 
 // plainLine: one sentence for people who do not read hashrates: is it fine,
@@ -1992,6 +2101,12 @@ $("save").addEventListener("click", save);
 $("cancel").addEventListener("click", () => call("close"));
 $("doneBtn").addEventListener("click", () => call("close"));
 $("mineLive").addEventListener("click", () => showView("miner"));
+$("mvCopy").addEventListener("click", copyAddress);
+// Go builds the address from settings.json; the page only names the region.
+$("mvPoolPage").addEventListener("click", async () => {
+  const ok = await call("open", { what: "pool", region: poolRegion });
+  if (!ok) $("mvCopied").textContent = T.mvPoolFail;
+});
 $("mvSettings").addEventListener("click", () => showView("form"));
 $("mvClose").addEventListener("click", () => call("close"));
 $("mvPause").addEventListener("click", async () => {

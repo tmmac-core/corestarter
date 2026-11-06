@@ -324,13 +324,19 @@ func (w *window) handle(msg string) {
 			w.mu.Lock()
 			w.saved = true
 			w.mu.Unlock()
-			w.reply(req.ID, map[string]bool{"ok": true})
+			// The address as kept: normalized, or "" if a bad one was dropped
+			// (allowed while mining is off); the page shows only this one.
+			kept := ""
+			if saved := savedSettings(w.p.settings); saved != nil {
+				kept = saved.Address
+			}
+			w.reply(req.ID, map[string]any{"ok": true, "address": kept})
 			if uiTestScript != "" {
 				w.closeWindow()
 			}
 		}()
 	case "open":
-		var a struct{ What, Lang string }
+		var a struct{ What, Lang, Region string }
 		json.Unmarshal(req.Arg, &a)
 		switch a.What {
 		case "data":
@@ -345,6 +351,14 @@ func (w *window) handle(msg string) {
 			shellOpen(privacyURL(a.Lang))
 		case "site", "imprint", "feedback", "release", "source":
 			shellOpen(siteURL(a.What, a.Lang))
+		case "pool":
+			// The pool's page of the saved address, also only on the user's click.
+			u := poolPageURL(w.p.settings, a.Region)
+			if u != "" {
+				shellOpen(u)
+			}
+			w.reply(req.ID, u != "") // false: nothing to open, the page says so
+			return
 		}
 		w.reply(req.ID, true)
 	case "setmine":

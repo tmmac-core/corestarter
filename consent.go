@@ -3,8 +3,12 @@ package main
 import (
 	_ "embed"
 	"errors"
+	"slices"
+	"strings"
 	"sync/atomic"
 	"time"
+
+	"github.com/tmmac-core/corestarter/internal/minercore"
 )
 
 // Consent versions: raise one whenever its text changes (CONSENT in
@@ -125,6 +129,21 @@ func siteURL(page, lang string) string {
 		return site + "/de/"
 	}
 	return site + "/"
+}
+
+// poolPageURL: Catch That Rabbit's account page of the saved address in one
+// region (each region is a pool of its own). The page only names the region,
+// from the fixed list; the address comes from settings.json, never from the
+// page. "" without a saved valid address: then nothing opens.
+func poolPageURL(settingsPath, region string) string {
+	s, err := LoadSettings(settingsPath) // Normalize keeps only a valid mainnet address
+	if err != nil || s.Address == "" {
+		return ""
+	}
+	if !slices.Contains(minercore.APIRegions, region) {
+		region = minercore.APIRegions[0]
+	}
+	return "https://catchthatrabbit.com/coreid/" + s.Address + "/" + strings.ToUpper(region)
 }
 
 //go:embed NOTICE.md

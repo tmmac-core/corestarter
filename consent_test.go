@@ -332,3 +332,47 @@ func TestSiteURL(t *testing.T) {
 		}
 	}
 }
+
+// TestPoolPageURL: the pool link only carries the saved, checked address and a
+// region from the fixed list; without a valid saved address nothing opens.
+func TestPoolPageURL(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "settings.json")
+	if got := poolPageURL(path, "de"); got != "" {
+		t.Errorf("no settings: %q, want none", got)
+	}
+	s := DefaultSettings()
+	s.Address = "  corepass:CB292120D3ABC3B8330A26DAF4BEB94B1F6A9C7B4963 "
+	if err := SaveSettings(path, s); err != nil {
+		t.Fatal(err)
+	}
+	const base = "https://catchthatrabbit.com/coreid/cb292120d3abc3b8330a26daf4beb94b1f6a9c7b4963/"
+	for _, c := range []struct{ region, want string }{
+		{"de", base + "DE"},
+		{"fi", base + "FI"},
+		{"sg", base + "SG"},
+		{"hk", base + "HK"},
+		{"", base + "DE"},
+		{"DE", base + "DE"}, // the list is lower case; anything else falls back
+		{"FI", base + "DE"},
+		{"../evil", base + "DE"},
+		{"de/../../x?y=", base + "DE"},
+	} {
+		if got := poolPageURL(path, c.region); got != c.want {
+			t.Errorf("poolPageURL(%q) = %q, want %q", c.region, got, c.want)
+		}
+	}
+	// A broken address on record (hand-edited file) is dropped by Normalize.
+	if err := os.WriteFile(path, []byte(`{"address":"cb292120d3abc3b8330a26daf4beb94b1f6a9c7b4964"}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if got := poolPageURL(path, "fi"); got != "" {
+		t.Errorf("bad address: %q, want none", got)
+	}
+	if err := os.WriteFile(path, []byte(`{"address":`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if got := poolPageURL(path, "fi"); got != "" {
+		t.Errorf("broken file: %q, want none", got)
+	}
+}

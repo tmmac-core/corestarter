@@ -135,3 +135,14 @@ Die Texte sind rechtliche Hinweise: Bedeutung vor Eleganz. Eine Aenderung nach d
 | ro | CONSENT.mineShare | Această cotă este integrată fix | „fest eingebaut“; Alternative „este integrată permanent“. |
 | ro | CONSENT.nodeAuto | „${title}” este activat | Titel ist ein Verb („Pornește…“); „este activat“ evtl. „este activă (opțiunea)“. |
 | alle | minerConsent (Taskleiste) | „… (Einstellungen …)“ | Muss zum Menuepunkt menuSettings passen. |
+
+## Nachtrag 1.0.2 (06.11.2026): Adresse in der Miner-Ansicht, Kopieren, Link zum Pool
+
+| Sprache | Key | Text | Warum unsicher |
+|---|---|---|---|
+| ja | mvCopyFail (Mac: MX) | …Ctrl+Cを押してください。 / …⌘Cを押してください。 | Tastenname „Ctrl“ wie auf japanischen Tastaturen; prüfen, ob Höflichkeitsform passt. |
+| alle | mvPoolFail | „…: Keine gespeicherte Adresse gefunden.“ | Neu nach Code-Review; erscheint nur, wenn der Link nichts öffnen kann. |
+| ja | mvPoolHint | サーバーごとに別のプールで… | „Jeder Server ist ein eigener Pool“; Satzbau prüfen. |
+| nl | mvPoolPage | Bekijken in de pool (Catch That Rabbit) | Alternative „Bekijk in de pool“ (Imperativ wie andere Knöpfe?). |
+| ro | mvCopied | Copiată. | Bezieht sich auf „adresa“ (f.); allein stehend evtl. „Copiat.“ natürlicher. |
+| ro | mvPoolHint | …le adună pe toate mai sus. | „zählt oben alle zusammen“; prüfen ob klar. |
