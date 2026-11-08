@@ -2,6 +2,16 @@
 
 All notable changes to CoreStarter. Versions follow `appVersion` in `app.go`.
 
+## 1.1.0
+
+### Added
+- Intel Macs: a separate download, `CoreStarter-<version>-mac-intel.dmg`. It
+  bundles the official gocore v2.2.1, the last release Core built for Intel
+  Macs; v2.2.2 differs only in an RPC parameter the starter does not use, not
+  in consensus.
+- The Intel version on a Mac with Apple silicon says so before mining: it
+  runs translated (Rosetta) and much slower than the Apple silicon version.
+
 ## 1.0.2
 
 ### Added

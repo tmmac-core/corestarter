@@ -21,6 +21,7 @@ Get it from the [download page](https://tellmemoreaboutcore.com/core-starter/) o
 | Fedora, openSUSE | `core-starter-<version>-1.x86_64.rpm` |
 | Other Linux (x86_64) | `core-starter_<version>_linux_amd64.tar.gz` |
 | macOS 15 or newer, Apple silicon (M1 and later) | `CoreStarter-<version>-mac-arm64.dmg` |
+| macOS 15 or newer, Intel | `CoreStarter-<version>-mac-intel.dmg` |
 
 Check your download against `SHA256SUMS` from the same release:
 
@@ -100,6 +101,7 @@ cd corestarter
 ./scripts/build.sh                 # Windows exe with miner (needs mingw-w64 and cmake)
 NOMINER=1 ./scripts/build.sh       # Windows exe without miner
 ./scripts/build-mac.sh             # macOS app and DMG (Apple silicon)
+MAC_ARCH=x86_64 ./scripts/build-mac.sh  # same for Intel Macs
 go test -race . ./internal/...     # platform-independent tests
 ```
 

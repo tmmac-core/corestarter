@@ -2,7 +2,7 @@
 
 Ausführliche Beschreibung für Entwickler und Prüfer (Deutsch). Für Nutzer: [README.md](../README.md) (English) bzw. [README.de.md](../README.de.md).
 
-Windows: eine einzige `CoreStarter.exe`: doppelklicken, im Startfenster wählen, „Installieren und starten“. Danach läuft im Hintergrund eine Core-Blockchain-Node, auf Wunsch dazu ein XCB-Miner. Ein Symbol in der Taskleiste zeigt den Stand. Linux: ein `.deb`/`.rpm`-Paket mit demselben Fenster und derselben Logik, siehe [Linux](#linux). macOS (Apple Silicon): eine App in einer DMG, siehe [macOS](#macos).
+Windows: eine einzige `CoreStarter.exe`: doppelklicken, im Startfenster wählen, „Installieren und starten“. Danach läuft im Hintergrund eine Core-Blockchain-Node, auf Wunsch dazu ein XCB-Miner. Ein Symbol in der Taskleiste zeigt den Stand. Linux: ein `.deb`/`.rpm`-Paket mit demselben Fenster und derselben Logik, siehe [Linux](#linux). macOS: eine App in einer DMG, je eine für Apple Silicon und Intel, siehe [macOS](#macos).
 
 ## Herunterladen
 
@@ -163,7 +163,7 @@ Pakete für x86_64: `.deb` (Ubuntu ab 22.04, Mint ab 21, Debian ab 12), `.rpm` (
 
 ## macOS
 
-Eine DMG für Apple Silicon (M1 und neuer), macOS 15 oder neuer, weil die offizielle gocore nur für arm64 ab macOS 15 erscheint.
+Zwei DMGs, beide ab macOS 15: `mac-arm64` für Apple Silicon (M1 und neuer) mit gocore v2.2.2 und `mac-intel` für Intel-Macs mit gocore **v2.2.1**. Core liefert ab v2.2.2 keine Datei für darwin-x86_64 mehr (go-core-Commit „remove macos amd64 x86_64 support from GA“); v2.2.1 unterscheidet sich von v2.2.2 nur in einem RPC-Parameter (`balanceOf`), nicht im Konsens, und der Starter nutzt nur `xcb_syncing`, `xcb_blockNumber`, `net_peerCount`. Die Intel-gocore kommt unsigniert; der Build signiert sie ad hoc (sonst lässt sich das Bundle nicht signieren) und beweist den Pin mit `tools/machopin`: ohne Signatur ist sie bis auf `vmsize` von `__LINKEDIT` bytegleich zum Release; die ausgelieferte Datei muss genau der deterministischen Ad-hoc-Signatur des gepinnten Originals entsprechen. Läuft die Intel-Version auf einem Apple-Chip (Rosetta), sagt das Fenster beim Minen, dass die arm64-Version deutlich schneller ist (`onARM64` über `hw.optional.arm64`).
 
 **Ablauf:**
 - DMG öffnen, „CoreStarter“ in den Ordner Programme ziehen, dort öffnen. Aus der DMG oder aus Downloads gestartet, richtet die App nichts ein: Sie sagt das und öffnet beide Ordner.
@@ -175,9 +175,9 @@ Eine DMG für Apple Silicon (M1 und neuer), macOS 15 oder neuer, weil die offizi
 
 **Pfade:** Einstellungen, Status und Blockchain in `~/Library/Application Support/Core Starter/` (`data/` ist von Time Machine und Spotlight ausgenommen), Logs in `~/Library/Logs/Core Starter/`, Sockets und Locks im Benutzer-Cache-Ordner (`getconf DARWIN_USER_CACHE_DIR`), weil macOS `$TMPDIR` nach drei Tagen räumt.
 
-**Node und Miner:** gocore bit-genau aus dem offiziellen Release (SHA-256 in `scripts/build-mac.sh`), nice 10, Stopp per SIGINT. Der Miner rechnet je nach Leistung bis auf allen Kernen, mit QoS „utility“ und nice 19, pausiert im Akkubetrieb und wenn macOS hohe Hitze meldet (MacBook Air ohne Lüfter), und startet nach dem Ruhezustand mit frischer Pool-Verbindung. Auf Apple Silicon braucht RandomY den „secure JIT“-Modus (`appleJIT` in `cmd/core-miner/randomy.go`), sonst stürzt der Miner ab.
+**Node und Miner:** gocore aus dem offiziellen Release (SHA-256 in `scripts/build-mac.sh`; arm64 bit-genau, Intel siehe oben), nice 10, Stopp per SIGINT. Der Miner rechnet je nach Leistung bis auf allen Kernen, mit QoS „utility“ und nice 19, pausiert im Akkubetrieb und wenn macOS hohe Hitze meldet (MacBook Air ohne Lüfter), und startet nach dem Ruhezustand mit frischer Pool-Verbindung. Auf Apple Silicon braucht RandomY den „secure JIT“-Modus (`appleJIT` in `cmd/core-miner/randomy.go`), sonst stürzt der Miner ab.
 
-**Bauen** (auf einem Mac mit Apple Silicon, Command Line Tools, Go aus `go.mod`, cmake): `git submodule update --init && ./scripts/build-mac.sh` → `dist/CoreStarter.app` und `dist/CoreStarter-<version>-mac-arm64.dmg`. `NOMINER=1` ohne Miner, `E2E=1` eine Testvariante (Node offline, Miner gegen `go run ./tools/fakepool` auf 127.0.0.1:47999), die nie weitergegeben wird.
+**Bauen** (auf einem Mac mit Apple Silicon, Command Line Tools, Go aus `go.mod`, cmake): `git submodule update --init && ./scripts/build-mac.sh` → `dist/CoreStarter.app` und `dist/CoreStarter-<version>-mac-arm64.dmg`; `MAC_ARCH=x86_64` baut die Intel-Version (Cross-Compile) nach `dist/intel/CoreStarter.app` und `dist/CoreStarter-<version>-mac-intel.dmg` (Integrationstests dann mit `CORE_STARTER_APP=$PWD/dist/intel/CoreStarter.app`). `NOMINER=1` ohne Miner, `E2E=1` eine Testvariante (Node offline, Miner gegen `go run ./tools/fakepool` auf 127.0.0.1:47999), die nie weitergegeben wird.
 
 **Tests** (lokal, keine macOS-CI): `go test -race . ./internal/...`, Miner mit `CGO_LDFLAGS=-L$PWD/.cache/mac/randomy go test ./cmd/core-miner`, dazu nach dem Bauen `CORE_STARTER_DARWIN_IT=1 go test -run TestDarwin -v .` gegen die gebaute App (echte gocore offline, Übernahme, Absturz-Neustart, Steuer-Socket, beide Fenster, Miner-Aufsicht gegen einen Pool auf Loopback).
 

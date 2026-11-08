@@ -14,15 +14,23 @@ mit allen Dateien aus genau diesem Stand. Die Programme sind noch nicht signiert
 3. Programme aus dem Release-Commit:
    - Windows: Artefakt `build` des Workflows `windows` (`CoreStarter.exe` + `.sha256`).
    - Linux: Artefakt `linux-packages` des Workflows `linux` (`.deb`, `.rpm`, `.tar.gz`).
-   - macOS: `./scripts/build-mac.sh` auf einem Mac mit Apple Silicon (`dist/CoreStarter-<v>-mac-arm64.dmg`).
+   - macOS: `./scripts/build-mac.sh` und `MAC_ARCH=x86_64 ./scripts/build-mac.sh` auf einem Mac mit Apple Silicon
+     (`dist/CoreStarter-<v>-mac-arm64.dmg`, `dist/CoreStarter-<v>-mac-intel.dmg`). Vorher prüfen, ob das neue
+     gocore-Release wieder `darwin-x86_64` enthält oder den Konsens ändert (Kommentar am Intel-Pin in `build-mac.sh`).
    - Quellen der mitgelieferten Bibliotheken: `./scripts/third-party-sources.sh`
      (`dist/third-party-sources-<v>.tar`).
 4. `SHA256SUMS` über alle Dateien des Releases bilden (`shasum -a 256 * > SHA256SUMS`).
 5. Tag `v<v>` auf den Release-Commit, als TMMAC:
    `GIT_COMMITTER_NAME=TMMAC GIT_COMMITTER_EMAIL=contact@tellmemoreaboutcore.com git tag -a v<v> -m "CoreStarter <v>"`.
    GitHub Release mit allen Dateien, `SHA256SUMS` und der Release-Notiz (Hinweis auf die fehlende Signatur).
-6. Downloadseite (tellmemoreaboutcore.com/core-starter/) auf die neue Version stellen und jede Datei einmal über
-   die Seite laden und mit `SHA256SUMS` vergleichen.
+6. VirusTotal, erst nach dem GitHub Release (hochgeladene Dateien und ihr Bericht werden öffentlich):
+   `scripts/virustotal.sh CoreStarter.exe CoreStarter-<v>-mac-arm64.dmg CoreStarter-<v>-mac-intel.dmg` lädt nur Unbekanntes hoch, wartet auf die
+   Analyse und gibt je Datei Treffer/Gesamt mit den Scanner-Namen aus, für die Exe zusätzlich die `scan`-Zeile der
+   Downloadseite. Schlüssel aus `VT_API_KEY` oder dem macOS-Schlüsselbund, einmalig angelegt mit
+   `security add-generic-password -a "$USER" -s virustotal-api -w` (fragt den Schlüssel ab, er steht nirgends im
+   Klartext). Die öffentliche API erlaubt 4 Anfragen pro Minute; das Skript hält das ein.
+7. Downloadseite (tellmemoreaboutcore.com/core-starter/) auf die neue Version und die `scan`-Zeile aus Schritt 6
+   stellen und jede Datei einmal über die Seite laden und mit `SHA256SUMS` vergleichen.
 
 Der Wochenlauf `runtime-pins` prüft, ob die für ältere Linux-Systeme mitgelieferte glibc/GCC-Laufzeit noch der
 aktuellen Ubuntu-Version entspricht. Schlägt er fehl, ist ein neues Release mit neu gepinnten Dateien nötig; der

@@ -15,6 +15,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"unsafe"
 
@@ -82,9 +83,17 @@ func totalMemory() uint64 {
 	return n
 }
 
-// onARM64: the page's hint about an emulated miner is for Windows on ARM; on
-// a Mac the miner is built for Apple silicon.
-func onARM64() bool { return false }
+// onARM64: the Intel build on a Mac with Apple silicon, where node and miner
+// run translated by Rosetta and the page tells the user to get the Apple
+// silicon build. hw.optional.arm64 is 1 there even inside a translated
+// process (and missing on Intel); runtime.GOARCH alone cannot tell.
+func onARM64() bool {
+	if runtime.GOARCH != "amd64" {
+		return false
+	}
+	n, err := unix.SysctlUint32("hw.optional.arm64")
+	return err == nil && n == 1
+}
 
 func childEnv() []string { return os.Environ() }
 

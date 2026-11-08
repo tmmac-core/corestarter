@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	appVersion    = "1.0.2"
+	appVersion    = "1.1.0"
 	needGB        = 15 // ~12 GB peak while fast-syncing (measured 2026-10-17) plus headroom
 	maxAppLog     = 5 << 20
 	flagUI        = "--ui"         // open the settings window (from the tray or the Start menu)

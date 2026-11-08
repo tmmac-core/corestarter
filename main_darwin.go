@@ -11,10 +11,6 @@ import (
 	"strings"
 )
 
-// gocoreVersion: the official release the app bundles (scripts/build-mac.sh
-// checks that its pinned download is this version).
-const gocoreVersion = "v2.2.2"
-
 func init() {
 	// AppKit (window, menu bar, dialogs) belongs to the main thread.
 	runtime.LockOSThread()

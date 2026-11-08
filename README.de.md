@@ -21,6 +21,7 @@ offizielle App von Core oder CoDeTech. [English: README.md](README.md)
 | Fedora, openSUSE | `core-starter-<version>-1.x86_64.rpm` |
 | anderes Linux (x86_64) | `core-starter_<version>_linux_amd64.tar.gz` |
 | macOS ab 15, Apple Silicon (ab M1) | `CoreStarter-<version>-mac-arm64.dmg` |
+| macOS ab 15, Intel | `CoreStarter-<version>-mac-intel.dmg` |
 
 Download mit `SHA256SUMS` aus demselben Release vergleichen:
 
@@ -105,6 +106,7 @@ cd corestarter
 ./scripts/build.sh                 # Windows-Exe mit Miner (braucht mingw-w64 und cmake)
 NOMINER=1 ./scripts/build.sh       # Windows-Exe ohne Miner
 ./scripts/build-mac.sh             # macOS-App und DMG (Apple Silicon)
+MAC_ARCH=x86_64 ./scripts/build-mac.sh  # dasselbe für Intel-Macs
 go test -race . ./internal/...     # plattformunabhängige Tests
 ```
 

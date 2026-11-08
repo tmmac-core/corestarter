@@ -6,6 +6,7 @@
 #   All:     gocore v2.2.2 (go-core: LICENSE says CORE License v1.0, the file
 #            headers GPL-3.0-or-later / LGPL-3.0-or-later), with every Go module
 #            it builds from (go mod vendor), and RandomY at the pinned commit.
+#   Mac Intel: gocore v2.2.1 the same way (Core ships no Intel Mac file later).
 # The tar is uploaded to every GitHub release next to the programs.
 #   Windows: MinGW-w64 GCC runtime (libstdc++, libgcc_s) and winpthreads, the
 #            MSYS2 builds pinned in scripts/build.sh.
@@ -33,11 +34,18 @@ SOURCES=(
 )
 
 GOCORE_VERSION=v2.2.2
-GOCORE_SRC_URL=https://github.com/core-coin/go-core/archive/refs/tags/$GOCORE_VERSION.tar.gz
-GOCORE_SRC_SHA=1c563558934dd0215a715bca336d191dc51ea3fbdfb43e99f8801b04479ef97c
+GOCORE_INTEL_VERSION=v2.2.1 # scripts/build-mac.sh MAC_ARCH=x86_64
+# version source-tarball-sha256 (the tag's archive from GitHub)
+GOCORE_SRC=(
+  "$GOCORE_VERSION 1c563558934dd0215a715bca336d191dc51ea3fbdfb43e99f8801b04479ef97c"
+  "$GOCORE_INTEL_VERSION 20412574d35bd02a1bf146e5692914ee01c8c3f8c493f4e5f7947b5f0bfb067e"
+)
 RANDOMY_COMMIT=c9d185a055b7604e8d58059031e0e33dfe577cc5 # as in scripts/build*.sh
-for f in scripts/build.sh scripts/build-linux.sh scripts/build-mac.sh; do
+for f in scripts/build.sh scripts/build-linux.sh; do
   grep -q "^GOCORE_VERSION=$GOCORE_VERSION\$" "$f" || { echo "$f does not pin gocore $GOCORE_VERSION" >&2; exit 1; }
+done
+for v in $GOCORE_VERSION $GOCORE_INTEL_VERSION; do
+  grep -q "^  GOCORE_VERSION=$v\$" scripts/build-mac.sh || { echo "scripts/build-mac.sh does not pin gocore $v" >&2; exit 1; }
 done
 
 CACHE=${CACHE:-$HOME/.cache/core-starter/sources}
@@ -58,20 +66,25 @@ for entry in "${SOURCES[@]}"; do
   cp "$CACHE/$file" "$OUT/$file"
 done
 
-echo "== go-core $GOCORE_VERSION with its Go modules"
-GC=go-core-$GOCORE_VERSION.tar.gz
-if [[ ! -f $CACHE/$GC || $(sha "$CACHE/$GC") != "$GOCORE_SRC_SHA" ]]; then
-  curl -fsSL -o "$CACHE/$GC.part" "$GOCORE_SRC_URL" && mv "$CACHE/$GC.part" "$CACHE/$GC"
-fi
-[[ $(sha "$CACHE/$GC") == "$GOCORE_SRC_SHA" ]] || { echo "SHA-256 mismatch: $GC" >&2; exit 1; }
-cp "$CACHE/$GC" "$OUT/$GC"
 W=$(mktemp -d)
 trap 'chmod -R u+w "$W" 2>/dev/null; rm -rf "$W"' EXIT
-tar -xzf "$CACHE/$GC" -C "$W"
-GCDIR=$(ls -d "$W"/go-core-*)
-# go.sum pins every module; vendor/ holds their source as gocore was built.
-(cd "$GCDIR" && GOFLAGS=-mod=mod go mod vendor)
-tar -C "$GCDIR" -czf "$OUT/go-core-$GOCORE_VERSION-vendor.tar.gz" vendor go.mod go.sum
+for entry in "${GOCORE_SRC[@]}"; do
+  read -r v want <<<"$entry"
+  echo "== go-core $v with its Go modules"
+  GC=go-core-$v.tar.gz
+  if [[ ! -f $CACHE/$GC || $(sha "$CACHE/$GC") != "$want" ]]; then
+    curl -fsSL -o "$CACHE/$GC.part" "https://github.com/core-coin/go-core/archive/refs/tags/$v.tar.gz" &&
+      mv "$CACHE/$GC.part" "$CACHE/$GC"
+  fi
+  [[ $(sha "$CACHE/$GC") == "$want" ]] || { echo "SHA-256 mismatch: $GC" >&2; exit 1; }
+  cp "$CACHE/$GC" "$OUT/$GC"
+  mkdir "$W/$v"
+  tar -xzf "$CACHE/$GC" -C "$W/$v"
+  GCDIR=$(ls -d "$W/$v"/go-core-*)
+  # go.sum pins every module; vendor/ holds their source as gocore was built.
+  (cd "$GCDIR" && GOFLAGS=-mod=mod go mod vendor)
+  tar -C "$GCDIR" -czf "$OUT/go-core-$v-vendor.tar.gz" vendor go.mod go.sum
+done
 
 echo "== RandomY $RANDOMY_COMMIT"
 [[ $(git -C third_party/RandomY rev-parse HEAD) == "$RANDOMY_COMMIT" ]] ||
@@ -87,11 +100,17 @@ git -C third_party/RandomY archive --format=tar.gz --prefix="RandomY-${RANDOMY_C
   echo "packages carry:"
   echo
   echo "All platforms: gocore $GOCORE_VERSION, the official Core Blockchain node, unchanged"
-  echo "  release binary. Its LICENSE file says CORE License v1.0, its file headers"
-  echo "  GPL-3.0-or-later (cmd) and LGPL-3.0-or-later (library). Source: $GC (the"
-  echo "  tag from $GOCORE_SRC_URL, SHA-256 $GOCORE_SRC_SHA) and"
-  echo "  go-core-$GOCORE_VERSION-vendor.tar.gz (every Go module it builds from, from"
-  echo "  its go.sum; unpack into the source tree)."
+  echo "  release binary; the Intel Mac package carries gocore $GOCORE_INTEL_VERSION (the last"
+  echo "  release with an Intel Mac file), with an ad hoc code signature added. Its"
+  echo "  LICENSE file says CORE License v1.0, its file headers GPL-3.0-or-later (cmd)"
+  echo "  and LGPL-3.0-or-later (library). Source per version: go-core-<version>.tar.gz"
+  echo "  (the tag's archive from https://github.com/core-coin/go-core) and"
+  echo "  go-core-<version>-vendor.tar.gz (every Go module it builds from, from its"
+  echo "  go.sum; unpack into the source tree). SHA-256 of the tag archives:"
+  for entry in "${GOCORE_SRC[@]}"; do
+    read -r v want <<<"$entry"
+    echo "  $want  go-core-$v.tar.gz"
+  done
   echo "All platforms: RandomY (core-miner, BSD-3-Clause) at commit $RANDOMY_COMMIT"
   echo "  of github.com/core-coin/RandomY: RandomY-${RANDOMY_COMMIT:0:7}.tar.gz."
   echo
@@ -104,7 +123,7 @@ git -C third_party/RandomY archive --format=tar.gz --prefix="RandomY-${RANDOMY_C
   echo "  libc6 2.39-0ubuntu8.9 and gcc-14 14.2.0-4ubuntu2~24.04.1; source: Ubuntu source"
   echo "  packages (unpack with dpkg-source -x <file>.dsc)."
   echo
-  echo "Everything is used unchanged. SHA-256 of the distribution packages:"
+  echo "The runtime libraries are used unchanged. SHA-256 of their distribution packages:"
   echo
   for entry in "${SOURCES[@]}"; do
     read -r base file want <<<"$entry"
