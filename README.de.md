@@ -11,7 +11,8 @@ offizielle App von Core oder CoDeTech. [English: README.md](README.md)
 
 ## Herunterladen
 
-Über die [Download-Seite](https://tellmemoreaboutcore.com/de/core-starter/) oder unter
+Über die [Download-Seite](https://tellmemoreaboutcore.com/de/core-starter/?utm_source=github&utm_medium=readme)
+(empfohlen: sie wählt die passende Datei für dein System und zeigt, wie du sie prüfst) oder unter
 [Releases](https://github.com/tmmac-core/corestarter/releases/latest):
 
 | System | Datei |

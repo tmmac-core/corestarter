@@ -11,7 +11,8 @@ not an official app of Core or CoDeTech. [Deutsch: README.de.md](README.de.md)
 
 ## Download
 
-Get it from the [download page](https://tellmemoreaboutcore.com/core-starter/) or from
+Get it from the [download page](https://tellmemoreaboutcore.com/core-starter/?utm_source=github&utm_medium=readme)
+(recommended: it picks the right file for your system and shows how to check it) or from
 [Releases](https://github.com/tmmac-core/corestarter/releases/latest):
 
 | System | File |
