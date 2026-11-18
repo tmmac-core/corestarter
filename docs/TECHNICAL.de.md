@@ -6,7 +6,7 @@ Windows: eine einzige `CoreStarter.exe`: doppelklicken, im Startfenster wählen,
 
 ## Herunterladen
 
-Fertige Programme gibt es auf [tellmemoreaboutcore.com/core-starter](https://tellmemoreaboutcore.com/core-starter/) und unter [Releases](https://github.com/tmmac-core/corestarter/releases), jeweils mit SHA-256 in `SHA256SUMS`. Die Programme sind noch nicht signiert: Windows SmartScreen warnt beim ersten Start („Weitere Informationen“ → „Trotzdem ausführen“), mit eingeschaltetem „Smart App Control“ startet die Exe gar nicht; macOS fragt beim ersten Öffnen nach (Systemeinstellungen → Datenschutz & Sicherheit → „Dennoch öffnen“). CoreStarter ist ein unabhängiges Projekt von Tell Me More About Core (TMMAC), keine offizielle App von Core. Lizenz: GPL-3.0 mit Zusätzen nach §7 (`LICENSE`, `NOTICE.md`), Marken: `TRADEMARKS.md`.
+Fertige Programme gibt es auf [tellmemoreaboutcore.com/core-starter/](https://tellmemoreaboutcore.com/core-starter/) und unter [Releases](https://github.com/tmmac-core/corestarter/releases), jeweils mit SHA-256 in `SHA256SUMS`. Die Programme sind noch nicht signiert: Windows SmartScreen warnt beim ersten Start („Weitere Informationen“ → „Trotzdem ausführen“), mit eingeschaltetem „Smart App Control“ startet die Exe gar nicht; macOS fragt beim ersten Öffnen nach (Systemeinstellungen → Datenschutz & Sicherheit → „Dennoch öffnen“). CoreStarter ist ein unabhängiges Projekt von Tell Me More About Core (TMMAC), keine offizielle App von Core. Lizenz: GPL-3.0 mit Zusätzen nach §7 (`LICENSE`, `NOTICE.md`), Marken: `TRADEMARKS.md`.
 
 ## Was die Exe macht
 
