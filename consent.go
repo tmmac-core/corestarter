@@ -16,7 +16,7 @@ import (
 // TestConsentVersion keeps a hash of the texts and fails until the version and
 // the hash are updated together.
 const (
-	consentNodeVersion = 4 // beta, licence and liability, disk, P2P, autostart
+	consentNodeVersion = 5 // beta, licence and liability, disk, P2P, autostart; 5: NOTICE names the network map's components (1.2.0)
 	consentMineVersion = 3 // load and power costs, support share, earnings and tax, pool data
 )
 

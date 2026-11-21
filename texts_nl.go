@@ -11,7 +11,7 @@ var textsNL = texts{
 	stopped:      "Node gestopt",
 	failed:       "Node meerdere keren gecrasht – nieuwe poging over 30 min, zie log",
 	diskFull:     "Weinig opslag – node gestopt",
-	searching:    "Zoekt andere nodes …",
+	searching:    "Zoekt naar andere nodes …",
 	waiting:      "Wacht op start van de synchronisatie …",
 	peers: func(n uint64) string {
 		switch n {
@@ -37,7 +37,7 @@ var textsNL = texts{
 
 	menuOpenData:  "Gegevensmap openen",
 	menuOpenLog:   "Logmap openen",
-	menuSettings:  "Instellingen …",
+	menuSettings:  "Status en instellingen …",
 	menuMiner:     "Miner tonen …",
 	tipMining:     func(rate string) string { return "Minen " + rate + " H/s" },
 	menuRestart:   "Node opnieuw starten",
@@ -45,11 +45,11 @@ var textsNL = texts{
 	menuQuit:      "Afsluiten",
 
 	nodeOff:         "Node uitgeschakeld",
-	setupNeeded:     "Installatie niet afgerond – open “Instellingen …”",
+	setupNeeded:     "Installatie niet afgerond – open “Status en instellingen …”",
 	minerStarting:   "Minen: start (zelftest loopt) …",
 	minerConnecting: "Minen: verbinden met de pool …",
 	minerPaused:     "Minen gepauzeerd (op accu)",
-	minerConsent:    "Minen wacht op je toestemming (Instellingen …)",
+	minerConsent:    "Minen wacht op je akkoord (Status en instellingen …)",
 	minerHot:        "Minen gepauzeerd (te warm)",
 	minerFailed: func(code string) string {
 		r := map[string]string{
@@ -57,7 +57,7 @@ var textsNL = texts{
 			"login":     "de pool heeft het adres geweigerd",
 			"address":   "ongeldig adres",
 			"job":       "miner kon niet aan CoreStarter worden gekoppeld",
-			"av":        "core-miner.exe is door de virusscanner verwijderd of geblokkeerd – maak een uitzondering voor de map CoreStarter en sla daarna opnieuw op",
+			"av":        "core-miner.exe is door de virusscanner verwijderd of geblokkeerd – voeg een uitsluiting toe voor de map CoreStarter en sla daarna opnieuw op",
 			"crashloop": "meerdere keren gecrasht, nieuwe poging over 30 min",
 		}[code]
 		if r == "" {
@@ -88,12 +88,12 @@ var textsNL = texts{
 
 	installBody: "Dit programma installeert een node van de Core-blockchain (gocore, officiële versie %s) en start die.\n\n" +
 		"• CoreStarter is bètasoftware van Tell Me More About Core. De licentie- en aansprakelijkheidsvoorwaarden gelden (na de installatie in het bestand NOTICE-core-starter.txt in de programmamap), net als de privacyverklaring op tellmemoreaboutcore.com/privacy/#apps.\n" +
-		"• Opslag: ongeveer %d GB vrij nodig, de keten blijft groeien.\n" +
+		"• Opslag: ongeveer %d GB vrij nodig, de blockchain blijft groeien.\n" +
 		"• Werkgeheugen: ongeveer 2–3 GB zolang de node draait (schatting).\n" +
 		"• Internet: de eerste synchronisatie downloadt meerdere GB, daarna is er constant wat dataverkeer op de achtergrond.\n" +
 		"• Netwerk: de node opent via UPnP automatisch een poort op je router, zodat andere nodes hem kunnen bereiken. Andere nodes, tijdservers (pool.ntp.org) en DNS-servers zien je IP-adres.\n" +
 		"• De starter zelf stuurt geen gegevens naar TMMAC of derden.\n" +
-		"• Windows Firewall: als Windows het vraagt, kies dan \"Toestaan\" (kan om een beheerderswachtwoord vragen). Zonder toestemming draait de node toch, maar helpt hij het netwerk minder.\n" +
+		"• Windows Defender Firewall: als Windows het vraagt, kies dan “Toegang toestaan” (kan om een beheerderswachtwoord vragen). Zonder toestemming draait de node toch, maar helpt hij het netwerk minder.\n" +
 		"• CoreStarter start niet automatisch met Windows.\n\n" +
 		"Met \"Ja\" bevestig je dat je deze informatie hebt gelezen en ermee akkoord gaat. Installeren en starten?",
 	alreadyRunning: "CoreStarter draait al. Je vindt het als pictogram rechtsonder in de taakbalk (eventueel onder het pijltje ^).",
@@ -124,5 +124,9 @@ var textsNL = texts{
 	},
 	updateTimeout: "De actieve versie is niet op tijd afgesloten. Sluit CoreStarter af via het pictogram in de taakbalk (rechtsklik → Afsluiten) en probeer het opnieuw.",
 	crashHint:     "De node is meerdere keren gecrasht. De starter probeert het elke 30 minuten opnieuw. In de log staat de reden (rechtsklik op het pictogram → Logmap openen).",
-	diskFullHint:  "Op de schijf is bijna geen opslag meer vrij. Zodat het systeem normaal blijft werken, heeft CoreStarter de node gestopt. Maak minstens 2 GB vrij; de starter probeert het elke 30 minuten opnieuw.",
+	failedForeign: "Andere gocore actief – node wacht, zie log",
+	failedPort:    "Geen vrije P2P-poort – node wacht, zie log",
+	foreignHint:   "Op deze computer draait al een gocore die CoreStarter niet kan besturen (bijvoorbeeld handmatig of als beheerder gestart). Om te voorkomen dat twee nodes dezelfde gegevens schrijven, start CoreStarter geen tweede. Sluit de andere gocore af of start de computer opnieuw; de starter probeert het elke 30 minuten opnieuw.",
+	portHint:      "De poorten 30300 tot 30320 zijn allemaal in gebruik, waarschijnlijk door andere nodes of programma’s. Sluit die af of start de computer opnieuw; de starter probeert het elke 30 minuten opnieuw.",
+	diskFullHint:  "Op de schijf is bijna geen opslag meer vrij. CoreStarter heeft de node gestopt, zodat het systeem normaal blijft werken. Maak minstens 2 GB vrij; de starter probeert het elke 30 minuten opnieuw.",
 }

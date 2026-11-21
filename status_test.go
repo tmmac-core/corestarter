@@ -42,6 +42,44 @@ func TestTrackerInitialSync(t *testing.T) {
 	}
 }
 
+// The remaining time comes from the measured block rate, not before two
+// minutes of it; the state phase has no total and gets none.
+func TestTrackerSyncProgress(t *testing.T) {
+	var tr tracker
+	t0 := time.Unix(1_800_000_000, 0)
+	poll := func(sec int, cur uint64, known uint64) Status {
+		return tr.update(textsDE, NodeRunning, 1, &Snapshot{Syncing: true, Current: cur, Highest: 1_000_000, Known: known, Peers: 8}, false, t0.Add(time.Duration(sec)*time.Second))
+	}
+	s := poll(0, 100_000, 0)
+	if s.Phase != "blocks" || s.Frac != 0.1 || s.EtaSec != 0 {
+		t.Fatalf("start: %+v", s)
+	}
+	if s = poll(60, 106_000, 0); s.EtaSec != 0 {
+		t.Fatalf("after 1 min no estimate yet, got %d", s.EtaSec)
+	}
+	// 100 blocks/s over 2 min; 888,000 left → 8,880 s
+	if s = poll(120, 112_000, 0); s.EtaSec != 8880 {
+		t.Fatalf("after 2 min: eta %d, want 8880", s.EtaSec)
+	}
+	// a lower block (another peer's chain) starts the measurement again
+	if s = poll(125, 50_000, 0); s.EtaSec != 0 {
+		t.Fatalf("after going back: eta %d, want 0", s.EtaSec)
+	}
+	s = poll(130, 999_500, 500)
+	if s.Phase != "state" || s.Frac != -1 || s.EtaSec != 0 {
+		t.Fatalf("state phase: %+v", s)
+	}
+	// synced node: no phase
+	var up tracker
+	if s = up.update(textsDE, NodeRunning, 1, &Snapshot{Head: 5, Peers: 3}, false, t0); s.Phase != "" {
+		t.Fatalf("synced: phase %q", s.Phase)
+	}
+	// catching up after a pause: fraction of the gap since the node started
+	if s = up.update(textsDE, NodeRunning, 1, &Snapshot{Syncing: true, Head: 900, Starting: 900, Current: 950, Highest: 1000, Peers: 3}, false, t0); s.Phase != "catchup" || s.Frac != 0.5 {
+		t.Fatalf("catchup: %+v", s)
+	}
+}
+
 func TestTrackerAfterFirstSync(t *testing.T) {
 	now := time.Now()
 	var tr tracker

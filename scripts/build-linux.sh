@@ -25,10 +25,10 @@ GOCORE_LICENSE_SHA=e2cbe1260d2307e00c04cdc94c85c9e254dde6a17281799a92b8a557d8db1
 
 # glibc runtime for gocore on systems older than its build (Ubuntu 22.04,
 # Debian 12): ld.so, libc and libm from one libc6 package, libstdc++ and
-# libgcc_s from one GCC (gcc-14-base only for their licence text). Ubuntu 24.04 (noble) packages, 2026-10-22.
+# libgcc_s from one GCC (gcc-14-base only for their licence text). Ubuntu 24.04 (noble) packages, 2026-10-22 (libc6 2026-11-20).
 LP=https://launchpad.net/ubuntu/+archive/primary/+files
 RUNTIME_PKGS=(
-  "libc6_2.39-0ubuntu8.9_amd64.deb ff5557d99b51f761c4b7c92368b9cc45565eda17df9bf9eb4b134d09825008be"
+  "libc6_2.39-0ubuntu8.12_amd64.deb d821b41fc59cb4978ecd53bc83e5c964ac15d305c8d2ac4c8a35aebe55010fb9"
   "libstdc++6_14.2.0-4ubuntu2~24.04.1_amd64.deb a51f8de7829211db961a31f02158058ad1a95f92ac6d0a5dff6350e2821c54c0"
   "libgcc-s1_14.2.0-4ubuntu2~24.04.1_amd64.deb aa7fadbe33b78bcf99885318040601c550c208929565b179891d9a3cc2aa68cd"
   "gcc-14-base_14.2.0-4ubuntu2~24.04.1_amd64.deb b95c172411a7fdae70307cf33a9f5320ba5e056b556454543dd5b679d5ce1c4f"
@@ -66,6 +66,7 @@ install -m 0755 "$CACHE/gocore-$GOCORE_VERSION" "$LIB/gocore"
 fetch "$GOCORE_LICENSE_URL" "$CACHE/LICENSE-gocore-$GOCORE_VERSION.txt" "$GOCORE_LICENSE_SHA"
 cp "$CACHE/LICENSE-gocore-$GOCORE_VERSION.txt" "$DOC/LICENSE-gocore.txt"
 cp third_party/licenses/LGPL-3.0.txt "$DOC/LICENSE-gocore-LGPL3.txt" # go-core's file headers (NOTICE.md)
+cp third_party/licenses/LICENSE-data-DB-IP.txt "$DOC/LICENSE-data-DB-IP.txt" # country data of the network map
 
 echo "== glibc runtime (only used where the system's glibc is too old)"
 X=$CACHE/x

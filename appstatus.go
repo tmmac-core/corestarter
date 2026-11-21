@@ -19,6 +19,29 @@ type AppStatus struct {
 	PeersLine string `json:"peersLine"`
 	Synced    bool   `json:"synced"`
 	Syncing   bool   `json:"syncing"` // initial sync running: mining is throttled
+	// Progress for the window's bar (see Status): phase, 0..1 (-1: no total)
+	// and the estimated seconds left (0: not estimated yet).
+	SyncPhase  string  `json:"syncPhase,omitempty"`
+	SyncFrac   float64 `json:"syncFrac,omitempty"`
+	SyncEtaSec int64   `json:"syncEtaSec,omitempty"`
+	// Why the node does not run (only while it has failed): "disk",
+	// "foreign", "port" or "crash", with the explanation the tray shows.
+	NodeCause string `json:"nodeCause,omitempty"`
+	NodeHint  string `json:"nodeHint,omitempty"`
+	// For the window's network card: connections now, and how many of them
+	// were opened from outside (-1: not known, e.g. the node is off or does
+	// not answer).
+	Peers   int `json:"peers"`
+	Inbound int `json:"inbound"`
+	Port    int `json:"port,omitempty"` // P2P port, for the port-forwarding hint
+	// Since the node started: minutes running, and whether any node has
+	// connected from outside meanwhile (the window's "reachable" line).
+	RunMin      int  `json:"runMin"`
+	InboundEver bool `json:"inboundEver,omitempty"`
+	// New blocks this node imported and checked itself since it started
+	// (head now minus the first head seen in this run; the fast sync's
+	// blocks are not executed and do not count). For "Your contribution".
+	BlocksChecked uint64 `json:"blocksChecked,omitempty"`
 
 	MinerOn     bool                   `json:"minerOn"`
 	MinerLine   string                 `json:"minerLine"`

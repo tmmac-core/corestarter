@@ -2,6 +2,53 @@
 
 All notable changes to CoreStarter. Versions follow `appVersion` in `app.go`.
 
+## Unreleased
+
+### Added
+- "My network" card in the settings window: a world map with the countries of
+  the nodes that answered your node in the last 24 hours, how many are
+  connected now, and whether a node has connected to yours from outside
+  since it started (if not, how to forward the port safely). Read from the
+  node's own address book on this computer; the starter opens no connection
+  for it and shows no addresses, only countries.
+- Sync progress in the settings window: a thin bar and an estimate of the
+  time left ("Step 1 of 2: loading blocks · about 3 h left"), measured from
+  the node's own block rate; step 2 (account state) has no total in gocore,
+  so it gets no estimate. When the sync finishes with the window open, it
+  says so.
+- When the node cannot run, the tray and the window name the reason: another
+  gocore holds the data folder, no free P2P port, low disk space, or repeated
+  crashes. The window offers the log folder (data folder when the disk is
+  full) and a button that copies versions and state for support, without
+  any address or node ID.
+
+### Changed
+- Japanese, Dutch and Romanian texts reviewed against the German: several
+  sentences that said something slightly different now say the same (for
+  example the support share and the overheating note), plus more natural
+  wording and one term per concept.
+- NOTICE now also names the parts behind "My network": goleveldb and
+  golang/snappy, DB-IP's country table (CC BY 4.0) and the Natural Earth
+  map. As with every change to these texts, the node consent asks once
+  more after the update (version 5).
+- When the pool's statistics (Catch That Rabbit's API) don't answer, the
+  miner view says so, adds that mining carries on as normal and when the
+  next try is; earlier figures stay with the time they are from. Before, it
+  kept saying the earnings were being fetched.
+- The installed window opens on a "Status" tab, next to "Miner" (while
+  mining is on) and "Settings". Status shows the node, the sync progress, a
+  new "Your contribution" card (running time, new blocks your node verified
+  since it started, size of its copy of the chain), "My network" and a line
+  on the miner. The tray item is now "Status and settings …".
+- Settings window: calmer layout on a 4/8 px grid, fewer font sizes, the
+  links moved out of the sticky footer (73 instead of 201 px high on a narrow
+  window), no sideways scrolling at 375 px, the three info sections grouped
+  in one card with full-width rows, a visible switch track when off.
+- Motion only on a change of state, with the brand's durations and curves;
+  none at rest, none with "reduce motion", none while the window is hidden.
+- Linux packages carry glibc 2.39-0ubuntu8.12 (Ubuntu 24.04 security
+  update) instead of 8.9.
+
 ## 1.1.0
 
 ### Added

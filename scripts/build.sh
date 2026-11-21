@@ -63,6 +63,7 @@ cp "$CACHE/LICENSE-gocore-$GOCORE_VERSION.txt" "$STAGE/LICENSE-gocore.txt"
 # go-core's file headers say LGPL-3.0-or-later (library) and GPL-3.0-or-later (the
 # command, whose text is LICENSE-core-starter.txt): their texts go along too.
 cp third_party/licenses/LGPL-3.0.txt "$STAGE/LICENSE-gocore-LGPL3.txt"
+cp third_party/licenses/LICENSE-data-DB-IP.txt "$STAGE/LICENSE-data-DB-IP.txt" # country data of the network map
 
 echo "== MinGW runtime DLLs"
 rm -rf "$CACHE/x" && mkdir -p "$CACHE/x"
@@ -87,8 +88,8 @@ cp LICENSE "$STAGE/LICENSE-core-starter.txt"
 cp NOTICE.md "$STAGE/NOTICE-core-starter.txt"
 cp TRADEMARKS.md "$STAGE/TRADEMARKS-core-starter.txt"
 "$(dirname "$0")"/go-licenses.sh windows "$STAGE" "$([[ $NOMINER == 1 ]] && echo nominer || true)"
-GOLIC="LICENSE-go.txt LICENSE-go-go-ole.txt LICENSE-go-go-webview2.txt LICENSE-go-go-winio.txt LICENSE-go-systray.txt LICENSE-go-webviewloader.txt LICENSE-go-x-sys.txt"
-EXPECTED="$GOLIC LICENSE-core-starter.txt LICENSE-font-Barlow.txt LICENSE-font-Manrope.txt LICENSE-font-SplineSansMono.txt LICENSE-gcc-GPL3.txt LICENSE-gcc-runtime-exception.txt LICENSE-gocore-LGPL3.txt LICENSE-gocore.txt LICENSE-winpthreads.txt NOTICE-core-starter.txt TRADEMARKS-core-starter.txt gocore.exe libgcc_s_seh-1.dll libstdc++-6.dll libwinpthread-1.dll"
+GOLIC="LICENSE-go.txt LICENSE-go-go-ole.txt LICENSE-go-go-webview2.txt LICENSE-go-go-winio.txt LICENSE-go-goleveldb.txt LICENSE-go-snappy.txt LICENSE-go-systray.txt LICENSE-go-webviewloader.txt LICENSE-go-x-sys.txt"
+EXPECTED="$GOLIC LICENSE-core-starter.txt LICENSE-data-DB-IP.txt LICENSE-font-Barlow.txt LICENSE-font-Manrope.txt LICENSE-font-SplineSansMono.txt LICENSE-gcc-GPL3.txt LICENSE-gcc-runtime-exception.txt LICENSE-gocore-LGPL3.txt LICENSE-gocore.txt LICENSE-winpthreads.txt NOTICE-core-starter.txt TRADEMARKS-core-starter.txt gocore.exe libgcc_s_seh-1.dll libstdc++-6.dll libwinpthread-1.dll"
 EXPECTED=$(printf '%s\n' $EXPECTED | LC_ALL=C sort | tr '\n' ' ' | sed 's/ $//')
 TAGS=""
 if [[ $NOMINER == 1 ]]; then

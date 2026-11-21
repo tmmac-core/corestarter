@@ -23,6 +23,8 @@ mit allen Dateien aus genau diesem Stand. Die Programme sind noch nicht signiert
 5. Tag `v<v>` auf den Release-Commit, als TMMAC:
    `GIT_COMMITTER_NAME=TMMAC GIT_COMMITTER_EMAIL=contact@tellmemoreaboutcore.com git tag -a v<v> -m "CoreStarter <v>"`.
    GitHub Release mit allen Dateien, `SHA256SUMS` und der Release-Notiz (Hinweis auf die fehlende Signatur).
+   Erste Zeile der Notiz immer der Verweis auf die Download-Seite mit Herkunftskennung (Download-Zaehlung der
+   Website, Daniel 15.11.2026): `Recommended: download from the [download page](https://tellmemoreaboutcore.com/core-starter/?utm_source=github&utm_medium=release) — it picks the right file for your system and shows how to check it. The files below are the same.`
 6. VirusTotal, erst nach dem GitHub Release (hochgeladene Dateien und ihr Bericht werden öffentlich):
    `scripts/virustotal.sh CoreStarter.exe CoreStarter-<v>-mac-arm64.dmg CoreStarter-<v>-mac-intel.dmg` lädt nur Unbekanntes hoch, wartet auf die
    Analyse und gibt je Datei Treffer/Gesamt mit den Scanner-Namen aus, für die Exe zusätzlich die `scan`-Zeile der

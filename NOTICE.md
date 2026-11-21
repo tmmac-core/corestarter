@@ -70,7 +70,13 @@ are fetched by the build scripts.
 - **Go** standard library and the Go modules compiled in (`LICENSE-go*.txt`, written by
   `scripts/go-licenses.sh`): Go and golang.org/x/sys (BSD-3-Clause), fyne.io/systray
   (Apache-2.0); Windows: go-ole, go-winio, go-webview2 (MIT) and its loader package (ISC, a Go
-  port that replaces Microsoft's WebView2Loader.dll); Linux: godbus (BSD-2-Clause).
+  port that replaces Microsoft's WebView2Loader.dll); Linux: godbus (BSD-2-Clause). For the
+  "My network" card, which reads the node's address book: goleveldb (BSD-2-Clause) and
+  golang/snappy (BSD-3-Clause).
+- **Data of the "My network" card:** the country table is "IP to Country Lite" by DB-IP
+  (db-ip.com), November 2026 edition, under CC BY 4.0, used in a compact form of its IPv4 rows
+  (`LICENSE-data-DB-IP.txt`); DB-IP does not endorse CoreStarter. The country outlines of the
+  map come from Natural Earth (public domain).
 - **Fonts** Barlow, Manrope, Spline Sans Mono: SIL OFL 1.1.
 - **Windows:** GCC runtime (GPL-3.0 with GCC Runtime Library Exception), winpthreads (MIT-style);
   the miner links parts of the MinGW-w64 runtime statically (`LICENSE-mingw-w64-runtime.txt`).

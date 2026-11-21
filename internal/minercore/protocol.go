@@ -1,6 +1,9 @@
 package minercore
 
-import "time"
+import (
+	"sync/atomic"
+	"time"
+)
 
 // The tray talks to core-miner.exe through its standard streams, one JSON
 // object per line: commands on stdin, status and log lines on stdout. When the
@@ -50,6 +53,34 @@ type MinerStatus struct {
 	TotalHashes   int64     `json:"totalHashes"`
 	XCBPerDay     float64   `json:"xcbPerDay,omitempty"`
 	Earnings      *Earnings `json:"earnings,omitempty"`
+	// The last query of the pool's statistics (API) failed; mining itself goes
+	// on over its own connection. Earnings, if set, are from an earlier query.
+	EarningsDown      bool  `json:"earningsDown,omitempty"`
+	EarningsRetrySecs int64 `json:"earningsRetrySecs,omitempty"` // seconds until the next query
+}
+
+// EarningsWatch remembers for the status whether the last query of the pool
+// API failed and when the next one is due. Times are monotonic nanoseconds.
+type EarningsWatch struct {
+	down atomic.Bool
+	next atomic.Int64
+}
+
+// Result records one query: err from FetchEarnings, next = time of the next one.
+func (w *EarningsWatch) Result(err error, next int64) {
+	w.next.Store(next)
+	w.down.Store(err != nil)
+}
+
+// Fill sets EarningsDown and EarningsRetrySecs on s while queries fail.
+func (w *EarningsWatch) Fill(s *MinerStatus, now int64) {
+	if !w.down.Load() {
+		return
+	}
+	s.EarningsDown = true
+	if secs := (w.next.Load() - now) / int64(time.Second); secs > 0 {
+		s.EarningsRetrySecs = secs
+	}
 }
 
 // How long without work from the pool counts as "pool unreachable". Before the

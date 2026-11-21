@@ -175,7 +175,7 @@ func TestConsentVersion(t *testing.T) {
 		got     string
 		want    map[int]string
 	}{
-		{"node", consentNodeVersion, node, map[int]string{1: "9a681d8979c7704370ea78cf78061aabd6bb52290edf797b646d45b0effdaf3d", 2: "a4ad0e337b89378cfe016c36ad4a371162cd0014f0aecb84b24e8f65361a71dc", 3: "5615d3820d1407105f7596e316497141403447f69d2539c88de1e8693678f00f", 4: "47e7fe46dc71de376f78cbf152ac7831a326caed904e3f1cccc2d4cad46c7e00"}},
+		{"node", consentNodeVersion, node, map[int]string{1: "9a681d8979c7704370ea78cf78061aabd6bb52290edf797b646d45b0effdaf3d", 2: "a4ad0e337b89378cfe016c36ad4a371162cd0014f0aecb84b24e8f65361a71dc", 3: "5615d3820d1407105f7596e316497141403447f69d2539c88de1e8693678f00f", 4: "47e7fe46dc71de376f78cbf152ac7831a326caed904e3f1cccc2d4cad46c7e00", 5: "a39d61c427ec3797fc68ee3d044a3475d4f346a4f022d39a123d4f3ffa0d5485"}},
 		{"mine", consentMineVersion, mine, map[int]string{1: "e5dbadec5d78077162af0e818e189eb580c1f226853610daf8e86baf6c35ef1c", 2: "4a5c9284f3d72be7214f6f9feebcce1f2baf1e002927bb6cf84ba8f35fad0b8b", 3: "1e4d5059f148d3fa41ce1f165d5b75beb5134dafb2f6a45b4993646226f83888"}},
 	} {
 		switch w := c.want[c.version]; {

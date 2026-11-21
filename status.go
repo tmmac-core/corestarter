@@ -12,6 +12,13 @@ type Status struct {
 	Line2   string // peers, empty when there are none
 	Tooltip string // Windows limits tray tooltips to 127 characters
 	Synced  bool
+	// Sync progress for the window's bar: Phase is "blocks" (first sync,
+	// block download), "state" (first sync, account state: no total, so no
+	// fraction) or "catchup" (behind after a pause); empty when not syncing.
+	// Frac is 0..0.999 (-1: not known), EtaSec 0 while not estimated yet.
+	Phase  string
+	Frac   float64
+	EtaSec int64
 }
 
 // NodeState is what the supervisor knows independently of RPC.
@@ -38,7 +45,17 @@ const (
 	quietCaughtUp = 10 * time.Minute
 	// keepSnapshot: a few failed polls (busy disk) keep the last known status.
 	keepSnapshot = 3
+	// etaWindow / etaMinSpan: the remaining time comes from the block rate of the
+	// last ten minutes and is not shown before two minutes of it were measured.
+	etaWindow  = 10 * time.Minute
+	etaMinSpan = 2 * time.Minute
 )
+
+// progSample: one poll's block during a sync phase, for the rate.
+type progSample struct {
+	at  time.Time
+	cur uint64
+}
 
 // tracker turns the stream of node snapshots into a stable, honest status.
 // Two gocore facts drive it (go-core v2.2.2):
@@ -52,6 +69,13 @@ type tracker struct {
 	caughtUp    bool
 	quietSince  time.Time
 	lastNodePID uint32
+	// progress of the current poll (set by describeRunning) and the samples
+	// of the phase it belongs to
+	phase     string
+	frac      float64
+	etaSec    int64
+	samples   []progSample
+	samplesOf string
 }
 
 // update is called every poll. pid identifies the node process, so a restart
@@ -60,7 +84,9 @@ func (tr *tracker) update(t texts, st NodeState, pid uint32, snap *Snapshot, dis
 	if pid != tr.lastNodePID || st != NodeRunning {
 		tr.last, tr.misses, tr.caughtUp, tr.quietSince = nil, 0, false, time.Time{}
 		tr.lastNodePID = pid
+		tr.samples, tr.samplesOf = nil, ""
 	}
+	tr.phase, tr.frac, tr.etaSec = "", 0, 0
 	if st == NodeRunning {
 		if snap == nil {
 			tr.misses++
@@ -93,6 +119,10 @@ func (tr *tracker) update(t texts, st NodeState, pid uint32, snap *Snapshot, dis
 		}
 		s.Line2 = t.peers(snap.Peers)
 		s.Line1, s.Synced = tr.describeRunning(t, snap, now)
+		s.Phase, s.Frac, s.EtaSec = tr.phase, tr.frac, tr.etaSec
+	}
+	if s.Phase == "" {
+		tr.samples, tr.samplesOf = nil, ""
 	}
 	tip := "CoreStarter: " + s.Line1
 	if s.Line2 != "" {
@@ -109,8 +139,10 @@ func (tr *tracker) describeRunning(t texts, snap *Snapshot, now time.Time) (stri
 		switch {
 		case snap.Syncing && snap.Highest > 0:
 			if snap.Highest-min(snap.Current, snap.Highest) <= statePhaseGap && snap.Known > 0 {
+				tr.progress("state", -1, 0, 0, now)
 				return t.syncState(formatInt(t, snap.Pulled)), false
 			}
+			tr.progress("blocks", fraction(snap.Current, snap.Highest), snap.Current, snap.Highest, now)
 			return t.syncBlocks(percent(snap.Current, snap.Highest), formatInt(t, snap.Current), formatInt(t, snap.Highest)), false
 		case snap.Peers == 0:
 			return t.searching, false
@@ -129,6 +161,7 @@ func (tr *tracker) describeRunning(t texts, snap *Snapshot, now time.Time) (stri
 			tr.quietSince = time.Time{}
 			done := snap.Current - min(snap.Starting, snap.Current)
 			total := snap.Highest - min(snap.Starting, snap.Highest)
+			tr.progress("catchup", fraction(done, total), snap.Current, snap.Highest, now)
 			return t.catchingUp(percent(done, total), formatInt(t, gap)), false
 		}
 	}
@@ -148,6 +181,42 @@ func (tr *tracker) describeRunning(t texts, snap *Snapshot, now time.Time) (stri
 		return t.synced(formatInt(t, snap.Head)), true
 	}
 	return t.checking(formatInt(t, snap.Head)), false
+}
+
+// progress records this poll's phase and estimates the remaining time from
+// the block rate over etaWindow. A new phase or a block number going back
+// (another peer's chain) starts the measurement again. The state phase has
+// no total, so it gets no estimate.
+func (tr *tracker) progress(phase string, frac float64, cur, high uint64, now time.Time) {
+	tr.phase, tr.frac = phase, frac
+	if phase != tr.samplesOf || (len(tr.samples) > 0 && cur < tr.samples[len(tr.samples)-1].cur) {
+		tr.samples, tr.samplesOf = nil, phase
+	}
+	if phase == "state" {
+		return
+	}
+	tr.samples = append(tr.samples, progSample{now, cur})
+	cut := 0
+	for cut < len(tr.samples)-1 && now.Sub(tr.samples[cut].at) > etaWindow {
+		cut++
+	}
+	tr.samples = tr.samples[cut:]
+	first := tr.samples[0]
+	span := now.Sub(first.at)
+	if span < etaMinSpan || cur <= first.cur || high <= cur {
+		return
+	}
+	rate := float64(cur-first.cur) / span.Seconds() // blocks per second
+	tr.etaSec = int64(float64(high-cur)/rate + 0.5)
+}
+
+// fraction is done/total for the window's bar, below 1 while work is left.
+func fraction(done, total uint64) float64 {
+	if total == 0 {
+		return 0
+	}
+	f := float64(min(done, total)) / float64(total)
+	return min(f, 0.999)
 }
 
 // percent never reports 100 while work is left.

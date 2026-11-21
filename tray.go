@@ -106,10 +106,13 @@ func statusLoop(p paths, sup *supervisor, miner *minerSup, needSetup, quitting *
 	var mt minerTrack
 	var lastErr string
 	warned := false
-	iconNode := NodeStopped // node part of the tray icon, see trayLookFor
+	iconNode := NodeStopped       // node part of the tray icon, see trayLookFor
+	var runSince time.Time        // the node runs since; zero while it does not
+	inboundEver := false          // an inbound peer since runSince
+	var headStart, checked uint64 // first imported block since runSince (0: none yet), blocks since
 	for !quitting.Load() {
 		t := *trayTexts.Load()
-		st, pid, ipc, diskFull := sup.Current()
+		st, pid, ipc, diskFull, supCause := sup.CurrentCause()
 		var snap *Snapshot
 		if st == NodeRunning {
 			s, err := queryStatus(ipc, pid)
@@ -121,6 +124,13 @@ func statusLoop(p paths, sup *supervisor, miner *minerSup, needSetup, quitting *
 			}
 		}
 		ns := tr.update(t, st, pid, snap, diskFull, time.Now())
+		cause, hint := failCause(t, st, diskFull, supCause)
+		switch cause {
+		case "foreign":
+			ns.Line1 = t.failedForeign
+		case "port":
+			ns.Line1 = t.failedPort
+		}
 		nodeOn := st != NodeStopped
 		// First sync competes with the miner for the CPU; a node without peers
 		// (P2P blocked) does no work and must not hold the miner at 25 %.
@@ -135,6 +145,23 @@ func statusLoop(p paths, sup *supervisor, miner *minerSup, needSetup, quitting *
 		as := AppStatus{
 			Version: appVersion, Gocore: gocoreVersion, Updated: time.Now(), NeedSetup: needSetup.Load(),
 			NodeOn: nodeOn, NodeLine: ns.Line1, PeersLine: ns.Line2, Synced: ns.Synced, Syncing: initialSync,
+			Peers: -1, Inbound: -1, Port: sup.P2PPort(),
+			SyncPhase: ns.Phase, SyncFrac: ns.Frac, SyncEtaSec: ns.EtaSec,
+			NodeCause: cause, NodeHint: hint,
+		}
+		if snap != nil {
+			as.Peers, as.Inbound = int(snap.Peers), snap.Inbound
+		}
+		if st == NodeRunning {
+			if runSince.IsZero() {
+				runSince = time.Now()
+			}
+			inboundEver = inboundEver || as.Inbound > 0
+			as.RunMin, as.InboundEver = int(time.Since(runSince)/time.Minute), inboundEver
+			headStart, checked = blocksChecked(headStart, checked, snap)
+			as.BlocksChecked = checked
+		} else {
+			runSince, inboundEver, headStart, checked = time.Time{}, false, 0, 0
 		}
 		switch {
 		case as.NeedSetup:
@@ -183,10 +210,6 @@ func statusLoop(p paths, sup *supervisor, miner *minerSup, needSetup, quitting *
 		}
 		if st == NodeFailed && !warned {
 			warned = true
-			hint := t.crashHint
-			if diskFull {
-				hint = t.diskFullHint
-			}
 			go warnUser(t, hint)
 		}
 		if st == NodeRunning {
@@ -194,6 +217,37 @@ func statusLoop(p paths, sup *supervisor, miner *minerSup, needSetup, quitting *
 		}
 		time.Sleep(pollInterval)
 	}
+}
+
+// blocksChecked: blocks imported since the first head of this run. During
+// the fast sync the head is 0 and nothing counts yet; a missed poll (no
+// snapshot) keeps the last count.
+func blocksChecked(start, last uint64, snap *Snapshot) (uint64, uint64) {
+	if snap == nil {
+		return start, last
+	}
+	if snap.Head == 0 {
+		return start, 0
+	}
+	if start == 0 || snap.Head < start {
+		start = snap.Head // first head, or a reorg/another chain below it
+	}
+	return start, snap.Head - start
+}
+
+// failCause names why a failed node does not run, with the tray's explanation.
+func failCause(t texts, st NodeState, diskFull bool, cause string) (string, string) {
+	switch {
+	case st != NodeFailed:
+		return "", ""
+	case diskFull:
+		return "disk", t.diskFullHint
+	case cause == "foreign":
+		return "foreign", t.foreignHint
+	case cause == "port":
+		return "port", t.portHint
+	}
+	return "crash", t.crashHint
 }
 
 func showLine(item *systray.MenuItem, text string, shown bool) bool {

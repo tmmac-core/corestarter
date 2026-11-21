@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" class="boot">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src data:; script-src 'unsafe-inline'; img-src data:">
@@ -34,6 +34,16 @@
     --r-tag: 4px;
     --r-button: 8px;
     --r-card: 12px;
+    /* Motion from the canon (tokens.css §MOTION): movement only on a change of state, never at rest. */
+    --motion-micro: 100ms cubic-bezier(0.20, 0, 0.38, 1);
+    --motion-base: 180ms cubic-bezier(0.20, 0, 0.13, 1);
+    --motion-deliberate: 280ms cubic-bezier(0.20, 0, 0.13, 1);
+    --motion-ceremonial: 560ms cubic-bezier(0.20, 0, 0.13, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.30, 1);
+    --ease-spring-out: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --green-active: #005935;
+    --on-green: #020a05;
+    --pad: 24px;
     --font-display: "Barlow", "Segoe UI Variable Display", "Segoe UI", sans-serif;
     --font-sans: "Manrope", "Yu Gothic UI", "Meiryo UI", "Noto Sans CJK JP", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
     --font-mono: "Spline Sans Mono", "Cascadia Mono", Consolas, "Yu Gothic UI", monospace;
@@ -57,52 +67,83 @@
       --green-spike: oklch(86% 0.18 152);
       --warn: oklch(80% 0.14 75);
       --error: oklch(70% 0.17 25);
+      --green-active: oklch(40% 0.11 162);
+      --on-green: oklch(13% 0.02 162);
     }
   }
   * { box-sizing: border-box; }
+  /* The first picture appears as it is: no switch slides, nothing fades in while the window opens. */
+  .boot *, .boot *::before, .boot *::after { transition: none !important; animation: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0ms !important; animation-iteration-count: 1 !important; transition-duration: 0ms !important; scroll-behavior: auto !important; }
+  }
   em, i, cite { font-style: inherit; }
   html { background: var(--canvas); }
   /* A faint green light from above, as in the mobile app: ambience, not an element. */
   html, body { margin: 0; color: var(--ink-muted); font: 14px/1.55 var(--font-sans); -webkit-font-smoothing: antialiased; }
-  body { min-height: 100vh; padding: 26px 26px 22px; background: radial-gradient(130% 55% at 50% -12%, var(--glow), transparent 70%) no-repeat, var(--canvas); }
+  body { min-height: 100vh; padding: var(--pad) var(--pad) 20px; background: radial-gradient(130% 55% at 50% -12%, var(--glow), transparent 70%) no-repeat, var(--canvas); }
   h1 { margin: 0; color: var(--ink); font: 800 30px/0.95 var(--font-display); letter-spacing: -0.02em; }
-  h2 { margin: 0; color: var(--ink); font-size: 15.5px; font-weight: 600; letter-spacing: -0.005em; }
+  h2 { margin: 0; color: var(--ink); font-size: 16px; font-weight: 600; letter-spacing: -0.005em; }
   p { margin: 0; }
   strong { font-weight: 600; color: var(--ink); }
   .kick { display: inline-flex; align-items: center; gap: 9px; font: 700 11px/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-muted); }
   .kick::before { content: ""; width: 7px; height: 7px; border-radius: 1px; background: currentColor; opacity: .7; flex: none; }
   .kick.bare::before { display: none; }
+  h3.eyebrow { margin-bottom: 0; }
   .eyebrow { font: 700 10.5px/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-quiet); }
   .num { font-variant-numeric: tabular-nums; }
-  header { display: flex; gap: 14px; align-items: center; margin-bottom: 22px; }
+  header { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-bottom: 24px; }
   header img { width: 46px; height: 46px; }
-  .lang { margin-left: auto; align-self: flex-start; min-height: 32px; padding: 7px 30px 7px 12px; border-radius: var(--r-button); border: 1px solid var(--border-mid); color: var(--ink-muted); font: 700 12px var(--font-mono); letter-spacing: 0.06em; cursor: pointer; appearance: none;
+  .lang { margin-left: auto; align-self: flex-start; flex: none; max-width: 164px; text-overflow: ellipsis; min-height: 32px; padding: 7px 30px 7px 12px; border-radius: var(--r-button); border: 1px solid var(--border-mid); color: var(--ink-muted); font: 700 12px var(--font-mono); letter-spacing: 0.06em; cursor: pointer; appearance: none;
     background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%237e817e' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 10px center; }
   .lang:hover { border-color: var(--border-strong); color: var(--ink); }
   .lang:focus-visible { outline: 2px solid var(--green-rule); outline-offset: 2px; }
   .lang option { background: var(--surface-2); color: var(--ink); }
-  header .t { display: flex; flex-direction: column; gap: 7px; }
-  .intro { margin: 0 0 20px; font-size: 15.5px; line-height: 1.55; color: var(--ink-muted); }
-  .stack { display: flex; flex-direction: column; gap: 12px; }
-  .card { background: color-mix(in srgb, var(--surface-1) 88%, transparent); border: 1px solid var(--edge); border-radius: var(--r-card); padding: 18px 20px; }
-  .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; }
-  .row .text { display: flex; flex-direction: column; gap: 5px; }
-  .sub { font-size: 13px; line-height: 1.55; }
-  .status { font: 12px/1.6 var(--font-mono); color: var(--ink); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-soft); }
+  header .t { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .intro { margin: 0 0 8px; font-size: 16px; line-height: 1.55; color: var(--ink-muted); }
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+  .card { background: color-mix(in srgb, var(--surface-1) 88%, transparent); border: 1px solid var(--edge); border-radius: var(--r-card); padding: 20px var(--pad); }
+  .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .row .text { display: flex; flex-direction: column; gap: 4px; }
+  .sub { font-size: 14px; line-height: 1.55; }
+  .status { font: 12px/1.6 var(--font-mono); color: var(--ink); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-mid); }
   .status.quiet { color: var(--ink-muted); }
+  /* Sync progress: green floor fill = state (work done), never decoration. */
+  /* Tabs (installed window): text with a line under the chosen one, no pills; the line slides. */
+  .tabs { position: relative; display: flex; gap: 24px; margin: -8px 0 24px; border-bottom: 1px solid var(--border-mid); }
+  .tabs button { padding: 10px 0 12px; border: 0; background: none; color: var(--ink-quiet); font: 600 14px var(--font-sans); cursor: pointer; transition: color var(--motion-micro); }
+  .tabs button:hover, .tabs button[aria-selected=true] { color: var(--ink); }
+  .tabs button:focus-visible { outline: 2px solid var(--green-rule); outline-offset: 2px; border-radius: 2px; }
+  .tab-ind { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--ink); transform-origin: left center; transition: transform var(--motion-deliberate), width var(--motion-deliberate); }
+  .status.st-first { margin-top: 12px; }
+  .stats.cb-nums { margin: 16px 0 0; }
+  @media (max-width: 520px) { .stats.cb-nums .v { font-size: 20px; } .tabs { gap: 20px; } }
+  .sync { margin-top: 12px; }
+  .sync-bar { height: 3px; border-radius: 2px; background: var(--border-mid); overflow: hidden; transition: opacity var(--motion-deliberate); }
+  .sync-bar i { display: block; width: 100%; height: 100%; background: var(--green-floor); transform: scaleX(0); transform-origin: left center; transition: transform var(--motion-ceremonial); }
+  .sync-line { margin-top: 8px; font-size: 14px; color: var(--ink); white-space: pre-line; }
+  .sync.done .sync-bar { opacity: 0; }
+  /* The node does not run: why, in the tray's words, and what to do. */
+  .fail { margin-top: 12px; padding: 14px 16px; border-radius: var(--r-button); border: 1px solid var(--border-mid); background: var(--surface-2); animation: rise var(--motion-base) both; }
+  .fail p { color: var(--ink); font-size: 14px; }
+  .fail .stop-actions { margin-top: 12px; }
+  .fail #failCopied:empty { display: none; }
 
   /* Switch: a real checkbox, so keyboard and screen readers work. On: calm green floor (state). */
   .about-links { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 4px 0 2px; }
   .switch { position: relative; flex: none; width: 44px; height: 26px; margin-top: 1px; }
   .switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
-  .switch span { position: absolute; inset: 0; border-radius: 13px; background: var(--surface-4); transition: background .15s; pointer-events: none; }
-  .switch span::after { content: ""; position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--ink-quiet); transition: transform .15s, background .15s; }
-  .switch input:checked + span { background: var(--green-floor); }
+  .switch span { position: absolute; inset: 0; border-radius: 13px; background: var(--surface-4); box-shadow: inset 0 0 0 1px var(--border-strong); transition: background var(--motion-base), box-shadow var(--motion-base); pointer-events: none; }
+  .switch span::after { content: ""; position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--ink-quiet); transition: transform 180ms var(--ease-spring-out), background var(--motion-base); }
+  .switch input:checked + span { background: var(--green-floor); box-shadow: inset 0 0 0 1px var(--green-floor); }
+  .switch input:active + span::after { transform: scale(.88); }
+  .switch input:checked:active + span::after { transform: translateX(18px) scale(.88); }
   .switch input:checked + span::after { transform: translateX(18px); background: var(--ink); }
   .switch input:focus-visible + span { outline: 2px solid var(--green-rule); outline-offset: 2px; }
 
-  .fields { display: none; flex-direction: column; gap: 18px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border-soft); }
-  .fields.open { display: flex; }
+  .fields { display: none; flex-direction: column; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-mid); }
+  .fields.open { display: flex; animation: rise var(--motion-base) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(-4px); } }
   label.field, div.field { display: flex; flex-direction: column; gap: 8px; }
   input[type=text] { width: 100%; padding: 10px 2px 9px; border: 0; border-bottom: 1px solid var(--border-strong); border-radius: 0; background: transparent; color: var(--ink); font: 14px var(--font-mono); }
   input[type=text]::placeholder { color: var(--ink-quiet); }
@@ -110,35 +151,45 @@
   input[type=text]:focus { outline: none; border-bottom-color: var(--green-rule); box-shadow: 0 1px 0 var(--green-rule); }
   input[type=text].bad { border-bottom-color: var(--error); }
   input[type=text].bad:focus { box-shadow: 0 1px 0 var(--error); }
-  .hint { font-size: 12.5px; color: var(--ink-quiet); }
+  .hint { font-size: 13px; color: var(--ink-quiet); }
   .hint.bad { color: var(--error); }
   .hint.good { color: var(--ink-muted); }
   .seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  .seg button { padding: 10px 0 9px; border-radius: var(--r-button); border: 1px solid var(--border-strong); background: transparent; color: var(--ink-muted); font: 700 13px var(--font-mono); cursor: pointer; }
+  .seg button { padding: 10px 0 9px; transition: border-color var(--motion-micro), color var(--motion-micro), background var(--motion-micro); border-radius: var(--r-button); border: 1px solid var(--border-strong); background: transparent; color: var(--ink-muted); font: 700 13px var(--font-mono); cursor: pointer; }
   .seg button:hover { border-color: var(--ink-muted); color: var(--ink); }
   .seg button[aria-pressed=true] { border-color: var(--green-rule); color: var(--ink); background: var(--surface-3); }
   .support { margin: 0; padding: 14px 16px; border-radius: var(--r-button); background: var(--surface-2); border: 1px solid var(--edge); }
   .support strong { display: block; margin-bottom: 4px; }
-  ul.notes { margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--ink-quiet); }
+  ul.notes { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-quiet); }
   ul.notes li + li { margin-top: 3px; }
 
-  details { border: 1px solid var(--edge); border-radius: var(--r-card); padding: 14px 20px; background: color-mix(in srgb, var(--surface-1) 88%, transparent); }
+  details { border: 1px solid var(--edge); border-radius: var(--r-card); padding: 0 var(--pad); background: color-mix(in srgb, var(--surface-1) 88%, transparent); }
+  details > summary { min-height: 48px; margin: 0 calc(-1 * var(--pad)); padding: 12px var(--pad); }
+  details[open] > :last-child { margin-bottom: 18px; }
+  details[open] > :not(summary) { animation: rise var(--motion-base) both; }
   summary { cursor: pointer; color: var(--ink); font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; }
   summary::-webkit-details-marker { display: none; }
   summary::after { content: "+"; font: 400 18px/1 var(--font-mono); color: var(--ink-quiet); }
   details[open] summary::after { content: "–"; }
   .seg button small { display: block; margin-top: 3px; font: 500 11px var(--font-sans); color: var(--ink-quiet); }
-  details.help { border: 0; padding: 0; background: none; margin-top: 10px; }
+  details.help { border: 0; padding: 0; background: none; margin-top: 8px; }
+  details.help > summary { min-height: 32px; margin: 0; padding: 6px 0; }
+  details.help[open] > :last-child { margin-bottom: 0; }
   details.help summary { justify-content: flex-start; gap: 8px; font: 500 13px var(--font-sans); color: var(--ink-muted); }
   details.help summary::after { font-size: 14px; }
   details.help p { margin-top: 6px; font-size: 13px; }
   .plain { font-size: 15px; line-height: 1.45; color: var(--ink); margin: 10px 0 0; }
   .plain.warn { color: var(--warn); }
   details.more { border: 0; padding: 0; background: none; }
-  details.more > summary { border: 1px solid var(--edge); border-radius: var(--r-card); padding: 14px 20px; background: color-mix(in srgb, var(--surface-1) 88%, transparent); }
+  details.more > summary { margin: 0; }
+  details.more[open] > :last-child { margin-bottom: 0; }
+  details.more > summary { border: 1px solid var(--edge); border-radius: var(--r-card); padding: 12px var(--pad); background: color-mix(in srgb, var(--surface-1) 88%, transparent); }
   details.more > .stack { margin-top: 12px; }
+  .group { border: 1px solid var(--edge); border-radius: var(--r-card); background: color-mix(in srgb, var(--surface-1) 88%, transparent); }
+  .group > details { border: 0; border-radius: 0; background: none; }
+  .group > details + details { border-top: 1px solid var(--border-mid); }
   .stop-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-  details ul { margin: 12px 0 2px; padding-left: 18px; font-size: 13px; }
+  details ul { margin: 4px 0 2px; padding-left: 18px; font-size: 14px; }
   details li + li { margin-top: 6px; }
 
   /* Consent card: the notes and the tick box that unlocks "Install and start" / "Save". */
@@ -146,34 +197,75 @@
   ul.consent li + li { margin-top: 6px; }
   .consent-links { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; margin-top: 12px; }
   .consent-links details.help { margin-top: 0; flex-basis: 100%; }
-  pre.notice { max-height: 240px; overflow-y: auto; margin: 8px 0 0; padding: 11px 13px; border-radius: var(--r-button); background: rgba(0, 0, 0, 0.35); border: 1px solid var(--edge); color: var(--ink-muted); font: 11.5px/1.6 var(--font-mono); white-space: pre-wrap; word-break: break-word; }
-  label.check { display: flex; gap: 12px; align-items: flex-start; margin-top: 16px; padding: 12px 14px; border-radius: var(--r-button); border: 1px solid var(--border-mid); background: var(--surface-2); color: var(--ink); font-size: 13.5px; font-weight: 500; line-height: 1.45; cursor: pointer; }
+  pre.notice { max-height: 240px; overflow-y: auto; margin: 8px 0 0; padding: 11px 13px; border-radius: var(--r-button); background: rgba(0, 0, 0, 0.35); border: 1px solid var(--edge); color: var(--ink-muted); font: 12px/1.6 var(--font-mono); white-space: pre-wrap; word-break: break-word; }
+  label.check { display: flex; gap: 12px; align-items: flex-start; margin-top: 16px; padding: 12px 16px; border-radius: var(--r-button); border: 1px solid var(--border-mid); background: var(--surface-2); color: var(--ink); font-size: 14px; transition: border-color var(--motion-base); font-weight: 500; line-height: 1.45; cursor: pointer; }
   label.check:has(input:checked) { border-color: var(--green-rule); }
   label.check input { appearance: none; flex: none; display: grid; place-content: center; width: 18px; height: 18px; margin: 1px 0 0; border-radius: var(--r-tag); border: 1.5px solid var(--border-strong); background: transparent; cursor: pointer; }
   label.check input:checked { background: var(--green-floor); border-color: var(--green-rule); }
   label.check input:checked::after { content: ""; width: 9px; height: 5px; border-left: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: translateY(-1px) rotate(-45deg); }
   label.check input:focus-visible { outline: 2px solid var(--green-rule); outline-offset: 2px; }
   .msg { display: none; padding: 11px 14px; border-radius: var(--r-button); border: 1px solid var(--error); background: var(--surface-1); color: var(--ink); font-size: 13px; }
-  .msg.show { display: block; }
+  .msg.show { display: block; animation: rise var(--motion-base) both; }
   .msg.ok { border-color: var(--green-rule); }
   /* Stays at the window's bottom edge: the main button is visible without
      scrolling, also in a low window (laptops, the setup page's longer text). */
-  footer { position: sticky; bottom: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 22px -26px -22px; padding: 14px 26px 22px; flex-wrap: wrap; background: var(--canvas); }
+  footer { position: sticky; bottom: 0; z-index: 2; display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 8px calc(-1 * var(--pad)) -20px; padding: 12px var(--pad) 16px; flex-wrap: wrap; background: var(--canvas); }
   footer::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 18px; background: linear-gradient(transparent, var(--canvas)); pointer-events: none; }
   .msg, .hint { scroll-margin-bottom: 96px; }
-  .links { display: flex; gap: 16px; flex-wrap: wrap; }
+  .links { display: flex; gap: 4px 18px; flex-wrap: wrap; }
+  .page-links { padding: 4px 0 0; }
   .link { background: none; border: 0; padding: 4px 0; min-height: 24px; color: var(--ink-muted); font: 13px var(--font-sans); text-decoration: underline; text-decoration-color: var(--border-strong); text-underline-offset: 4px; cursor: pointer; }
   .link:hover { color: var(--ink); text-decoration-color: currentColor; }
   .actions { display: flex; gap: 10px; margin-left: auto; }
-  .btn { padding: 11px 22px; border-radius: var(--r-button); font: 600 14px var(--font-sans); cursor: pointer; border: 1px solid var(--border-strong); background: transparent; color: var(--ink); }
+  .btn { padding: 12px 22px; border-radius: var(--r-button); font: 600 14px var(--font-sans); cursor: pointer; border: 1px solid var(--border-strong); background: transparent; color: var(--ink); transition: background var(--motion-micro), border-color var(--motion-micro), transform var(--motion-micro); }
+  .btn:active:not(:disabled) { transform: scale(.98); }
   .btn:hover { border-color: var(--ink-muted); }
-  .btn.primary { background: var(--green-primary); border-color: var(--green-primary); color: #020a05; }
+  .btn.primary { background: var(--green-primary); border-color: var(--green-primary); color: var(--on-green); }
   .btn.primary:hover { background: var(--green-spike); border-color: var(--green-spike); }
+  .btn.primary:active:not(:disabled) { background: var(--green-active); border-color: var(--green-active); color: var(--ink); }
   .btn:disabled, .btn.primary:disabled { opacity: 1; background: var(--surface-3); border-color: var(--surface-3); color: var(--ink-quiet); cursor: default; }
   .btn:focus-visible, .link:focus-visible, .seg button:focus-visible, summary:focus-visible { outline: 2px solid var(--green-rule); outline-offset: 2px; }
   #done { display: none; }
   #done.show { display: flex; }
   .hidden { display: none !important; }
+  /* Network card ("Mein Netz"): counts from the node's own address book.
+     Dots in ink, not green: the map is information, not a call to action (canon §8 Rule 1).
+     Every marker gets a halo in the card colour, so overlapping countries (Europe) stay
+     separate; strokes do not scale, so rings keep their line on a narrow window. */
+  .mn-map { display: block; width: 100%; height: auto; margin-top: 16px; }
+  .mn-map .land { fill: var(--surface-4); stroke: var(--surface-1); stroke-width: .6; }
+  .mn-map circle { vector-effect: non-scaling-stroke; transition: stroke var(--mn-t, 0s); transform-box: fill-box; transform-origin: center; }
+  .mn-map .pulse { fill: none; stroke: var(--ink-muted); stroke-width: 1.5px; pointer-events: none; }
+  .mn-map .dot { fill: var(--ink); stroke: var(--surface-1); stroke-width: 1.5px; }
+  .mn-map .ring { fill: var(--surface-1); stroke: var(--ink-muted); stroke-width: 1.5px; }
+  .mn-map .hl { stroke: var(--green-rule); stroke-width: 2px; }
+  .mn-map.empty .land { opacity: .6; }
+  .stats.mn-nums { grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 16px 0 0; }
+  .mn-key { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; vertical-align: 0; }
+  .mn-key.k-dot { background: var(--ink); }
+  .mn-key.k-ring { border: 1.5px solid var(--ink-muted); }
+  #mnReach { display: flex; align-items: center; gap: 9px; margin-top: 16px; }
+  #mnReach .dot.reach { background: var(--green-floor); }
+  .mn-why { margin-top: 6px; }
+  .mn-why:empty { display: none; }
+  .mn-head { margin-top: 18px; }
+  .mn-list { margin: 8px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; font-size: 14px; line-height: 1.5; }
+  .mn-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--border-mid); }
+  .mn-list li span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mn-list li b { font: 700 13px var(--font-mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+  .mn-list li:hover { color: var(--ink); }
+  details.mn-all { margin-top: 8px; }
+  details.mn-all .mn-list { margin: 4px 0 0; padding: 0; }
+  .mn-list li + li { margin-top: 0; }
+  .mn-foot { margin-top: 8px; font-size: 12px; color: var(--ink-quiet); }
+  .mn-foot:empty { display: none; }
+  .mn-src { margin-top: 14px; font-size: 12px; line-height: 1.5; color: var(--ink-quiet); }
+  #mnCard.is-empty .mn-nums, #mnCard.is-empty .mn-head, #mnCard.is-empty .mn-list, #mnCard.is-empty .mn-all, #mnCard.is-empty .mn-foot { display: none; }
+  @media (prefers-reduced-motion: no-preference) { .mn-map { --mn-t: .18s; } }
+  @media (max-width: 520px) {
+    .stats.mn-nums { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 14px; }
+    .mn-list { grid-template-columns: 1fr; }
+  }
   [tabindex="-1"]:focus { outline: none; }
 
   /* Miner view: live state of the running miner. Green only where it carries
@@ -181,11 +273,12 @@
   .hero { padding: 6px 0 4px; }
   .hero-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   .hero-top .state { display: inline-flex; align-items: center; gap: 9px; font: 700 11px/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink); }
-  .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--ink-quiet); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: var(--ink-quiet); transition: background var(--motion-deliberate); }
   .dot.on { background: var(--green-primary); }
   .dot.warn { background: var(--warn); }
   .dot.bad { background: var(--error); }
-  .mv-detail { margin-top: 10px; font-size: 13px; }
+  .mv-detail { margin-top: 10px; font-size: 14px; }
+  #mvWorker { text-transform: none; letter-spacing: 0; font-size: 12px; }
   .hero-num { margin-top: 26px; text-align: center; color: var(--ink); font: 800 96px/0.9 var(--font-display); letter-spacing: -0.035em; font-variant-numeric: tabular-nums; }
   .hero-cap { margin-top: 14px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
   .hero-cap .sub { font: 12px var(--font-mono); color: var(--ink-quiet); }
@@ -195,7 +288,7 @@
   .mv-axis { display: flex; justify-content: space-between; margin-top: 6px; font: 11px var(--font-mono); color: var(--ink-quiet); }
   .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 8px 0 4px; }
   .stat { border-top: 1px solid var(--border-mid); padding-top: 10px; min-width: 0; }
-  .stat .v { margin-top: 6px; color: var(--ink); font: 800 30px/1 var(--font-display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat .v { margin-top: 8px; color: var(--ink); font: 700 24px/1 var(--font-mono); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .stat .s { margin-top: 5px; font-size: 12px; color: var(--ink-quiet); line-height: 1.4; }
   .mv-th-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
   .mv-th-head .avg { font: 12px var(--font-mono); color: var(--ink-quiet); font-variant-numeric: tabular-nums; }
@@ -204,17 +297,16 @@
   .th .n { font: 10px/1 var(--font-mono); letter-spacing: 0.06em; color: var(--ink-quiet); }
   .th .v { margin-top: 6px; font: 700 13px/1 var(--font-mono); color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .th .bar { height: 3px; margin-top: 7px; border-radius: 2px; background: var(--border-mid); overflow: hidden; }
-  .th .bar i { display: block; height: 100%; width: 0; border-radius: 2px; background: var(--green-floor); transition: width .6s ease; }
+  .th .bar i { display: block; height: 100%; width: 100%; border-radius: 2px; background: var(--green-floor); transform: scaleX(0); transform-origin: left center; transition: transform var(--motion-ceremonial); }
   .th.slow .bar i { background: var(--warn); }
   .th.idle { border-style: dashed; border-color: var(--border-mid); background: transparent; }
   .th.idle .v { color: var(--ink-quiet); font-weight: 400; }
-  @media (prefers-reduced-motion: reduce) { .th .bar i { transition: none; } }
   .earn-big { display: flex; align-items: baseline; gap: 10px; margin-top: 14px; color: var(--ink); }
   .earn-big .v { font: 800 44px/1 var(--font-display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
   .earn-big .u { font-size: 14px; color: var(--ink-muted); }
-  .earn-note { margin-top: 8px; font-size: 12.5px; color: var(--ink-quiet); }
+  .earn-note { margin-top: 8px; font-size: 13px; color: var(--ink-quiet); }
   .earn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-  .earn-row .stat .v { font-size: 26px; }
+  .earn-row .stat .v { font-size: 24px; }
   dl.mv-grid { display: grid; grid-template-columns: max-content 1fr; gap: 9px 18px; margin: 0; font-size: 13px; }
   dl.mv-grid dt { font: 700 10.5px/1.9 var(--font-mono); text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-quiet); }
   dl.mv-grid dd { margin: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -225,7 +317,7 @@
   .mv-addr span { display: inline-block; margin-right: 0.55em; }
   .btn.small { padding: 6px 14px; font-size: 13px; }
   .mv-addr-foot { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-top: 8px; }
-  .mv-log { margin: 12px 0 0; height: 200px; overflow-y: auto; padding: 11px 13px; border-radius: var(--r-button); background: rgba(0, 0, 0, 0.35); border: 1px solid var(--edge); color: var(--ink-muted); font: 11.5px/1.6 var(--font-mono); white-space: pre-wrap; word-break: break-word; }
+  .mv-log { margin: 12px 0 0; height: 200px; overflow-y: auto; padding: 11px 13px; border-radius: var(--r-button); background: rgba(0, 0, 0, 0.35); border: 1px solid var(--edge); color: var(--ink-muted); font: 11.5px/1.6 var(--font-mono); white-space: pre-wrap; word-break: break-word; font-size: 12px; }
   /* Placeholders ("–" before the first value) stay quiet: a bold dash at 96 px reads like an error bar. */
   .empty { font-weight: 400 !important; color: var(--ink-quiet) !important; }
   .hero-num.empty { font-size: 48px; }
@@ -234,16 +326,18 @@
   .hero.idle .mv-detail { font-size: 14px; color: var(--ink-muted); }
   .log-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
   /* The reason a click on the main button does not go through yet, next to the button. */
-  footer .save-hint { flex-basis: 100%; order: -1; margin: 0; font-size: 12.5px; color: var(--warn); }
+  footer .save-hint { flex-basis: 100%; order: -1; margin: 0; font-size: 13px; color: var(--warn); }
   footer .save-hint:empty { display: none; }
   .nudge { animation: nudge .6s ease-out; }
   @keyframes nudge { from { box-shadow: 0 0 0 3px var(--green-rule); } to { box-shadow: 0 0 0 3px transparent; } }
-  @media (prefers-reduced-motion: reduce) { .nudge { animation: none; } }
   /* Japanese: wide tracking splits kana into single letters. */
   :lang(ja) .kick, :lang(ja) .eyebrow, :lang(ja) dl.mv-grid dt, :lang(ja) .hero-top .state { letter-spacing: 0.04em; }
   @media (max-width: 520px) {
+    :root { --pad: 20px; }
     .actions { width: 100%; }
-    .actions .btn { flex: 1; padding: 11px 12px; }
+    .actions .btn { flex: 1; padding: 12px 12px; }
+    dl.mv-grid { grid-template-columns: 1fr; gap: 2px 0; }
+    dl.mv-grid dd { margin-bottom: 10px; }
   }
   .mv-log::-webkit-scrollbar { width: 8px; }
   .mv-log::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 4px; }
@@ -258,8 +352,78 @@
   </div>
   <select class="lang" id="langSel"></select>
 </header>
+<nav class="tabs hidden" id="tabs" role="tablist">
+  <button type="button" role="tab" id="tabStatus" data-v="status"></button>
+  <button type="button" role="tab" id="tabMiner" data-v="miner"></button>
+  <button type="button" role="tab" id="tabForm" data-v="form"></button>
+  <span class="tab-ind" id="tabInd" aria-hidden="true"></span>
+</nav>
 
-<main id="form" class="stack">
+<main>
+<div id="statusView" class="stack hidden">
+  <section class="card" id="stNodeCard" aria-labelledby="stNodeTitle">
+    <h2 id="stNodeTitle" tabindex="-1"></h2>
+    <div class="status quiet st-first hidden" id="nodeStatus"></div>
+    <div class="sync hidden" id="sync" aria-live="polite">
+      <div class="sync-bar" id="syncBar" aria-hidden="true"><i id="syncFill"></i></div>
+      <p class="sync-line" id="syncLine"></p>
+    </div>
+    <div class="fail hidden" id="fail">
+      <p id="failText"></p>
+      <div class="stop-actions">
+        <button class="btn small" id="failLogs" type="button"></button>
+        <button class="btn small hidden" id="failData" type="button"></button>
+        <button class="btn small" id="failCopy" type="button"></button>
+      </div>
+      <p class="hint" id="failCopied" role="status" style="margin-top:8px"></p>
+    </div>
+    <p class="sub hidden" id="stNodeOff" style="margin-top:8px"></p>
+  </section>
+
+  <section class="card hidden" id="contribCard" aria-labelledby="cbTitle">
+    <h2 id="cbTitle"></h2>
+    <p class="sub" id="cbSub" style="margin-top:4px"></p>
+    <div class="stats cb-nums">
+      <div class="stat"><div class="v" id="cbRun">–</div><div class="s" id="cbRunL"></div></div>
+      <div class="stat"><div class="v" id="cbBlocks">–</div><div class="s" id="cbBlocksL"></div></div>
+      <div class="stat"><div class="v" id="cbCopy">–</div><div class="s" id="cbCopyL"></div></div>
+    </div>
+  </section>
+
+  <section class="card hidden" id="mnCard" aria-labelledby="mnTitle">
+    <h2 id="mnTitle"></h2>
+    <p class="sub" id="mnSub" style="margin-top:5px"></p>
+    <svg class="mn-map" id="mnMap" viewBox="0 15 1000 400" role="img" aria-labelledby="mnMapLabel" aria-describedby="mnHead mnList">
+      <title id="mnMapLabel"></title>
+      <path class="land" id="mnLand"></path>
+      <g id="mnDots"></g>
+    </svg>
+    <div class="stats mn-nums">
+      <div class="stat"><div class="v" id="mnNConn">–</div><div class="s" id="mnLConn"></div></div>
+      <div class="stat"><div class="v" id="mnNActive">–</div><div class="s"><i class="mn-key k-dot" aria-hidden="true"></i><span id="mnLActive"></span></div></div>
+      <div class="stat"><div class="v" id="mnNSeen">–</div><div class="s"><i class="mn-key k-ring" aria-hidden="true"></i><span id="mnLSeen"></span></div></div>
+      <div class="stat"><div class="v" id="mnNCountries">–</div><div class="s" id="mnLCountries"></div></div>
+    </div>
+    <div class="status quiet" id="mnReach"><span class="dot" id="mnReachDot" aria-hidden="true"></span><span id="mnReachHead"></span></div>
+    <p class="sub mn-why" id="mnReachBody"></p>
+    <details class="help hidden" id="mnPort"><summary id="mnPortQ"></summary><p id="mnPortA"></p></details>
+    <h3 class="eyebrow mn-head" id="mnHead"></h3>
+    <ul class="mn-list" id="mnList"></ul>
+    <details class="help mn-all hidden" id="mnAll"><summary id="mnAllQ"></summary><ul class="mn-list" id="mnListMore"></ul></details>
+    <p class="mn-foot" id="mnFoot"></p>
+    <p class="mn-src" id="mnSrc"></p>
+  </section>
+
+  <section class="card hidden" id="mineSum" aria-labelledby="mineSumTitle">
+    <h2 id="mineSumTitle"></h2>
+    <div class="status quiet st-first" id="mineStatus"></div>
+    <button class="link hidden" id="mineLive" type="button" style="margin-top:8px"></button>
+  </section>
+
+  <footer><div class="actions"><button class="btn" id="stClose" type="button"></button></div></footer>
+</div>
+
+<div id="form" class="stack">
   <p class="intro" id="intro"></p>
 
   <section class="card">
@@ -267,7 +431,6 @@
       <div class="text"><h2 id="nodeTitle"></h2><p class="sub" id="nodeSub"></p></div>
       <label class="switch"><input type="checkbox" id="node" role="switch" aria-labelledby="nodeTitle" aria-describedby="nodeSub"><span></span></label>
     </div>
-    <div class="status quiet hidden" id="nodeStatus"></div>
   </section>
 
   <section class="card" id="mineCard">
@@ -275,8 +438,6 @@
       <div class="text"><h2 id="mineTitle"></h2><p class="sub" id="mineSub"></p></div>
       <label class="switch"><input type="checkbox" id="mine" role="switch" aria-labelledby="mineTitle" aria-describedby="mineSub"><span></span></label>
     </div>
-    <div class="status quiet hidden" id="mineStatus"></div>
-    <button class="link hidden" id="mineLive" type="button" style="margin-top:8px"></button>
     <div class="fields" id="mineFields">
       <label class="field">
         <span class="eyebrow" id="addrLabel"></span>
@@ -326,6 +487,7 @@
     <label class="check"><input type="checkbox" id="agree"><span id="agreeT"></span></label>
   </section>
 
+  <div class="group">
   <details>
     <summary id="netTitle"></summary>
     <ul id="netList"></ul>
@@ -344,6 +506,7 @@
       <button class="link" id="openSource" type="button"></button>
     </div>
   </details>
+  </div>
 
 
   <section class="card hidden" id="stopCard">
@@ -357,32 +520,33 @@
 
   <div class="msg" id="msg" role="alert"></div>
 
+  <nav class="links page-links">
+    <button class="link hidden" id="openData" type="button"></button>
+    <button class="link hidden" id="openLogs" type="button"></button>
+    <button class="link" id="openLicenses" type="button"></button>
+    <button class="link hidden" id="openRelease" type="button"></button>
+    <button class="link" id="openFeedback" type="button"></button>
+  </nav>
+
   <footer>
     <p class="save-hint" id="saveHint" aria-live="polite"></p>
-    <div class="links">
-      <button class="link hidden" id="openData" type="button"></button>
-      <button class="link hidden" id="openLogs" type="button"></button>
-      <button class="link" id="openLicenses" type="button"></button>
-      <button class="link hidden" id="openRelease" type="button"></button>
-      <button class="link" id="openFeedback" type="button"></button>
-    </div>
     <div class="actions">
       <button class="btn" id="cancel" type="button"></button>
       <button class="btn primary" id="save" type="button" aria-describedby="saveHint"></button>
     </div>
   </footer>
-</main>
+</div>
 
-<main id="done" class="stack">
+<div id="done" class="stack">
   <section class="card">
     <h2 id="doneTitle"></h2>
     <p class="sub" id="doneText" style="margin-top:8px"></p>
     <p class="sub" id="doneClose" style="margin-top:8px; color: var(--ink)"></p>
   </section>
   <footer><div class="actions"><button class="btn primary" id="doneBtn" type="button"></button></div></footer>
-</main>
+</div>
 
-<main id="minerView" class="stack hidden">
+<div id="minerView" class="stack hidden">
   <div class="msg ok" id="mvBanner"></div>
   <section class="hero" id="mvHero">
     <div class="hero-top">
@@ -445,10 +609,12 @@
       <button class="btn" id="mvClose" type="button"></button>
     </div>
   </footer>
+</div>
 </main>
 
 <script>
 "use strict";
+/*@worldmap*/
 const L = {
   de: {
     eyebrowInstall: "Einrichtung", eyebrowSettings: "Einstellungen",
@@ -511,6 +677,56 @@ const L = {
     supportMeasured: (pct) => `Davon für die Weiterentwicklung: ${pct}\u00a0% der Rechenzeit`,
     lowRAM: (gb) => `Dieser PC hat ${gb} GB Arbeitsspeicher. Node und Minen zusammen können ihn spürbar bremsen; dann besser nur eines von beiden.`,
     noTray: "CoreStarter läuft gerade nicht. Nach dem Speichern startet er.",
+    syncStep1: "Schritt 1 von 2: Blöcke laden",
+    syncStep2: "Schritt 2 von 2: Kontostände laden",
+    syncCatch: "Holt auf",
+    syncLeftH: (n) => `noch etwa ${n} Std.`,
+    syncLeftM: (n) => `noch etwa ${n} Min.`,
+    syncLeftFew: "noch wenige Minuten",
+    syncMeasuring: "Restzeit wird gemessen …",
+    syncNoTotal: "Für diesen Schritt kennt die Node keine Gesamtzahl, deshalb gibt es keine Restzeit.",
+    syncDone: "Fertig synchronisiert. Ab jetzt prüft deine Node jeden neuen Block selbst.",
+    failLogs: "Log-Ordner öffnen",
+    failData: "Daten-Ordner öffnen",
+    failCopy: "Angaben für den Support kopieren",
+    failCopied: "Kopiert – ohne Adressen oder Schlüssel.",
+    failCopyNo: "Kopieren hat nicht geklappt. Öffne stattdessen den Log-Ordner und schick die Protokolldatei mit.",
+    tabsL: "Ansichten",
+    tabStatus: "Status",
+    stNodeTitle: "Deine Node",
+    stNodeOff: "Die Node ist aus. Einschalten kannst du sie unter Einstellungen.",
+    cbTitle: "Dein Beitrag",
+    cbSub: "Was deine Node seit ihrem letzten Start für das Netz tut. Alles hier zählt dein Computer selbst.",
+    cbRunL: "Laufzeit seit dem Start",
+    cbBlocksL: "neue Blöcke selbst geprüft",
+    cbBlocksWait: "zählt, sobald die Node synchron ist",
+    cbCopyL: "Kopie der Blockchain auf diesem Computer",
+    durMin: (n) => `${n} Min.`,
+    durHours: (n) => `${n} Std.`,
+    durDays: (n) => `${n} Tage`,
+    mnTitle: "Mein Netz",
+    mnSub: "Die Nodes, die deiner Node in den letzten 24 Stunden geantwortet haben. Nodes hinter einem Router fehlen hier meist, das ist also nicht das ganze Netz. Je mehr Menschen an verschiedenen Orten eine Node betreiben, desto weniger hängt das Netz an einzelnen Stellen.",
+    mnMapLabel: (c) => `Weltkarte: Nodes in ${c} Ländern`,
+    mnLConn: "gerade mit deiner Node verbunden", mnLActive: "Antwort in der letzten Stunde", mnLSeen: "Antwort in 24 Stunden", mnLCountries: "Länder",
+    mnHead: "Nodes je Land · 24 Stunden",
+    mnInHead: (n) => `Von außen erreichbar · ${n} eingehend`,
+    mnInBody: "Andere Nodes verbinden sich mit deiner. Genau das braucht das Netz: Nodes, bei denen neue anklopfen können.",
+    mnWasInHead: "Heute schon von außen erreichbar",
+    mnWasInBody: "Seit dem Start hat sich schon eine Node von außen mit deiner verbunden. Gerade ist keine von außen verbunden.",
+    mnWaitHead: "Nur ausgehende Verbindungen",
+    mnWaitBody: "Deine Node ist gerade gestartet und fragt deinen Router selbst nach einer Freigabe (UPnP). Bis sich die erste Node von außen meldet, kann es dauern.",
+    mnNoInHead: "Nur ausgehende Verbindungen",
+    mnNoInBody: "Das ist normal, die meisten Router lassen keine Verbindung herein. Deine Node prüft trotzdem jeden Block selbst. Noch mehr hilft sie, wenn andere Nodes sie erreichen können.",
+    mnPortQ: "So wird deine Node erreichbar",
+    mnPortA: (port) => `Deine Node fragt deinen Router selbst nach einer Freigabe (UPnP). Klappt das nicht, gib im Router Port ${port} für TCP und UDP an diesen Rechner frei. Nur diesen einen Port, nicht den ganzen Rechner: Schalte kein „Exposed Host“ und keine DMZ ein. Hängen zwei Router hintereinander, braucht es die Freigabe in beiden. Die Firewall deines Rechners muss gocore erlauben. Bei Mobilfunk, Starlink und manchen Glasfaser-Anschlüssen geht es nicht, weil sich viele Kunden eine Adresse teilen. Erreichbar heißt auch: Andere Nodes laden Blöcke von dir, das braucht mehr Upload. Nach der Freigabe kann es Stunden dauern, bis die erste Node anklopft.`,
+    mnOffHead: "Node aus",
+    mnOffBody: (when) => `Du siehst, was deine Node bis ${when} kannte.`,
+    mnEmptyHead: "Noch keine anderen Nodes bekannt",
+    mnEmptyBody: "Läuft deine Node, füllt sich die Karte in wenigen Minuten.",
+    mnTip: (name, seen, active) => `${name}: ${seen} in 24 Stunden, davon ${active} in der letzten Stunde`,
+    mnMore: (n) => `weitere Länder: ${n}`,
+    mnUnplaced: (n) => `ohne bekanntes Land: ${n}`,
+    mnSrc: "Gelesen aus dem Adressbuch deiner Node auf diesem Rechner. CoreStarter baut dafür keine Verbindung auf und zeigt keine Adressen, nur Länder. Das Land ist aus der Internet-Adresse geschätzt und kann danebenliegen. Länder: IP to Country Lite von DB-IP (db-ip.com), Stand November 2026, Lizenz CC BY 4.0 (creativecommons.org/licenses/by/4.0), nur IPv4, umgewandelt. Karte: Natural Earth.",
     mineLive: "Live-Ansicht des Miners öffnen",
     mvEyebrow: "Miner",
     mvState: { mining: "Minen läuft", connecting: "Verbindet mit dem Pool …", starting: "Miner startet …", "paused-battery": "Pausiert (Akkubetrieb)", "paused-heat": "Pausiert (Mac zu heiß)", error: "Miner gestoppt", off: "Minen ist ausgeschaltet", unreachable: "Pool nicht erreichbar" },
@@ -529,6 +745,8 @@ const L = {
     mvEarnL: "Ertrag · Schätzung", mvEarnUnit: "XCB pro Tag",
     mvEarn: (fee) => `Bei der jetzigen Rechenleistung, nach ${fee}\u00a0% Pool-Gebühr und dem Anteil für die Weiterentwicklung. Ein Mittelwert, keine Zusage: Er schwankt von Stunde zu Stunde.`,
     mvEarnWait: "Wird beim Pool abgefragt (alle 10 min).", mvEarnPartial: " Nicht alle Pool-Regionen waren erreichbar.",
+    mvEarnDown: (n) => `Die Pool-Statistik antwortet gerade nicht. Dein Minen läuft normal weiter; nächster Versuch in ${n}\u00a0min.`,
+    mvEarnStale: (t) => ` Die Pool-Statistik antwortet gerade nicht; die Werte sind von ${t}.`,
     mvBalL: "Noch im Pool", mvImm: (x) => `+ ${x} unbestätigt`, mvPayL: "Auszahlung", mvPay: (x) => `ab ${x}`, mvPayS: (h) => `XCB, Prüfung alle ${h} h`,
     mvAddrL: "Deine Adresse", mvCopy: "Kopieren", mvCopied: "Kopiert.",
     mvCopyFail: "Kopieren ging nicht. Die Adresse ist markiert: Strg+C drücken.",
@@ -652,6 +870,56 @@ const L = {
     supportMeasured: (pct) => `Of this for further development: ${pct}\u00a0% of computing time`,
     lowRAM: (gb) => `This PC has ${gb} GB of memory. Node and mining together can slow it down noticeably; then better run only one of them.`,
     noTray: "CoreStarter is not running right now. It starts when you save.",
+    syncStep1: "Step 1 of 2: loading blocks",
+    syncStep2: "Step 2 of 2: loading account state",
+    syncCatch: "Catching up",
+    syncLeftH: (n) => `about ${n} h left`,
+    syncLeftM: (n) => `about ${n} min left`,
+    syncLeftFew: "a few minutes left",
+    syncMeasuring: "measuring the time left …",
+    syncNoTotal: "The node does not know the total for this step, so there is no time estimate.",
+    syncDone: "Fully synced. From now on your node checks every new block itself.",
+    failLogs: "Open log folder",
+    failData: "Open data folder",
+    failCopy: "Copy details for support",
+    failCopied: "Copied – no addresses or keys.",
+    failCopyNo: "Copying did not work. Open the log folder instead and send the log file.",
+    tabsL: "Views",
+    tabStatus: "Status",
+    stNodeTitle: "Your node",
+    stNodeOff: "The node is off. You can switch it on under Settings.",
+    cbTitle: "Your contribution",
+    cbSub: "What your node has done for the network since it last started. Your computer counts all of this itself.",
+    cbRunL: "running since start",
+    cbBlocksL: "new blocks verified by your node",
+    cbBlocksWait: "counts once the node is synced",
+    cbCopyL: "copy of the blockchain on this computer",
+    durMin: (n) => `${n} min`,
+    durHours: (n) => `${n} h`,
+    durDays: (n) => `${n} days`,
+    mnTitle: "My network",
+    mnSub: "The nodes that answered your node in the last 24 hours. Nodes behind a router are mostly missing here, so this is not the whole network. The more people run a node in different places, the less the network depends on any single place.",
+    mnMapLabel: (c) => `World map: nodes in ${c} countries`,
+    mnLConn: "connected to your node now", mnLActive: "answered in the last hour", mnLSeen: "answered in 24 hours", mnLCountries: "countries",
+    mnHead: "Nodes per country · 24 hours",
+    mnInHead: (n) => `Reachable from outside · ${n} inbound`,
+    mnInBody: "Other nodes connect to yours. That is exactly what the network needs: nodes new ones can reach.",
+    mnWasInHead: "Reachable from outside today",
+    mnWasInBody: "Since it started, a node from outside has connected to yours. None from outside is connected right now.",
+    mnWaitHead: "Outgoing connections only",
+    mnWaitBody: "Your node has just started and asks your router for an opening by itself (UPnP). It can take a while until the first node from outside connects.",
+    mnNoInHead: "Outgoing connections only",
+    mnNoInBody: "That is normal, most routers let no connection in. Your node still checks every block itself. It helps even more when other nodes can reach it.",
+    mnPortQ: "How to make your node reachable",
+    mnPortA: (port) => `Your node asks your router for an opening by itself (UPnP). If that does not work, forward port ${port} for TCP and UDP to this computer in your router. Only this one port, not the whole computer: do not turn on “exposed host” or DMZ. With two routers in a row, both need the forward. Your computer’s firewall must allow gocore. On mobile internet, Starlink and some fibre lines it cannot work, because many customers share one address. Reachable also means other nodes download blocks from you, which uses more upload. After forwarding, it can take hours until the first node connects.`,
+    mnOffHead: "Node off",
+    mnOffBody: (when) => `You see what your node knew until ${when}.`,
+    mnEmptyHead: "No other nodes known yet",
+    mnEmptyBody: "While your node runs, the map fills within a few minutes.",
+    mnTip: (name, seen, active) => `${name}: ${seen} in 24 hours, ${active} of them in the last hour`,
+    mnMore: (n) => `more countries: ${n}`,
+    mnUnplaced: (n) => `no known country: ${n}`,
+    mnSrc: "Read from your node’s address book on this computer. CoreStarter opens no connection for it and shows no addresses, only countries. The country is estimated from the internet address and can be wrong. Countries: IP to Country Lite by DB-IP (db-ip.com), November 2026 edition, licence CC BY 4.0 (creativecommons.org/licenses/by/4.0), IPv4 only, converted. Map: Natural Earth.",
     mineLive: "Open the live miner view",
     mvEyebrow: "Miner",
     mvState: { mining: "Mining", connecting: "Connecting to the pool …", starting: "Miner starting …", "paused-battery": "Paused (on battery)", "paused-heat": "Paused (Mac too hot)", error: "Miner stopped", off: "Mining is switched off", unreachable: "Pool unreachable" },
@@ -670,6 +938,8 @@ const L = {
     mvEarnL: "Earnings · estimate", mvEarnUnit: "XCB per day",
     mvEarn: (fee) => `At the current computing power, after the ${fee}\u00a0% pool fee and the share for further development. An average, not a promise: it varies from hour to hour.`,
     mvEarnWait: "Being fetched from the pool (every 10 min).", mvEarnPartial: " Not all pool regions were reachable.",
+    mvEarnDown: (n) => `The pool’s statistics aren’t answering right now. Your mining carries on as normal; next try in ${n}\u00a0min.`,
+    mvEarnStale: (t) => ` The pool’s statistics aren’t answering right now; these figures are from ${t}.`,
     mvBalL: "Still in the pool", mvImm: (x) => `+ ${x} unconfirmed`, mvPayL: "Payout", mvPay: (x) => `from ${x}`, mvPayS: (h) => `XCB, checked every ${h} h`,
     mvAddrL: "Your address", mvCopy: "Copy", mvCopied: "Copied.",
     mvCopyFail: "Copying did not work. The address is selected: press Ctrl+C.",
@@ -712,31 +982,31 @@ const L = {
     nodeSub: (need, free) => `Coreネットワークを支えます。約${need} GBのディスク容量（空き：${free} GB）と約2–3 GBのメモリが必要です。`,
     nodeSubData: (data) => `ブロックチェーンのデータは現在${data} GBを使用しています。`,
     mineTitle: "XCBをマイニング",
-    mineSub: "プロセッサーがプールCatch That Rabbitで計算に参加します。プールは多数のマイナーの計算能力をまとめ、収益を貢献度に応じて分配します。あなたの分は入力したCoreアドレスへ支払われます。",
+    mineSub: "お使いのプロセッサーが、マイニングプール「Catch That Rabbit」の計算に参加します。プールは多数のマイナーの計算能力をまとめ、収益を貢献度に応じて分配します。あなたの取り分は、入力したCoreアドレスに支払われます。",
     addrLabel: "Coreアドレス（CorePassから）",
     addrEmpty: "cbで始まる44文字です。スペースと「corepass:」は自動で削除されます。",
     addrOk: "アドレスを確認しました。",
-    addrFormat: "Coreのアドレスではありません（cb＋チェック用2桁＋0–9/a–fの40文字）。",
+    addrFormat: "Coreアドレスではありません（cb＋チェック用2桁＋0–9/a–fの40文字）。",
     addrChecksum: "チェック用の数字が一致しません。入力ミスの可能性があります。",
     addrNetwork: "このアドレスはテスト用またはプライベートのネットワークのものです。通常のCoreアドレスはcbで始まります。",
     workerLabel: "プールでの名前",
-    workerHint: "この名前でプールの統計に公開表示されるため、本名は避けてください。a–z、0–9、ハイフンのみ、15文字まで。",
+    workerHint: "このコンピューターはこの名前でプールの統計に公開表示されるため、本名は避けてください。a–z、0–9、ハイフンのみ、15文字まで。",
     powerLabel: "性能", powerAll: "すべて",
     supportTitle: "計算時間の0.42%を今後の開発（TMMAC）の支援に充てます。",
-    supportSub: "100分ごとに25秒間、マイナーがあなたの代わりにTMMACのために計算します。これで今後の開発費をまかないます。失うのはこの25秒分の収益だけで、ほかに費用はかかりません。",
+    supportSub: "100分ごとに25秒間、マイナーはあなたの分ではなくTMMACの分を計算します。これで今後の開発費をまかないます。得られなくなるのはこの25秒分の収益だけで、ほかに費用はかかりません。",
     notes: [
       "バッテリー駆動中はマイニングを自動で一時停止します。",
       "ノードの初回同期中は、マイナーは最大25%までしか使いません。",
-      "マイナー自体には過熱保護機能がありません。プロセッサーが熱くなりすぎると、自動で性能を抑えます。",
-      "プールは0.1 XCBから支払います（サーバー地域ごとに集計）。確認は約4時間ごとです。手数料は現在0.5%です。",
+      "マイナー自体には過熱保護機能がありません。プロセッサーが熱くなりすぎた場合は、プロセッサー自身が自動的に速度を落とします。",
+      "プールは残高が0.1 XCB以上になると支払います（サーバー地域ごとに集計）。確認は約4時間ごとです。プールの手数料は現在0.5%です。",
     ],
     autoTitle: "Windowsと同時に起動",
-    autoSub: "サインインのたびに、ノードとマイナーがバックグラウンドで自動的に起動します。",
+    autoSub: "ログインのたびに、ノードとマイナーがバックグラウンドで自動的に起動します。",
     netTitle: "ネットワーク接続",
     net: [
       "CoreStarter自体はTMMACや第三者にデータを送信しません。アップデート確認もテレメトリーもありません。",
       "ノード：他のCoreノード（ポート30300）に接続し、UPnPでルーターのポートを開放し、DNSサーバーに他のノードのアドレスを、時計のずれがある場合はタイムサーバー（pool.ntp.org）に時刻を問い合わせます。これらの相手にはIPアドレスが見えます。",
-      "マイニング（オンの場合のみ）：Catch That Rabbit（プールと、10分ごとの収益照会）に接続します。プールにはアドレス、プールでの名前、計算能力、IPアドレスが見えます。プールとの接続は暗号化されていません。開発支援のため、100分ごとに25秒間、TMMACのアドレスで2本目の接続がログインします。",
+      "マイニング（オンの場合のみ）：Catch That Rabbit（プールと、10分ごとの収益照会）に接続します。プールにはアドレス、プールでの名前、計算能力、IPアドレスが見えます。プールとの接続は暗号化されていません。開発支援のため、100分ごとに25秒間、TMMACのアドレスでプールへの2本目の接続が行われます。",
       "このウィンドウはインターネットから何も読み込みません。",
     ],
     aboutTitle: "CoreStarterについて",
@@ -761,41 +1031,93 @@ const L = {
     done: "完了",
     rate: (r) => `${r} H/s`,
     earnings: (day, bal, partial) => `推定：約${day} XCB/日 · プール内（未払い） ${bal} XCB${partial ? "（一部のプール地域に接続できません）" : ""}`,
-    arm64: "Windows on ARM：ここではマイナーがエミュレーションで動作するため、x64のPCよりかなり遅くなります（未検証）。",
-    supportMeasured: (pct) => `うち今後の開発に：計算時間の${pct}%`,
+    arm64: "Windows on ARM：この環境ではマイナーがエミュレーションで動作するため、x64のPCよりかなり遅くなります（未検証）。",
+    supportMeasured: (pct) => `うち開発支援分：計算時間の${pct}%`,
     lowRAM: (gb) => `このPCのメモリは${gb} GBです。ノードとマイニングを同時に行うと、動作が目に見えて遅くなることがあります。その場合はどちらか一方だけにしてください。`,
     noTray: "CoreStarterは現在動作していません。保存すると起動します。",
+    syncStep1: "ステップ 1/2：ブロックを読み込み中",
+    syncStep2: "ステップ 2/2：残高データを読み込み中",
+    syncCatch: "追いつき中",
+    syncLeftH: (n) => `残り約${n}時間`,
+    syncLeftM: (n) => `残り約${n}分`,
+    syncLeftFew: "残り数分",
+    syncMeasuring: "残り時間を計測中…",
+    syncNoTotal: "このステップは全体量が分からないため、残り時間は表示できません。",
+    syncDone: "同期が完了しました。これからはノードが新しいブロックをすべて自分で検証します。",
+    failLogs: "ログフォルダーを開く",
+    failData: "データフォルダーを開く",
+    failCopy: "サポート用の情報をコピー",
+    failCopied: "コピーしました（アドレスや鍵は含みません）。",
+    failCopyNo: "コピーできませんでした。代わりにログフォルダーを開き、ログファイルを送ってください。",
+    tabsL: "表示",
+    tabStatus: "ステータス",
+    stNodeTitle: "あなたのノード",
+    stNodeOff: "ノードはオフです。「設定」でオンにできます。",
+    cbTitle: "あなたの貢献",
+    cbSub: "前回の起動以降、あなたのノードがネットワークのために行ったこと。すべてこのコンピューター自身が数えています。",
+    cbRunL: "起動からの稼働時間",
+    cbBlocksL: "自分で検証した新しいブロック",
+    cbBlocksWait: "同期が完了すると数え始めます",
+    cbCopyL: "このコンピューター上のブロックチェーンのコピー",
+    durMin: (n) => `${n}分`,
+    durHours: (n) => `${n}時間`,
+    durDays: (n) => `${n}日`,
+    mnTitle: "マイネットワーク",
+    mnSub: "過去24時間にこのノードへ応答したノードです。ルーターの内側にあるノードはほとんど含まれないため、ネットワーク全体ではありません。さまざまな場所でノードを運用する人が増えるほど、ネットワークは特定の場所に依存しにくくなります。",
+    mnMapLabel: (c) => `世界地図：${c}の国・地域のノード`,
+    mnLConn: "現在接続中", mnLActive: "直近1時間に応答", mnLSeen: "24時間以内に応答", mnLCountries: "国・地域",
+    mnHead: "国・地域別ノード数（24時間）",
+    mnInHead: (n) => `外部から到達可能 · 着信${n}件`,
+    mnInBody: "ほかのノードがこのノードに接続しています。新しいノードが訪ねてこられる入口こそ、ネットワークに必要なものです。",
+    mnWasInHead: "今日は外部から到達できました",
+    mnWasInBody: "起動後、外部のノードがすでに接続しました。現在、外部からの接続はありません。",
+    mnWaitHead: "発信接続のみ",
+    mnWaitBody: "ノードは起動したばかりで、ルーターに自動で開放を依頼しています（UPnP）。外部から最初の接続があるまで時間がかかることがあります。",
+    mnNoInHead: "発信接続のみ",
+    mnNoInBody: "多くのルーターは外部からの接続を通さないため、これは普通のことです。それでもノードはすべてのブロックを自分で検証しています。ほかのノードから到達できれば、さらに役に立ちます。",
+    mnPortQ: "外部から到達できるようにするには",
+    mnPortA: (port) => `ノードはルーターに自動で開放を依頼します（UPnP）。うまくいかない場合は、ルーターでTCPとUDPのポート${port}をこのコンピューターに転送（ポート開放）してください。開放するのはこのポートだけです。「DMZ」や「Exposed Host」は使わないでください。ルーターを2台直列につないでいる場合（二重ルーター）は、両方で設定が必要です。このコンピューターのファイアウォールでgocoreを許可してください。モバイル回線、Starlink、一部の光回線では、多くの利用者が1つのアドレスを共有しているため、この方法は使えません。到達可能になると、ほかのノードがあなたのノードからブロックをダウンロードするため、アップロード量が増えます。設定後、最初の接続まで数時間かかることがあります。`,
+    mnOffHead: "ノード停止中",
+    mnOffBody: (when) => `${when}までにノードが知っていた内容を表示しています。`,
+    mnEmptyHead: "ほかのノードはまだ見つかっていません",
+    mnEmptyBody: "ノードが動作すると、数分で地図が埋まります。",
+    mnTip: (name, seen, active) => `${name}：24時間で${seen}、うち直近1時間に${active}`,
+    mnMore: (n) => `その他の国・地域：${n}`,
+    mnUnplaced: (n) => `国・地域不明：${n}`,
+    mnSrc: "このコンピューター上のノードのアドレス帳から読み取っています。CoreStarterはそのために接続せず、アドレスは表示せず国・地域だけを表示します。国・地域はインターネットアドレスからの推定で、誤ることがあります。国・地域：DB-IP「IP to Country Lite」（db-ip.com）2026年11月版、ライセンスCC BY 4.0（creativecommons.org/licenses/by/4.0）、IPv4のみ・形式を変換。地図：Natural Earth。",
     mineLive: "マイナーのライブ表示を開く",
     mvEyebrow: "マイナー",
     mvState: { mining: "マイニング中", connecting: "プールに接続しています…", starting: "マイナーを起動しています…", "paused-battery": "一時停止中（バッテリー駆動）", "paused-heat": "一時停止中（Macが高温）", error: "マイナー停止", off: "マイニングはオフです", unreachable: "プールに接続できません" },
-    mvBlocked: "ウイルス対策ソフトやネットワークフィルター（ルーター、社内ネットワーク）がマイニングプールをブロックしていることがよくあります。そこでCoreStarterのマイナー（core-miner）とアドレスcatchthatrabbit.comを許可するか、スマートフォンのテザリングで試してください。",
+    mvBlocked: "ウイルス対策ソフトやネットワークフィルター（ルーター、社内ネットワーク）がマイニングプールをブロックしていることがよくあります。その設定でCoreStarterのマイナー（core-miner）とアドレスcatchthatrabbit.comを許可するか、一時的にスマートフォンのテザリングで試してください。",
     mvOffHint: "設定で「XCBをマイニング」をオンにすると、ここでマイナーの動作を確認できます。",
     mvRateL: "計算能力",
-    mvThreads: (a, b) => `毎秒ハッシュ数 · ${b}スレッド中${a}`,
+    mvThreads: (a, b) => `毎秒ハッシュ数 · ${a}/${b}スレッド`,
     mvThrottled: "ノードの同期中は性能を抑えています",
     mvAxisFrom: "10分前", mvAxisTo: "現在",
     mvSharesL: "シェア", mvShares: (r) => r ? `承認 · ${r}件拒否` : "承認、拒否なし",
-    mvThreadsL: "スレッドごとの計算能力", mvThreadAvg: (v, u) => `平均 ${v} ${u}`, mvThreadTip: (i, v, u) => `スレッド${i}：${v} ${u}`, mvThreadIdle: (i) => `スレッド${i}：一時停止中（性能が「すべて」未満）`,
+    mvThreadsL: "スレッドごとの計算能力", mvThreadAvg: (v, u) => `平均 ${v} ${u}`, mvThreadTip: (i, v, u) => `スレッド${i}：${v} ${u}`, mvThreadIdle: (i) => `スレッド${i}：一時停止中（「性能」が「すべて」ではないため）`,
     mvDiffL: "難易度", mvDiff: (h, t) => `シェアあたり${h}ハッシュ · 平均${t}ごと`, mvSecs: (n) => `${n}秒`, mvMins: (n) => `${n}分`,
     mvAnswer: (ms) => ` · 応答 ${ms}\u00a0ms`,
     mvLastL: "最新の計算結果（シェア）", mvAgo: (s) => s < 60 ? `${s}秒前` : s < 3600 ? `${Math.floor(s / 60)}分前` : `${Math.floor(s / 3600)}時間前`, mvNone: "今回の実行ではまだありません",
     mvPoolL: "サーバー", mvPool: "Catch That Rabbit",
-    mvEarnL: "収益 · 推定", mvEarnUnit: "XCB／日",
+    mvEarnL: "収益 · 推定", mvEarnUnit: "XCB/日",
     mvEarn: (fee) => `現在の計算能力で、プール手数料${fee}%と開発支援分を差し引いた値です。平均値であり保証ではありません。時間ごとに変動します。`,
     mvEarnWait: "プールに問い合わせています（10分ごと）。", mvEarnPartial: "一部のプール地域に接続できませんでした。",
-    mvBalL: "プール内（未払い）", mvImm: (x) => `＋${x} 未承認`, mvPayL: "支払い", mvPay: (x) => `${x}から`, mvPayS: (h) => `XCB、${h}時間ごとに確認`,
+    mvEarnDown: (n) => `プールの統計情報が現在応答していません。マイニングは通常どおり続いています。次回の確認は${n}分後です。`,
+    mvEarnStale: (t) => `プールの統計情報が現在応答していません。表示は${t}時点の値です。`,
+    mvBalL: "プール内（未払い）", mvImm: (x) => `＋${x} 未確定`, mvPayL: "支払い", mvPay: (x) => `${x}から`, mvPayS: (h) => `XCB、${h}時間ごとに確認`,
     mvAddrL: "あなたのアドレス", mvCopy: "コピー", mvCopied: "コピーしました。",
-    mvCopyFail: "コピーできませんでした。アドレスを選択したので、Ctrl+Cを押してください。",
+    mvCopyFail: "コピーできませんでした。アドレスは選択済みなので、Ctrl+Cを押してください。",
     mvPoolPage: "プールで見る（Catch That Rabbit）",
     mvPoolFail: "プールのページを開けませんでした。保存されたアドレスがありません。",
-    mvPoolHint: (r) => `ブラウザでcatchthatrabbit.comを開きます（サーバー${r}）。サーバーごとに別のプールで、CoreStarterは上の表示ですべてを合計しています。`,
+    mvPoolHint: (r) => `ブラウザでcatchthatrabbit.comを開きます（サーバー${r}）。サーバーはそれぞれ独立したプールです。上の表示では、CoreStarterがすべてのサーバーを合計しています。`,
     mvSupportL: "開発支援", mvSupportNow: "現在TMMACのために25秒間計算中", mvSupportOn: (pct) => pct ? `計算時間の0.42% · これまで${pct}%` : "計算時間の0.42%をTMMACに",
     mvLogTitle: "ログ（miner.log）", mvLogEmpty: "まだ記録はありません。",
     mvOpenLogs: "ログフォルダーを開く", mvSettings: "設定", mvClose: "閉じる",
     mvInstalled: "インストールしました。ノードとマイナーはバックグラウンドで動作しています。このウィンドウを閉じても、右下のアイコンに状況が表示されます。",
     langAuto: "自動", langLabel: "言語",
     powerThreads: (n) => `${n}スレッド`,
-    addrHelpT: "Coreのアドレスをお持ちでない場合",
+    addrHelpT: "Coreアドレスをお持ちでない場合",
     addrHelpB: "スマートフォンのCorePassアプリで無料で作成できます。設定後、アプリ内のアドレス（cbで始まります）をコピーし、メールなどでこのPCに送ってください。手入力でもかまいません。入力ミスはチェック用の数字でほぼ確実に検出されます。先にノードだけを運用し、マイニングは後からオンにすることもできます。",
     safeTitle: "安全ですか？",
     safe: [
@@ -835,10 +1157,10 @@ const L = {
       supStart: () => "開発支援：TMMACのために25秒",
       supDone: () => "開発支援：完了",
       supSkip: () => "開発支援をスキップ：プールからジョブがありません",
-      home: (h, ms, f) => `ホームサーバー${h}に戻ります（${ms} ms）、それまでは${f}`,
+      home: (h, ms, f) => `ホームサーバー${h}に戻りました（${ms} ms、直前の接続先：${f}）`,
       serversHome: (l, h) => `サーバー：${l}、ホーム：${h}`,
       servers: (l) => `サーバー：${l}`,
-      blocked: (n) => `${n}分間プールから作業が届いていません：ウイルス対策ソフト、ファイアウォール、ネットワークフィルターがcatchthatrabbit.comをブロックしている可能性があります`,
+      blocked: (n) => `${n}分間プールからジョブが届いていません：ウイルス対策ソフト、ファイアウォール、ネットワークフィルターがcatchthatrabbit.comをブロックしている可能性があります`,
       answersLost: (n) => `接続切断により、シェアの応答${n}件が失われました`,
       ready: (sec, f, t) => `RandomY準備完了（${sec}秒、${f}）、最大${t}スレッド`,
       selftest: (j, n) => `セルフテスト合格（JIT ${j}、確認値${n}個）`,
@@ -847,7 +1169,7 @@ const L = {
   },
   nl: {
     eyebrowInstall: "Installatie", eyebrowSettings: "Instellingen",
-    intro: "Met CoreStarter draai je een node van de Core-blockchain: je pc bewaart een kopie van de blockchain en deelt die met andere nodes. Desgewenst kan hij ook XCB minen. Alles draait op de achtergrond; een pictogram rechtsonder in de taakbalk toont de stand.",
+    intro: "Met CoreStarter draai je een node van de Core-blockchain: je pc bewaart een kopie van de blockchain en deelt die met andere nodes. Desgewenst kan hij ook XCB minen. Alles draait op de achtergrond; een pictogram rechtsonder in de taakbalk toont de status.",
     introSettings: "Wijzigingen gelden direct na het opslaan.",
     nodeTitle: "Node draaien",
     nodeSub: (need, free) => `Helpt het Core-netwerk. Heeft ongeveer ${need} GB opslag nodig (vrij: ${free} GB) en ongeveer 2–3 GB werkgeheugen.`,
@@ -869,26 +1191,26 @@ const L = {
       "Op accu pauzeert het minen automatisch.",
       "Zolang de node voor het eerst synchroniseert, gebruikt de miner hooguit 25%.",
       "De miner heeft zelf geen hittebeveiliging. Wordt de processor te warm, dan remt hij zichzelf af.",
-      "De pool betaalt uit vanaf 0,1 XCB (geteld per serverregio) en controleert dat ongeveer elke 4 uur. De kosten bedragen momenteel 0,5%.",
+      "De pool betaalt uit vanaf 0,1 XCB (geteld per serverregio) en controleert dat ongeveer elke 4 uur. De poolkosten bedragen momenteel 0,5%.",
     ],
     autoTitle: "Starten met Windows",
     autoSub: "Node en miner starten na elke aanmelding automatisch op de achtergrond.",
     netTitle: "Netwerkverbindingen",
     net: [
       "De starter zelf stuurt geen gegevens naar TMMAC of derden. Geen updatecontrole, geen telemetrie.",
-      "Node: maakt verbinding met andere Core-nodes (poort 30300), opent via UPnP een poort op de router, vraagt DNS-servers naar adressen van andere nodes en bij een afwijkende klok een tijdserver (pool.ntp.org). Die zien je IP-adres.",
-      "Minen (alleen als het aanstaat): verbinding met Catch That Rabbit (pool, en elke 10 minuten een opbrengstopvraag). De pool ziet je adres, de naam in de pool, de rekenkracht en je IP-adres. De poolverbinding is onversleuteld. Voor de verdere ontwikkeling meldt zich elke 100 minuten 25 seconden lang een tweede verbinding met het TMMAC-adres aan.",
+      "Node: maakt verbinding met andere Core-nodes (poort 30300), opent via UPnP een poort op de router, vraagt DNS-servers naar adressen van andere nodes en raadpleegt bij een afwijkende klok een tijdserver (pool.ntp.org). Die zien je IP-adres.",
+      "Minen (alleen als het aanstaat): verbinding met Catch That Rabbit (de pool zelf, en elke 10 minuten om de opbrengst op te vragen). De pool ziet je Core-adres, de naam in de pool, de rekenkracht en je IP-adres. De poolverbinding is onversleuteld. Voor de verdere ontwikkeling logt er elke 100 minuten 25 seconden lang een tweede verbinding in met het TMMAC-adres.",
       "Dit venster laadt niets van internet.",
     ],
     aboutTitle: "Over CoreStarter",
     about: (v, g) => [
       `CoreStarter ${v} van Tell Me More About Core (tellmemoreaboutcore.com), een onafhankelijk project, geen officiële app van Core.`,
       `Node: officiële gocore ${g} van Core, ongewijzigd.`,
-      "Miner: RandomY (core-coin, BSD-3). Voor elke start controleert hij aan de hand van bekende, door de pool bevestigde waarden of hij goed rekent.",
-      "Het programmabestand is niet ondertekend. Windows SmartScreen waarschuwt daarom bij de eerste start; “Smart App Control” blokkeert het volledig.",
+      "Miner: RandomY (core-coin, BSD-3). Vóór elke start controleert hij aan de hand van bekende, door de pool bevestigde waarden of hij goed rekent.",
+      "Het programmabestand is niet ondertekend. Windows SmartScreen waarschuwt daarom bij de eerste start; “Slim app-beheer” (Smart App Control) blokkeert het volledig.",
     ],
     imprint: "Colofon", source: "Broncode", privacyPolicy: "Privacyverklaring", feedback: "Feedback & fouten melden",
-    openData: "Gegevensmap", openLogs: "Logs", openLicenses: "Licenties", openRelease: "Naar nieuwe versie zoeken",
+    openData: "Gegevensmap", openLogs: "Logs", openLicenses: "Licenties", openRelease: "Zoeken naar nieuwe versie",
     install: "Installeren en starten", save: "Opslaan", cancel: "Annuleren", close: "Sluiten",
     needOne: "Kies minstens “Node draaien” of “XCB minen”.",
     needAddress: "Voor het minen ontbreekt een geldig Core-adres.",
@@ -904,11 +1226,61 @@ const L = {
     earnings: (day, bal, partial) => `Schatting: ca. ${day} XCB/dag · nog in de pool: ${bal} XCB${partial ? " (niet alle poolregio’s bereikbaar)" : ""}`,
     arm64: "Windows op ARM: de miner draait hier geëmuleerd en is duidelijk langzamer dan op een x64-pc (niet getest).",
     supportMeasured: (pct) => `Daarvan voor de verdere ontwikkeling: ${pct}% van de rekentijd`,
-    lowRAM: (gb) => `Deze pc heeft ${gb} GB werkgeheugen. Node en minen samen kunnen hem merkbaar vertragen; kies dan liever een van de twee.`,
+    lowRAM: (gb) => `Deze pc heeft ${gb} GB werkgeheugen. Node en minen samen kunnen hem merkbaar vertragen; kies dan liever één van de twee.`,
     noTray: "CoreStarter draait op dit moment niet. Na het opslaan start hij.",
+    syncStep1: "Stap 1 van 2: blokken laden",
+    syncStep2: "Stap 2 van 2: saldi laden",
+    syncCatch: "Bezig met inhalen",
+    syncLeftH: (n) => `nog ongeveer ${n} uur`,
+    syncLeftM: (n) => `nog ongeveer ${n} min`,
+    syncLeftFew: "nog een paar minuten",
+    syncMeasuring: "resterende tijd wordt gemeten …",
+    syncNoTotal: "Voor deze stap kent de node het totaal niet, daarom is er geen schatting van de resterende tijd.",
+    syncDone: "Volledig gesynchroniseerd. Vanaf nu controleert je node elk nieuw blok zelf.",
+    failLogs: "Logmap openen",
+    failData: "Gegevensmap openen",
+    failCopy: "Gegevens voor support kopiëren",
+    failCopied: "Gekopieerd – zonder adressen of sleutels.",
+    failCopyNo: "Kopiëren lukte niet. Open in plaats daarvan de logmap en stuur het logbestand mee.",
+    tabsL: "Weergaven",
+    tabStatus: "Status",
+    stNodeTitle: "Jouw node",
+    stNodeOff: "De node staat uit. Je kunt hem aanzetten onder Instellingen.",
+    cbTitle: "Jouw bijdrage",
+    cbSub: "Wat je node sinds de laatste start voor het netwerk doet. Alles hier telt je computer zelf.",
+    cbRunL: "looptijd sinds de start",
+    cbBlocksL: "nieuwe blokken zelf gecontroleerd",
+    cbBlocksWait: "telt zodra de node gesynchroniseerd is",
+    cbCopyL: "kopie van de blockchain op deze computer",
+    durMin: (n) => `${n} min`,
+    durHours: (n) => `${n} uur`,
+    durDays: (n) => `${n} dagen`,
+    mnTitle: "Mijn netwerk",
+    mnSub: "De nodes die de afgelopen 24 uur op je node hebben gereageerd. Nodes achter een router ontbreken hier meestal, dit is dus niet het hele netwerk. Hoe meer mensen op verschillende plekken een node draaien, hoe minder het netwerk afhangt van afzonderlijke plekken.",
+    mnMapLabel: (c) => `Wereldkaart: nodes in ${c} landen`,
+    mnLConn: "nu verbonden met je node", mnLActive: "antwoord in het afgelopen uur", mnLSeen: "antwoord in 24 uur", mnLCountries: "landen",
+    mnHead: "Nodes per land · 24 uur",
+    mnInHead: (n) => `Van buitenaf bereikbaar · ${n} inkomend`,
+    mnInBody: "Andere nodes maken verbinding met de jouwe. Precies dat heeft het netwerk nodig: nodes waar nieuwe kunnen aankloppen.",
+    mnWasInHead: "Vandaag al van buitenaf bereikbaar",
+    mnWasInBody: "Sinds de start heeft al een node van buitenaf verbinding gemaakt met de jouwe. Op dit moment is er van buitenaf geen node verbonden.",
+    mnWaitHead: "Alleen uitgaande verbindingen",
+    mnWaitBody: "Je node is net gestart en vraagt je router zelf om een poort open te zetten (UPnP). Het kan even duren voordat de eerste node van buitenaf zich meldt.",
+    mnNoInHead: "Alleen uitgaande verbindingen",
+    mnNoInBody: "Dat is normaal, de meeste routers laten geen verbinding binnen. Je node controleert toch elk blok zelf. Hij helpt nog meer als andere nodes hem kunnen bereiken.",
+    mnPortQ: "Zo wordt je node bereikbaar",
+    mnPortA: (port) => `Je node vraagt je router zelf om een poort open te zetten (UPnP). Lukt dat niet, stuur dan in je router poort ${port} voor TCP en UDP door naar deze computer. Alleen deze ene poort, niet de hele computer: zet geen “exposed host” of DMZ aan. Zitten er twee routers achter elkaar, dan moet je de poort in allebei doorsturen. De firewall van je computer moet gocore toestaan. Bij mobiel internet, Starlink en sommige glasvezelaansluitingen lukt het niet, omdat veel klanten één adres delen. Bereikbaar betekent ook dat andere nodes blokken bij jou downloaden; dat kost meer uploadcapaciteit. Na het doorsturen kan het uren duren tot de eerste node aanklopt.`,
+    mnOffHead: "Node uit",
+    mnOffBody: (when) => `Je ziet wat je node kende tot ${when}.`,
+    mnEmptyHead: "Nog geen andere nodes bekend",
+    mnEmptyBody: "Als je node draait, vult de kaart zich binnen een paar minuten.",
+    mnTip: (name, seen, active) => `${name}: ${seen} in 24 uur, waarvan ${active} in het afgelopen uur`,
+    mnMore: (n) => `meer landen: ${n}`,
+    mnUnplaced: (n) => `zonder bekend land: ${n}`,
+    mnSrc: "Gelezen uit het adresboek van je node op deze computer. CoreStarter legt daarvoor geen verbinding en toont geen adressen, alleen landen. Het land is geschat op basis van het internetadres en kan ernaast zitten. Landen: IP to Country Lite van DB-IP (db-ip.com), stand november 2026, licentie CC BY 4.0 (creativecommons.org/licenses/by/4.0), alleen IPv4, omgezet. Kaart: Natural Earth.",
     mineLive: "Liveweergave van de miner openen",
     mvEyebrow: "Miner",
-    mvState: { mining: "Minen loopt", connecting: "Verbinden met de pool …", starting: "Miner start …", "paused-battery": "Gepauzeerd (op accu)", "paused-heat": "Gepauzeerd (Mac te warm)", error: "Miner gestopt", off: "Minen staat uit", unreachable: "Pool niet bereikbaar" },
+    mvState: { mining: "Bezig met minen", connecting: "Verbinden met de pool …", starting: "Miner start …", "paused-battery": "Gepauzeerd (op accu)", "paused-heat": "Gepauzeerd (Mac te warm)", error: "Miner gestopt", off: "Minen staat uit", unreachable: "Pool niet bereikbaar" },
     mvBlocked: "Vaak blokkeert een virusscanner of netwerkfilter (router, bedrijfsnetwerk) miningpools. Sta daar de miner van CoreStarter (core-miner) en het adres catchthatrabbit.com toe, of test even via een hotspot van je telefoon.",
     mvOffHint: "Zet “XCB minen” aan in de instellingen, dan zie je hier hoe de miner werkt.",
     mvRateL: "Rekenkracht",
@@ -924,16 +1296,18 @@ const L = {
     mvEarnL: "Opbrengst · schatting", mvEarnUnit: "XCB per dag",
     mvEarn: (fee) => `Bij de huidige rekenkracht, na ${fee}% poolkosten en het aandeel voor de verdere ontwikkeling. Een gemiddelde, geen belofte: het schommelt van uur tot uur.`,
     mvEarnWait: "Wordt bij de pool opgevraagd (elke 10 min).", mvEarnPartial: " Niet alle poolregio’s waren bereikbaar.",
+    mvEarnDown: (n) => `De poolstatistieken reageren op dit moment niet. Het minen loopt gewoon door; volgende poging over ${n}\u00a0min.`,
+    mvEarnStale: (t) => ` De poolstatistieken reageren op dit moment niet; deze cijfers zijn van ${t}.`,
     mvBalL: "Nog in de pool", mvImm: (x) => `+ ${x} onbevestigd`, mvPayL: "Uitbetaling", mvPay: (x) => `vanaf ${x}`, mvPayS: (h) => `XCB, controle elke ${h} u`,
     mvAddrL: "Je adres", mvCopy: "Kopiëren", mvCopied: "Gekopieerd.",
     mvCopyFail: "Kopiëren lukte niet. Het adres is geselecteerd: druk op Ctrl+C.",
-    mvPoolPage: "Bekijken in de pool (Catch That Rabbit)",
+    mvPoolPage: "In de pool bekijken (Catch That Rabbit)",
     mvPoolFail: "De poolpagina kon niet worden geopend: geen opgeslagen adres gevonden.",
     mvPoolHint: (r) => `Opent catchthatrabbit.com in je browser, server ${r}. Elke server is een eigen pool; CoreStarter telt ze hierboven allemaal op.`,
     mvSupportL: "Verdere ontwikkeling", mvSupportNow: "rekent nu 25 s voor TMMAC", mvSupportOn: (pct) => pct ? `0,42% van de rekentijd · tot nu toe ${pct}%` : "0,42% van de rekentijd voor TMMAC",
     mvLogTitle: "Logboek (miner.log)", mvLogEmpty: "Nog geen meldingen.",
     mvOpenLogs: "Logmap openen", mvSettings: "Instellingen", mvClose: "Sluiten",
-    mvInstalled: "Geïnstalleerd. Node en miner draaien nu op de achtergrond; het pictogram rechtsonder toont de stand, ook als dit venster dicht is.",
+    mvInstalled: "Geïnstalleerd. Node en miner draaien nu op de achtergrond; het pictogram rechtsonder toont de status, ook als dit venster dicht is.",
     langAuto: "Auto", langLabel: "Taal",
     powerThreads: (n) => n === 1 ? "1 thread" : `${n} threads`,
     addrHelpT: "Nog geen Core-adres?",
@@ -941,10 +1315,10 @@ const L = {
     safeTitle: "Is dit veilig?",
     safe: [
       "Windows waarschuwt bij de eerste start (“Windows heeft uw pc beschermd”), omdat het bestand nog niet digitaal ondertekend is. Download CoreStarter daarom alleen van tellmemoreaboutcore.com.",
-      "Virusscanners melden miningprogramma’s vaak, omdat malware stiekem op andermans pc’s mint. CoreStarter mint alleen als je het aanzet, toont dat in de taakbalk en kan op elk moment worden gepauzeerd of verwijderd.",
+      "Virusscanners melden miningprogramma’s vaak, omdat malware stiekem andermans pc’s laat minen. CoreStarter gaat alleen minen als je dat aanzet, toont dat in de taakbalk en is op elk moment te pauzeren of te verwijderen.",
       "De pool krijgt alleen je openbare Core-adres, de naam in de pool, de rekenresultaten en, zoals bij elke internetverbinding, je IP-adres te zien. Wachtwoorden, sleutels en je bestanden stuurt CoreStarter nergens heen.",
       "De node vraagt je router via UPnP een poort te openen, zodat andere nodes hem kunnen bereiken. Dat is gebruikelijk bij blockchainnodes; zonder UPnP draait hij ook, alleen met minder verbindingen.",
-      "Je betaalt ons geen geld: 0,42% van de rekentijd gaat vast naar de verdere ontwikkeling (TMMAC). Tijdens het minen verbruikt het apparaat meer stroom dan in rust; de stroomkosten zijn voor jou.",
+      "Je betaalt ons geen geld: 0,42% van de rekentijd gaat vast naar de verdere ontwikkeling (TMMAC). Tijdens het minen verbruikt het apparaat meer stroom dan in rust; de stroomkosten komen voor jouw rekening.",
       "Stoppen kan altijd: minen pauzeer je in de minerweergave, afsluiten of verwijderen doe je onderaan in de instellingen of via het pictogram in de taakbalk.",
     ],
     stopTitle: "Stoppen",
@@ -968,19 +1342,19 @@ const L = {
       connected: (srv, w) => `Verbonden met ${srv} als ${w}`,
       lost: (r) => `Verbinding met de pool verloren: ${r}`,
       power: (p, t) => `Vermogen ${p}% = ${t} threads`,
-      acOn: () => "Lader aangesloten: minen gaat verder",
+      acOn: () => "Oplader aangesloten: minen gaat verder",
       acOff: () => "Op accu: minen gepauzeerd",
       hotOn: () => "Mac te warm: minen gepauzeerd",
       hotOff: () => "Mac afgekoeld: minen gaat verder",
-      resumed: (d) => `Verder na ${d} pauze: nieuwe verbinding met de pool`,
+      resumed: (d) => `Hervat na ${d} pauze: nieuwe verbinding met de pool`,
       supStart: () => "Verdere ontwikkeling: 25 s voor TMMAC",
       supDone: () => "Verdere ontwikkeling: klaar",
       supSkip: () => "Verdere ontwikkeling overgeslagen: geen job van de pool",
-      home: (h, ms, f) => `Terug naar thuisserver ${h} (${ms} ms), eerst ${f}`,
+      home: (h, ms, f) => `Terug naar thuisserver ${h} (${ms} ms), daarvoor ${f}`,
       serversHome: (l, h) => `Servers: ${l}; thuis: ${h}`,
       servers: (l) => `Servers: ${l}`,
       blocked: (n) => `Al ${n} min geen werk van de pool: een virusscanner, firewall of netwerkfilter blokkeert mogelijk catchthatrabbit.com`,
-      answersLost: (n) => `${n} share-antwoorden verloren met de verbinding`,
+      answersLost: (n) => `${n} share-antwoorden verloren doordat de verbinding wegviel`,
       ready: (sec, f, t) => `RandomY klaar in ${sec} s (${f}), tot ${t} threads`,
       selftest: (j, n) => `Zelftest geslaagd (JIT ${j}, ${n} controlewaarden)`,
       dropNoConn: () => "Share verworpen: geen verbinding met de pool",
@@ -994,7 +1368,7 @@ const L = {
     nodeSub: (need, free) => `Ajută rețeaua Core. Are nevoie de aproximativ ${need} GB spațiu de stocare (liber: ${free} GB) și de circa 2–3 GB memorie RAM.`,
     nodeSubData: (data) => ` Datele blockchain ocupă în prezent ${data} GB.`,
     mineTitle: "Minează XCB",
-    mineSub: "Procesorul tău calculează împreună cu pool-ul Catch That Rabbit. Un pool reunește puterea de calcul a multor mineri și împarte câștigurile după contribuție; partea ta o plătește la adresa ta Core.",
+    mineSub: "Procesorul tău contribuie la calculele din pool-ul Catch That Rabbit. Un pool reunește puterea de calcul a multor mineri și împarte câștigurile după contribuție; partea ta ți-o plătește la adresa ta Core.",
     addrLabel: "Adresa ta Core (din CorePass)",
     addrEmpty: "Începe cu cb, are 44 de caractere. Spațiile și „corepass:” se elimină.",
     addrOk: "Adresă verificată.",
@@ -1005,7 +1379,7 @@ const L = {
     workerHint: "Sub acest nume calculatorul apare public în statisticile pool-ului, deci mai bine nu folosi numele tău real. Doar a–z, 0–9 și cratimă, până la 15 caractere.",
     powerLabel: "Putere", powerAll: "Tot",
     supportTitle: "0,42\u00a0% din timpul de calcul susține dezvoltarea în continuare (TMMAC).",
-    supportSub: "La fiecare 100 de minute, minerul calculează 25 de secunde pentru TMMAC în loc de tine. Cu asta finanțăm dezvoltarea în continuare. Pierzi doar câștigul acestor 25 de secunde; alte costuri nu există.",
+    supportSub: "La fiecare 100 de minute, minerul calculează 25 de secunde pentru TMMAC, nu pentru tine. Așa finanțăm dezvoltarea în continuare. Pierzi doar câștigul acestor 25 de secunde; alte costuri nu există.",
     notes: [
       "Pe baterie, minarea face pauză automat.",
       "Cât timp nodul se sincronizează prima dată, minerul folosește cel mult 25\u00a0%.",
@@ -1016,9 +1390,9 @@ const L = {
     autoSub: "Nodul și minerul pornesc automat în fundal după fiecare autentificare.",
     netTitle: "Conexiuni la rețea",
     net: [
-      "Starterul însuși nu trimite date către TMMAC sau terți. Fără verificare de actualizări, fără telemetrie.",
+      "CoreStarter în sine nu trimite date către TMMAC sau terți. Fără verificare de actualizări, fără telemetrie.",
       "Nod: se conectează la alte noduri Core (portul 30300), deschide prin UPnP un port pe router, cere serverelor DNS adresele altor noduri și, dacă ceasul deviază, interoghează un server de timp (pool.ntp.org). Acestea îți văd adresa IP.",
-      "Minare (doar dacă e pornită): conexiune la Catch That Rabbit (pool și, la fiecare 10 minute, o interogare a câștigului). Pool-ul vede adresa ta, numele din pool, puterea de calcul și adresa ta IP. Conexiunea la pool nu este criptată. Pentru dezvoltarea în continuare, la fiecare 100 de minute se conectează timp de 25 de secunde o a doua conexiune cu adresa TMMAC.",
+      "Minare (doar dacă e pornită): conexiune la Catch That Rabbit (pool și, la fiecare 10 minute, o interogare a câștigului). Pool-ul vede adresa ta, numele din pool, puterea de calcul și adresa ta IP. Conexiunea la pool nu este criptată. Pentru dezvoltarea în continuare, la fiecare 100 de minute se deschide, timp de 25 de secunde, o a doua conexiune, autentificată cu adresa TMMAC.",
       "Această fereastră nu încarcă nimic de pe internet.",
     ],
     aboutTitle: "Despre CoreStarter",
@@ -1033,7 +1407,7 @@ const L = {
     install: "Instalează și pornește", save: "Salvează", cancel: "Anulează", close: "Închide",
     needOne: "Alege cel puțin „Rulează un nod” sau „Minează XCB”.",
     needAddress: "Pentru minare lipsește o adresă Core validă.",
-    errPath: "Calea folderului tău de utilizator conține un „$”. Din cauza asta, nodul nu își găsește în mod sigur folderul de date.",
+    errPath: "Calea folderului tău de utilizator conține un „$”. Din cauza asta, nodul nu își poate găsi întotdeauna folderul de date.",
     errSpace: "Prea puțin spațiu liber pentru nod.",
     errOther: (e) => "Nu a funcționat. Te rugăm să încerci din nou." + (e ? ` (Detaliu tehnic: ${e})` : ""),
     busy: "Setările încă se salvează. Te rugăm să aștepți puțin.",
@@ -1047,6 +1421,56 @@ const L = {
     supportMeasured: (pct) => `Din care pentru dezvoltarea în continuare: ${pct}\u00a0% din timpul de calcul`,
     lowRAM: (gb) => `Acest PC are ${gb} GB memorie RAM. Nodul și minarea împreună îl pot încetini vizibil; atunci mai bine doar unul dintre ele.`,
     noTray: "CoreStarter nu rulează acum. Pornește după salvare.",
+    syncStep1: "Pasul 1 din 2: se descarcă blocurile",
+    syncStep2: "Pasul 2 din 2: se descarcă soldurile conturilor",
+    syncCatch: "Se pune la zi",
+    syncLeftH: (n) => `mai sunt aproximativ ${n} h`,
+    syncLeftM: (n) => `mai sunt aproximativ ${n} min`,
+    syncLeftFew: "mai sunt câteva minute",
+    syncMeasuring: "se măsoară timpul rămas …",
+    syncNoTotal: "Pentru acest pas nodul nu cunoaște totalul, de aceea nu există o estimare a timpului rămas.",
+    syncDone: "Sincronizare completă. De acum nodul tău verifică singur fiecare bloc nou.",
+    failLogs: "Deschide folderul de jurnale",
+    failData: "Deschide folderul de date",
+    failCopy: "Copiază detaliile pentru suport",
+    failCopied: "Copiat – fără adrese sau chei.",
+    failCopyNo: "Copierea nu a reușit. Deschide în schimb folderul de jurnale și trimite fișierul de jurnal.",
+    tabsL: "Vizualizări",
+    tabStatus: "Stare",
+    stNodeTitle: "Nodul tău",
+    stNodeOff: "Nodul este oprit. Îl poți porni din Setări.",
+    cbTitle: "Contribuția ta",
+    cbSub: "Ce face nodul tău pentru rețea de la ultima pornire. Totul aici este numărat de computerul tău.",
+    cbRunL: "timp de funcționare de la pornire",
+    cbBlocksL: "blocuri noi verificate de nodul tău",
+    cbBlocksWait: "se numără după ce nodul este sincronizat",
+    cbCopyL: "copie a blockchain-ului pe acest computer",
+    durMin: (n) => `${n} min`,
+    durHours: (n) => `${n} h`,
+    durDays: (n) => `${n} zile`,
+    mnTitle: "Rețeaua mea",
+    mnSub: "Nodurile care au răspuns nodului tău în ultimele 24 de ore. Nodurile din spatele unui router lipsesc de obicei de aici, deci nu vezi toată rețeaua. Cu cât mai mulți oameni rulează un nod în locuri diferite, cu atât rețeaua depinde mai puțin de câteva puncte anume.",
+    mnMapLabel: (c) => `Harta lumii: noduri în ${c} țări`,
+    mnLConn: "conectate acum la nodul tău", mnLActive: "au răspuns în ultima oră", mnLSeen: "au răspuns în 24 de ore", mnLCountries: "țări",
+    mnHead: "Noduri pe țară · 24 de ore",
+    mnInHead: (n) => `Accesibil din exterior · conexiuni de intrare: ${n}`,
+    mnInBody: "Alte noduri se conectează la al tău. Exact de asta are nevoie rețeaua: noduri la care se pot conecta nodurile noi.",
+    mnWasInHead: "Azi deja accesibil din exterior",
+    mnWasInBody: "De la pornire, un nod din exterior s-a conectat deja la al tău. Acum nu este conectat niciunul din exterior.",
+    mnWaitHead: "Doar conexiuni de ieșire",
+    mnWaitBody: "Nodul tău tocmai a pornit și îi cere singur routerului să deschidă un port (UPnP). Poate dura până se anunță primul nod din exterior.",
+    mnNoInHead: "Doar conexiuni de ieșire",
+    mnNoInBody: "Este normal, majoritatea routerelor nu lasă nicio conexiune să intre. Nodul tău verifică totuși singur fiecare bloc. Ajută și mai mult dacă alte noduri îl pot accesa.",
+    mnPortQ: "Cum devine nodul tău accesibil",
+    mnPortA: (port) => `Nodul tău cere singur routerului o deschidere (UPnP). Dacă nu merge, redirecționează în router portul ${port} pentru TCP și UDP către acest calculator. Doar acest port, nu tot calculatorul: nu activa „exposed host” sau DMZ. Dacă ai două routere unul după altul, redirecționarea trebuie făcută în amândouă. Firewall-ul calculatorului trebuie să permită gocore. Pe internet mobil, Starlink și unele conexiuni prin fibră nu merge, pentru că mulți clienți împart o adresă. Accesibil înseamnă și că alte noduri descarcă blocuri de la tine, ceea ce folosește mai mult upload. După redirecționare pot trece ore până se conectează primul nod.`,
+    mnOffHead: "Nod oprit",
+    mnOffBody: (when) => `Vezi ce cunoștea nodul tău până la ${when}.`,
+    mnEmptyHead: "Încă niciun alt nod cunoscut",
+    mnEmptyBody: "Când nodul tău rulează, harta se umple în câteva minute.",
+    mnTip: (name, seen, active) => `${name}: ${seen} în 24 de ore, dintre care ${active} în ultima oră`,
+    mnMore: (n) => `alte țări: ${n}`,
+    mnUnplaced: (n) => `fără țară cunoscută: ${n}`,
+    mnSrc: "Citit din agenda de adrese a nodului tău de pe acest calculator. CoreStarter nu deschide nicio conexiune pentru asta și nu arată adrese, doar țări. Țara este estimată după adresa de internet și poate fi greșită. Țări: IP to Country Lite de la DB-IP (db-ip.com), ediția noiembrie 2026, licență CC BY 4.0 (creativecommons.org/licenses/by/4.0), doar IPv4, convertit. Hartă: Natural Earth.",
     mineLive: "Deschide vizualizarea live a minerului",
     mvEyebrow: "Miner",
     mvState: { mining: "Minarea rulează", connecting: "Se conectează la pool …", starting: "Minerul pornește …", "paused-battery": "În pauză (pe baterie)", "paused-heat": "În pauză (Mac prea fierbinte)", error: "Miner oprit", off: "Minarea este oprită", unreachable: "Pool-ul nu e accesibil" },
@@ -1056,16 +1480,18 @@ const L = {
     mvThreads: (a, b) => `Hash-uri pe secundă · ${a} din ${+b === 1 ? "1 thread" : `${b}${+b % 100 >= 20 || (+b >= 100 && +b % 100 === 0) ? " de" : ""} thread-uri`}`,
     mvThrottled: "limitat cât timp nodul se sincronizează",
     mvAxisFrom: "acum 10 min", mvAxisTo: "acum",
-    mvSharesL: "Shares", mvShares: (r) => r ? `acceptate · ${+r === 1 ? "1 respins" : `${r}${+r % 100 >= 20 || (+r >= 100 && +r % 100 === 0) ? " de" : ""} respinse`}` : "acceptate, niciunul respins",
+    mvSharesL: "Share-uri", mvShares: (r) => r ? `acceptate · ${+r === 1 ? "1 respins" : `${r}${+r % 100 >= 20 || (+r >= 100 && +r % 100 === 0) ? " de" : ""} respinse`}` : "acceptate, niciunul respins",
     mvThreadsL: "Putere pe thread", mvThreadAvg: (v, u) => `Ø ${v} ${u}`, mvThreadTip: (i, v, u) => `Thread ${i}: ${v} ${u}`, mvThreadIdle: (i) => `Thread ${i}: în pauză (putere sub „Tot”)`,
     mvDiffL: "Dificultate", mvDiff: (h, t) => `${h}${((n) => n % 100 >= 20 || (n >= 100 && n % 100 === 0) ? " de" : "")(+String(h).replace(/\D/g, ""))} hash-uri per share · în medie la fiecare ${t}`, mvSecs: (n) => `${n}\u00a0s`, mvMins: (n) => `${n}\u00a0min`,
     mvAnswer: (ms) => ` · răspuns ${ms}\u00a0ms`,
-    mvLastL: "Ultimul rezultat (share)", mvAgo: (s) => s < 60 ? `acum ${s} s` : s < 3600 ? `acum ${Math.floor(s / 60)} min` : `acum ${Math.floor(s / 3600)} h`, mvNone: "încă niciunul în această rulare",
+    mvLastL: "Ultimul rezultat (share)", mvAgo: (s) => s < 60 ? `acum ${s} s` : s < 3600 ? `acum ${Math.floor(s / 60)} min` : `acum ${Math.floor(s / 3600)} h`, mvNone: "încă niciunul în această sesiune",
     mvPoolL: "Server", mvPool: "Catch That Rabbit",
     mvEarnL: "Câștig · estimare", mvEarnUnit: "XCB pe zi",
     mvEarn: (fee) => `La puterea de calcul actuală, după taxa pool-ului de ${fee}\u00a0% și cota pentru dezvoltarea în continuare. O medie, nu o promisiune: variază de la oră la oră.`,
     mvEarnWait: "Se interoghează pool-ul (la fiecare 10 min).", mvEarnPartial: " Nu toate regiunile pool-ului au fost accesibile.",
-    mvBalL: "Încă în pool", mvImm: (x) => `+ ${x} neconfirmat`, mvPayL: "Plată", mvPay: (x) => `de la ${x}`, mvPayS: (h) => `XCB, verificat la fiecare ${h} h`,
+    mvEarnDown: (n) => `Statisticile pool-ului nu răspund momentan. Minarea ta continuă normal; următoarea încercare peste ${n}\u00a0min.`,
+    mvEarnStale: (t) => ` Statisticile pool-ului nu răspund momentan; valorile sunt de la ${t}.`,
+    mvBalL: "Încă în pool", mvImm: (x) => `+ ${x} neconfirmat`, mvPayL: "Plată", mvPay: (x) => `de la ${x}`, mvPayS: (h) => `XCB, verificare la fiecare ${h} h`,
     mvAddrL: "Adresa ta", mvCopy: "Copiază", mvCopied: "Copiată.",
     mvCopyFail: "Copierea nu a reușit. Adresa este selectată: apasă Ctrl+C.",
     mvPoolPage: "Vezi în pool (Catch That Rabbit)",
@@ -1078,12 +1504,12 @@ const L = {
     langAuto: "Auto", langLabel: "Limbă",
     powerThreads: (n) => n === 1 ? "1 thread" : `${n}${n % 100 >= 20 || (n >= 100 && n % 100 === 0) ? " de" : ""} thread-uri`,
     addrHelpT: "Încă nu ai o adresă Core?",
-    addrHelpB: "O primești gratuit cu aplicația CorePass pe telefon. Configureaz-o, copiază acolo adresa ta (începe cu cb) și trimite-o pe PC, de exemplu prin e-mail. Poți s-o și tastezi: cifrele de control prind aproape orice greșeală de tastare. Poți rula la început doar nodul și porni minarea mai târziu.",
+    addrHelpB: "O primești gratuit cu aplicația CorePass pe telefon. Configureaz-o, copiază acolo adresa ta (începe cu cb) și trimite-o pe PC, de exemplu prin e-mail. Poți s-o și tastezi: cifrele de control detectează aproape orice greșeală de tastare. Poți rula la început doar nodul și porni minarea mai târziu.",
     safeTitle: "Este sigur?",
     safe: [
       "Windows avertizează la prima pornire („Windows a protejat PC-ul”), pentru că fișierul nu este încă semnat digital. De aceea, descarcă CoreStarter doar de pe tellmemoreaboutcore.com.",
-      "Antivirusurile semnalează des programele de minare, pentru că programele malware minează pe ascuns pe PC-urile altora. CoreStarter minează doar dacă îl pornești tu, arată asta în bara de activități și poate fi pus pe pauză sau eliminat oricând.",
-      "Pool-ul află doar adresa ta Core publică, numele din pool, rezultatele calculelor și, ca la orice conexiune la internet, adresa ta IP. Parolele, cheile și fișierele tale CoreStarter nu le trimite nicăieri.",
+      "Antivirusurile semnalează des programele de minare, pentru că programele malware minează pe ascuns pe PC-urile altora. CoreStarter minează doar dacă activezi tu minarea, arată asta în bara de activități și poate fi pus pe pauză sau eliminat oricând.",
+      "Pool-ul află doar adresa ta Core publică, numele din pool, rezultatele calculelor și, ca la orice conexiune la internet, adresa ta IP. CoreStarter nu trimite nicăieri parolele, cheile sau fișierele tale.",
       "Nodul îi cere routerului tău, prin UPnP, să deschidă un port, ca alte noduri să-l poată accesa. Este obișnuit la nodurile blockchain; fără UPnP rulează totuși, doar cu mai puține conexiuni.",
       "Nu ne plătești bani: 0,42\u00a0% din timpul de calcul merge fix la dezvoltarea în continuare (TMMAC). La minare, dispozitivul consumă mai multă energie decât în repaus; costurile cu electricitatea le suporți tu.",
       "Poți renunța oricând: minarea o pui pe pauză în vizualizarea minerului, iar ieșirea sau dezinstalarea se fac jos în setări sau prin pictograma din bara de activități.",
@@ -1095,7 +1521,7 @@ const L = {
     mvPause: "Pune minarea pe pauză", mvResume: "Reia minarea",
     plainOk: "Totul e în regulă", plainDay: (x) => `≈ ${x} XCB pe zi`,
     plainPayIn: (x) => `încă ${x} XCB până la plată`, plainPayNext: "se plătește la următoarea verificare",
-    plainFirst: (t) => `Rulează. Pool-ul confirmă primul rezultat de calcul (share) în medie după aproximativ ${t}.`, plainStarted: "Rulează. Pool-ul confirmă imediat primul rezultat de calcul (share).",
+    plainFirst: (t) => `Rulează. Pool-ul confirmă primul rezultat de calcul (share) în medie după aproximativ ${t}.`, plainStarted: "Rulează. Pool-ul va confirma în curând primul rezultat de calcul (share).",
     plainLate: (m) => `Niciun rezultat de calcul confirmat (share) de ${m} min. De obicei e doar ghinion; dacă rămâne așa, motivul apare în jurnal, la Detalii.`,
     // Miner log lines (miner.log stays English); keys: see LOGP.
     log: {
@@ -1117,10 +1543,10 @@ const L = {
       supStart: () => "Cota de susținere: 25 s pentru TMMAC",
       supDone: () => "Cota de susținere: încheiată",
       supSkip: () => "Cota de susținere sărită: niciun job de la pool",
-      home: (h, ms, f) => `Înapoi la serverul de acasă ${h} (${ms} ms), înainte ${f}`,
+      home: (h, ms, f) => `Înapoi la serverul de acasă ${h} (${ms} ms), anterior: ${f}`,
       serversHome: (l, h) => `Servere: ${l}; acasă: ${h}`,
       servers: (l) => `Servere: ${l}`,
-      blocked: (n) => `De ${n} min nicio sarcină de la pool: un antivirus, un firewall sau un filtru de rețea blochează probabil catchthatrabbit.com`,
+      blocked: (n) => `De ${n} min niciun job de la pool: un antivirus, un firewall sau un filtru de rețea blochează probabil catchthatrabbit.com`,
       answersLost: (n) => `Răspunsuri la share-uri pierdute odată cu conexiunea: ${n}`,
       ready: (sec, f, t) => `RandomY gata în ${sec} s (${f}), până la ${+t === 1 ? "1 thread" : `${t}${+t % 100 >= 20 || (+t >= 100 && +t % 100 === 0) ? " de" : ""} thread-uri`}`,
       selftest: (j, n) => `Autotest reușit (JIT ${j}, ${+n === 1 ? "1 valoare de verificare" : `${n}${+n % 100 >= 20 || (+n >= 100 && +n % 100 === 0) ? " de" : ""} valori de verificare`})`,
@@ -1201,7 +1627,7 @@ const CONSENT = {
   nl: {
     title: "Voordat je begint",
     consentIntro: "CoreStarter is bètasoftware van Tell Me More About Core. De licentie- en aansprakelijkheidsvoorwaarden zijn van toepassing.",
-    nodeDisk: (need) => `De node neemt ongeveer ${need} GB opslag in beslag, en dat groeit, plus 2–3 GB werkgeheugen zolang hij draait.`,
+    nodeDisk: (need) => `De node neemt ongeveer ${need} GB opslagruimte in beslag (en dat wordt steeds meer) en gebruikt 2–3 GB werkgeheugen zolang hij draait.`,
     nodeNet: "De node maakt verbinding met andere nodes in het Core-netwerk (P2P) en vraagt je router via UPnP een poort te openen. De eerste synchronisatie downloadt meerdere GB. Andere nodes, DNS- en tijdservers zien je IP-adres.",
     nodeAuto: (title) => `“${title}” staat aan: CoreStarter start na elke aanmelding automatisch op de achtergrond.`,
     mvWaitState: "Wacht op je akkoord",
@@ -1219,7 +1645,7 @@ const CONSENT = {
     consentIntro: "CoreStarter este software beta de la Tell Me More About Core. Se aplică condițiile de licență și de răspundere.",
     nodeDisk: (need) => `Nodul ocupă aproximativ ${need} GB spațiu de stocare, tot mai mult în timp, și 2–3 GB memorie RAM cât timp rulează.`,
     nodeNet: "Nodul se conectează la alte noduri din rețeaua Core (P2P) și îi cere routerului tău prin UPnP să deschidă un port. Prima sincronizare descarcă mai mulți GB. Alte noduri, serverele DNS și serverele de timp îți văd adresa IP.",
-    nodeAuto: (title) => `„${title}” este activat: CoreStarter pornește automat în fundal după fiecare autentificare.`,
+    nodeAuto: (title) => `Opțiunea „${title}” este activată: CoreStarter pornește automat în fundal după fiecare autentificare.`,
     mvWaitState: "Așteaptă acordul tău",
     mineLoad: "La minare, procesorul tău calculează cu puterea aleasă, iar la „Tot” la capacitate maximă: dispozitivul se încălzește mai mult, ventilatorul poate deveni mai zgomotos, iar consumul de curent crește. Costurile cu electricitatea le suporți tu.",
     mineShare: "0,42 % din timpul de calcul susține dezvoltarea în continuare (TMMAC). Această cotă este integrată fix și nu poate fi dezactivată.",
@@ -1280,14 +1706,14 @@ const LX = {
   },
   nl: {
     install: "Instellen en starten",
-    intro: "Met CoreStarter draai je een node van de Core-blockchain: je computer bewaart een kopie van de blockchain en deelt die met andere nodes. Desgewenst kan hij ook XCB minen. Alles draait op de achtergrond. Dit venster toont de stand (“CoreStarter” in het app-menu), op veel bureaubladen ook een pictogram in het paneel.",
+    intro: "Met CoreStarter draai je een node van de Core-blockchain: je computer bewaart een kopie van de blockchain en deelt die met andere nodes. Desgewenst kan hij ook XCB minen. Alles draait op de achtergrond. Dit venster toont de status (“CoreStarter” in het app-menu), op veel bureaubladen ook een pictogram in het paneel.",
     autoTitle: "Starten bij aanmelden",
     about: { 3: "Geïnstalleerd uit het pakket van TMMAC. Het pakket is nog niet ondertekend." },
     doneText: "De eerste synchronisatie van de node duurt meerdere uren. Stand en instellingen vind je altijd onder “CoreStarter” in het app-menu, op veel bureaubladen ook via het pictogram in het paneel.",
     mvInstalled: "Ingesteld. Node en miner draaien nu op de achtergrond, ook als dit venster dicht is. Opnieuw openen: “CoreStarter” in het app-menu.",
     safe: {
       0: "Download CoreStarter alleen van tellmemoreaboutcore.com. Het pakket is nog niet ondertekend.",
-      1: "CoreStarter mint alleen als je het inschakelt, toont dat in dit venster en kan altijd worden gepauzeerd of verwijderd.",
+      1: "CoreStarter gaat alleen minen als je dat aanzet, toont dat in dit venster en is op elk moment te pauzeren of te verwijderen.",
       5: "Stoppen kan altijd: minen pauzeer je in de minerweergave, afsluiten doe je onderaan in de instellingen, verwijderen via je softwarebeheer.",
     },
     stopSub: "Afsluiten stopt node en miner tot je CoreStarter weer start (app-menu). Verwijderen gaat via je softwarebeheer (bijv. App Center) of in een terminal met “sudo apt remove core-starter” of “sudo dnf remove core-starter”. Wie CoreStarter weer opent, start node en miner meteen opnieuw. Na het verwijderen blijven de blockchaingegevens (meerdere GB) in de map “.local/share/core-starter” in je persoonlijke map. Die is verborgen: toon hem in bestandsbeheer met Ctrl+H en verwijder hem dan.",
@@ -1301,7 +1727,7 @@ const LX = {
     mvInstalled: "Configurat. Nodul și minerul rulează acum în fundal, chiar dacă fereastra e închisă. Redeschidere: „CoreStarter” în meniul de aplicații.",
     safe: {
       0: "Descarcă CoreStarter doar de pe tellmemoreaboutcore.com. Pachetul nu este încă semnat.",
-      1: "CoreStarter minează doar când îl pornești, arată asta în această fereastră și poate fi pus pe pauză sau eliminat oricând.",
+      1: "CoreStarter minează doar dacă activezi tu minarea, arată asta în această fereastră și poate fi pus pe pauză sau eliminat oricând.",
       5: "Poți renunța oricând: minarea o pui pe pauză în vizualizarea minerului, ieșirea e jos în setări, eliminarea se face din managerul de software.",
     },
     stopSub: "Ieșirea oprește nodul și minerul până când pornești din nou CoreStarter (meniul de aplicații). Eliminarea se face din managerul de software (de ex. App Center) sau în terminal cu „sudo apt remove core-starter” ori „sudo dnf remove core-starter”. Dacă deschizi din nou CoreStarter, nodul și minerul pornesc imediat. După eliminare, datele blockchain (câțiva GB) rămân în folderul „.local/share/core-starter” din folderul tău personal. Este ascuns: afișează-l în managerul de fișiere cu Ctrl+H, apoi șterge-l.",
@@ -1348,7 +1774,7 @@ const MX = {
     stopSub: "Quit stops node and miner until you open CoreStarter again (Applications folder). Uninstall stops everything, removes the background service and moves the app to the Trash. The blockchain data (several GB) stays in the folder “Library/Application Support/Core Starter” in your home folder (in the Finder: Go → Go to Folder, “~/Library/Application Support”).",
   },
   ja: {
-    mvCopyFail: "コピーできませんでした。アドレスを選択したので、⌘Cを押してください。",
+    mvCopyFail: "コピーできませんでした。アドレスは選択済みなので、⌘Cを押してください。",
     install: "設定して開始",
     intro: "CoreStarterを使うと、Coreブロックチェーンのノードを運用できます。Macがブロックチェーンのコピーを保存し、他のノードと共有します。必要に応じてXCBのマイニングもできます。すべてバックグラウンドで動作し、上部のメニューバーのアイコンに状況が表示されます。",
     notes: { 2: "Macが熱くなりすぎると、冷えるまでマイナーが一時停止します。macOSもプロセッサーの性能を抑えます。ファンのないMacBook Airはマイニング中にかなり温かくなります。" },
@@ -1368,16 +1794,16 @@ const MX = {
   nl: {
     mvCopyFail: "Kopiëren lukte niet. Het adres is geselecteerd: druk op ⌘C.",
     install: "Instellen en starten",
-    intro: "Met CoreStarter draai je een node van de Core-blockchain: je Mac bewaart een kopie van de blockchain en deelt die met andere nodes. Desgewenst kan hij ook XCB minen. Alles draait op de achtergrond; een pictogram bovenaan in de menubalk toont de stand.",
+    intro: "Met CoreStarter draai je een node van de Core-blockchain: je Mac bewaart een kopie van de blockchain en deelt die met andere nodes. Desgewenst kan hij ook XCB minen. Alles draait op de achtergrond; een pictogram bovenaan in de menubalk toont de status.",
     notes: { 2: "Wordt de Mac te warm, dan pauzeert de miner tot hij is afgekoeld; daarnaast remt macOS de processor af. Een MacBook Air (zonder ventilator) wordt bij het minen merkbaar warm." },
     arm64: "Dit is de versie voor Intel-Macs. Je Mac heeft een Apple-chip: node en miner draaien hier vertaald (Rosetta) en duidelijk langzamer. Download de versie voor Macs met Apple-chip.",
     autoTitle: "Starten bij inloggen",
     about: { 3: "De app is nog niet door Apple gecontroleerd (notarisatie). macOS vraagt daarom bij de eerste start om bevestiging; sta hem toe via Systeeminstellingen → Privacy en beveiliging." },
-    doneText: "Het pictogram rechtsboven in de menubalk toont de voortgang. De eerste synchronisatie van de node duurt meerdere uren. Instellingen vind je via het pictogram of door CoreStarter in de map Apps te openen. macOS meldt daarbij één keer “Achtergrondonderdeel toegevoegd”: dat is het deel dat node en miner verzorgt.",
-    mvInstalled: "Ingesteld. Node en miner draaien nu op de achtergrond; het pictogram in de menubalk toont de stand, ook als dit venster dicht is.",
+    doneText: "Het pictogram rechtsboven in de menubalk toont de voortgang. De eerste synchronisatie van de node duurt meerdere uren. Instellingen vind je via het pictogram of door CoreStarter in de map Apps te openen. macOS meldt daarbij één keer “Achtergrondonderdeel toegevoegd”: dat is het deel dat node en miner beheert.",
+    mvInstalled: "Ingesteld. Node en miner draaien nu op de achtergrond; het pictogram in de menubalk toont de status, ook als dit venster dicht is.",
     safe: {
       0: "macOS waarschuwt bij de eerste start, omdat de app nog niet door Apple is gecontroleerd. Download CoreStarter daarom alleen van tellmemoreaboutcore.com.",
-      1: "Virusscanners melden miningprogramma's vaak, omdat malware stiekem op andermans computers mint. CoreStarter mint alleen als je het inschakelt, toont dat in de menubalk en kan altijd worden gepauzeerd of verwijderd.",
+      1: "Virusscanners melden miningprogramma’s vaak, omdat malware stiekem andermans computers laat minen. CoreStarter gaat alleen minen als je dat aanzet, toont dat in de menubalk en is op elk moment te pauzeren of te verwijderen.",
       3: "De node vraagt je router via UPnP een poort te openen, zodat andere nodes hem kunnen bereiken. macOS vraagt daarbij misschien of CoreStarter apparaten in je lokale netwerk mag zoeken. Weigeren is prima: de node draait toch, alleen met minder verbindingen.",
       5: "Stoppen kan altijd: minen pauzeer je in de minerweergave, afsluiten of verwijderen doe je onderaan in de instellingen of via het pictogram in de menubalk.",
     },
@@ -1388,14 +1814,14 @@ const MX = {
     install: "Configurează și pornește",
     intro: "Cu CoreStarter rulezi un nod al blockchain-ului Core: Mac-ul tău păstrează o copie a blockchain-ului și o împarte cu alte noduri. Dacă vrei, poate și să mineze XCB. Totul rulează în fundal; o pictogramă sus, în bara de meniu, arată starea.",
     notes: { 2: "Dacă Mac-ul se încălzește prea tare, minerul face pauză până se răcește; în plus, macOS încetinește procesorul. Un MacBook Air (fără ventilator) se încălzește vizibil la minare." },
-    arm64: "Aceasta este versiunea pentru Mac-uri cu Intel. Mac-ul tău are un cip Apple: nodul și minerul rulează aici tradus (Rosetta) și mult mai lent. Descarcă versiunea pentru Mac-uri cu cip Apple.",
+    arm64: "Aceasta este versiunea pentru Mac-uri cu Intel. Mac-ul tău are un cip Apple: aici nodul și minerul rulează prin Rosetta (traducere) și mult mai lent. Descarcă versiunea pentru Mac-uri cu cip Apple.",
     autoTitle: "Pornește la autentificare",
     about: { 3: "Aplicația nu este încă notarizată de Apple. De aceea macOS cere confirmare la prima pornire; permite-o din Configurări sistem → Confidențialitate și securitate." },
     doneText: "Pictograma din dreapta sus, din bara de meniu, arată progresul. Prima sincronizare a nodului durează câteva ore. Setările le găsești la pictogramă sau deschizând CoreStarter din dosarul Aplicații. macOS afișează o dată „Element de fundal adăugat”: aceasta este partea care se ocupă de nod și miner.",
     mvInstalled: "Configurat. Nodul și minerul rulează acum în fundal; pictograma din bara de meniu arată starea, chiar dacă fereastra e închisă.",
     safe: {
       0: "macOS avertizează la prima pornire, pentru că aplicația nu este încă notarizată de Apple. Descarcă deci CoreStarter doar de pe tellmemoreaboutcore.com.",
-      1: "Antivirusurile semnalează des programele de minare, pentru că malware-ul minează pe ascuns pe calculatoarele altora. CoreStarter minează doar când îl pornești, arată asta în bara de meniu și poate fi pus pe pauză sau eliminat oricând.",
+      1: "Antivirusurile semnalează des programele de minare, pentru că programele malware minează pe ascuns pe calculatoarele altora. CoreStarter minează doar dacă activezi tu minarea, arată asta în bara de meniu și poate fi pus pe pauză sau eliminat oricând.",
       3: "Nodul îi cere routerului, prin UPnP, să deschidă un port, ca alte noduri să-l poată accesa. macOS poate întreba dacă CoreStarter are voie să găsească dispozitive în rețeaua locală. Poți refuza: nodul rulează oricum, doar cu mai puține conexiuni.",
       5: "Poți renunța oricând: minarea o pui pe pauză în vizualizarea minerului, ieșirea sau dezinstalarea se fac jos în setări ori din pictograma din bara de meniu.",
     },
@@ -1485,6 +1911,7 @@ function setLang(code) {
   updateSave();
   showView(view);
   showLog();
+  renderNet();
 }
 
 function setList(el, items) {
@@ -1556,7 +1983,14 @@ function render() {
   $("mineLive").textContent = T.mineLive;
   for (const k of ["mvAxisFrom", "mvAxisTo", "mvSharesL", "mvLastL", "mvDiffL", "mvThreadsL", "mvPoolL", "mvEarnL", "mvEarnUnit", "mvBalL", "mvPayL", "mvRateL", "mvSupportL", "mvLogTitle", "mvOpenLogs", "mvSettings", "mvAddrL", "mvCopy", "mvPoolPage"]) $(k).textContent = T[k];
   $("mvClose").textContent = init.mode === "install" ? T.done : T.mvClose;
-  $("mvSettings").classList.toggle("hidden", init.mode === "install"); // the install form is done by then
+  for (const k of ["stNodeTitle", "stNodeOff", "cbTitle", "cbSub", "cbRunL", "cbCopyL"]) $(k).textContent = T[k];
+  $("mineSumTitle").textContent = T.mineTitle;
+  $("stClose").textContent = T.close;
+  $("tabStatus").textContent = T.tabStatus;
+  $("tabs").setAttribute("aria-label", T.tabsL);
+  $("tabMiner").textContent = T.mvEyebrow;
+  $("tabForm").textContent = T.eyebrowSettings;
+  renderTabs();
   $("doneBtn").textContent = T.done;
   const installed = init.mode === "settings";
   $("openData").classList.toggle("hidden", !installed);
@@ -1726,8 +2160,7 @@ async function save() {
         $("mvBanner").classList.add("ok", "show");
         showView("miner");
       } else {
-        $("form").classList.add("hidden");
-        $("done").classList.add("show");
+        showView("done");
         $("doneBtn").focus();
       }
       return;
@@ -1745,21 +2178,124 @@ async function save() {
   showMsg(code === "consent" ? T.needAgree : code === "path" ? T.errPath : code === "space" ? T.errSpace : code === "address" ? T.needAddress : code === "busy" ? T.busy : T.errOther((r && r.error) || ""));
 }
 
+// "noch etwa 3 Std." / "noch etwa 40 Min.": rounded, an estimate is not a promise.
+function syncLeft(sec) {
+  if (!sec) return T.syncMeasuring;
+  if (sec < 180) return T.syncLeftFew;
+  if (sec < 90 * 60) return T.syncLeftM(nf(Math.max(5, Math.round(sec / 300) * 5), 0));
+  return T.syncLeftH(nf(Math.round(sec / 3600), 0));
+}
+// The measured rate wobbles: shown time may fall at once, but rises only by more
+// than 10 minutes, so a value near a rounding step does not flip back and forth
+// (the line is a live region, every change is read out).
+let etaShown = 0, etaPhase = "";
+function steadyEta(ph, sec) {
+  if (ph !== etaPhase || !sec) { etaPhase = ph; etaShown = sec; return sec; }
+  if (etaShown && sec > etaShown && sec - etaShown < 600) return etaShown;
+  etaShown = sec;
+  return sec;
+}
+// syncWas: a sync was seen since the node runs; kept through the quiet minutes
+// before "synced" (the tracker shows "checking" then, without a phase).
+let syncWas = false, syncDone = false;
+function renderSync(st) {
+  const box = $("sync"), fill = $("syncFill");
+  const on = !!(st && st.nodeOn), ph = on ? st.syncPhase || "" : "";
+  if (!ph && syncWas && on && st.synced) {
+    // The sync finished while the window is open: the bar fills, then fades.
+    syncDone = true;
+    $("syncBar").classList.remove("hidden"); // step 2 hid it: show the fill
+    fill.style.transform = "scaleX(1)";
+    setTimeout(() => box.classList.add("done"), moving() ? 700 : 0);
+  }
+  if (ph) { syncWas = true; syncDone = false; }
+  if (!on || !st.synced) syncDone = false; // node off, failed or behind again: the message is stale
+  if (!on) syncWas = false;
+  if (syncDone) {
+    box.classList.remove("hidden");
+    setText($("syncLine"), T.syncDone);
+    return;
+  }
+  box.classList.toggle("hidden", !ph);
+  box.classList.remove("done");
+  if (!ph) return;
+  const frac = st.syncFrac || 0;
+  $("syncBar").classList.toggle("hidden", frac < 0);
+  if (frac >= 0) fill.style.transform = "scaleX(" + frac.toFixed(4) + ")";
+  // Written only on a change: the line is a live region, read out by screen readers.
+  setText($("syncLine"), ph === "state" ? T.syncStep2 + "\n" + T.syncNoTotal
+    : (ph === "catchup" ? T.syncCatch : T.syncStep1) + " · " + syncLeft(steadyEta(ph, st.syncEtaSec || 0)));
+}
+function setText(el, text) { if (el.textContent !== text) el.textContent = text; }
+
+// Why the node is not running (Go sends the tray's explanation) and what helps.
+function renderFail(st) {
+  const cause = st && st.nodeCause || "";
+  $("fail").classList.toggle("hidden", !cause);
+  if (!cause) { $("failCopied").textContent = ""; return; }
+  $("failText").textContent = st.nodeHint || "";
+  $("failLogs").textContent = T.failLogs;
+  $("failData").textContent = T.failData;
+  $("failCopy").textContent = T.failCopy;
+  $("failData").classList.toggle("hidden", cause !== "disk");
+}
+// Copied through a hidden text field: the clipboard API needs permissions some webviews do not grant.
+function copyText(text) {
+  const t = document.createElement("textarea");
+  t.value = text;
+  t.setAttribute("readonly", "");
+  t.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+  document.body.appendChild(t);
+  t.focus();
+  t.setSelectionRange(0, text.length);
+  let ok = false;
+  try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+  t.remove();
+  return ok;
+}
+let lastSt = null;
+$("failLogs").addEventListener("click", () => call("open", { what: "logs" }));
+$("failData").addEventListener("click", () => call("open", { what: "data" }));
+$("failCopy").addEventListener("click", () => {
+  // Versions, system and state only: no address, no node ID, no IP.
+  const st = lastSt || {};
+  const text = [
+    `CoreStarter ${init.version} · gocore ${init.gocore} · ${init.platform}${init.arm64 ? " arm64" : ""}`,
+    `node: ${st.nodeCause || "-"} · ${st.nodeLine || "-"}`,
+    `time: ${new Date().toISOString()}`,
+  ].join("\n");
+  const ok = copyText(text);
+  $("failCopy").focus();
+  $("failCopied").textContent = ok ? T.failCopied : T.failCopyNo; // no silent failure
+});
+
 async function refreshStatus() {
   if (init.mode !== "settings" && view !== "miner") return;
   const st = await call("status");
   renderMiner(st);
+  netSt = st;
+  renderNetStatus();
+  refreshNet();
   $("mineLive").classList.toggle("hidden", !(st && st.minerOn));
   const ns = $("nodeStatus"), ms = $("mineStatus");
+  renderContrib(st);
+  renderTabs();
   if (!st) {
     ns.textContent = init.hasSaved ? T.noTray : "";
     ns.classList.toggle("hidden", !init.hasSaved);
     ms.classList.add("hidden");
+    $("mineSum").classList.add("hidden");
+    renderSync(null);
+    renderFail(null);
     return;
   }
   ns.textContent = [st.nodeLine, st.peersLine].filter(Boolean).join(" · ");
   ns.classList.remove("hidden");
-  let line = st.minerOn ? st.minerLine : "";
+  lastSt = st;
+  renderSync(st);
+  renderFail(st);
+  // Mining switched on but the notes not accepted: the tray sends people here, so say it here.
+  let line = st.minerOn ? st.minerLine : st.mineConsent ? T.mvConsent : "";
   const m = st.miner;
   if (st.minerOn && m && m.earnings) {
     const e = earningsOf(m);
@@ -1773,6 +2309,44 @@ async function refreshStatus() {
   ms.textContent = line;
   ms.style.whiteSpace = "pre-line";
   ms.classList.toggle("hidden", !line);
+  $("mineSum").classList.toggle("hidden", !line);
+}
+
+// "45 Min." / "3 Std." / "4 Tage": the biggest unit is enough for a running time.
+function fmtRun(min) {
+  if (min < 60) return T.durMin(nf(Math.max(1, min), 0));
+  if (min < 48 * 60) return T.durHours(nf(Math.floor(min / 60), 0));
+  return T.durDays(nf(Math.floor(min / 1440), 0));
+}
+// "Your contribution": only what this computer counts itself, since the node started.
+let contribSeen = false;
+// The copy grows during the first sync: measured again every 5 minutes while shown
+// (init measured it when the window opened).
+let dataAt = Date.now();
+async function refreshDataSize() {
+  if (Date.now() - dataAt < 300000) return;
+  dataAt = Date.now();
+  const gb = await call("datasize");
+  if (typeof gb === "number" && gb > 0) init.dataGB = gb;
+}
+function renderContrib(st) {
+  const on = !!(st && st.nodeOn);
+  $("stNodeOff").classList.toggle("hidden", !(st && !st.nodeOn && !st.needSetup));
+  // The node answers: not starting, not failed. One missed query (peers -1) keeps the card,
+  // so it does not blink and move the map below it.
+  if (!on || st.nodeCause) contribSeen = false;
+  else if (st.peers >= 0) contribSeen = true;
+  const running = on && !st.nodeCause && contribSeen;
+  $("contribCard").classList.toggle("hidden", !running);
+  if (!running) return;
+  refreshDataSize();
+  setNum($("cbRun"), fmtRun(st.runMin || 0), st.runMin || 0);
+  const n = st.blocksChecked || 0, counting = st.synced || n > 0;
+  setNum($("cbBlocks"), counting ? nf(n, 0) : "–", counting ? n : null);
+  $("cbBlocks").classList.toggle("empty", !counting);
+  setText($("cbBlocksL"), counting ? T.cbBlocksL : T.cbBlocksWait);
+  $("cbCopy").textContent = init.dataGB > 0.05 ? nf(init.dataGB, 1) + " GB" : "–";
+  $("cbCopy").classList.toggle("empty", !(init.dataGB > 0.05));
 }
 
 function earningsOf(m) {
@@ -1782,25 +2356,281 @@ function earningsOf(m) {
   return { total, partial };
 }
 
+// "Mein Netz": the node's address book (Go reads it, counts only) and the
+// tray's connection counts. Shown on the settings page of an installed app
+// that runs a node. The map and list redraw only for a new address book; the
+// status (every 3 s) only touches the connection count and the reach line.
+let netData = null, netSt = null, netAt = 0;
+function regionName(cc) {
+  try { return new Intl.DisplayNames([lang], { type: "region" }).of(cc) || cc; } catch (e) { return cc; }
+}
+function netWanted() {
+  return !!(init && init.mode === "settings" && init.hasSaved && init.settings.node);
+}
+async function refreshNet() {
+  if (!netWanted() || view !== "status") return;
+  if (Date.now() - netAt < 30000) return;
+  // Windows: gocore replaces its CURRENT file while it opens the book; stay
+  // away in the first minutes after a start (a read keeps the file open briefly).
+  if (init.platform === "windows" && (!netSt || (netSt.nodeOn && netSt.runMin < 2))) return;
+  netAt = Date.now();
+  // null: not readable right now (the node was writing); keep the last picture.
+  const d = await call("netmap");
+  if (d) { netData = d; renderNet(); }
+}
+function netLi(c) {
+  const li = document.createElement("li"), n = document.createElement("span"), v = document.createElement("b");
+  n.textContent = regionName(c.code); v.textContent = nf(c.seen, 0);
+  li.dataset.cc = c.code;
+  li.title = T.mnTip(regionName(c.code), c.seen, c.active);
+  li.append(n, v);
+  return li;
+}
+// Motion (canon tokens): only on a change of state, never at rest, no endless loop.
+// Off with reduced motion, while the window is hidden and for 400 ms after it shows
+// again: values then jump to the new state instead of replaying what was missed.
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+const EASE = "cubic-bezier(0.20, 0, 0.13, 1)", EXPO = "cubic-bezier(0.16, 1, 0.30, 1)", SPRING = "cubic-bezier(0.34, 1.56, 0.64, 1)";
+let snapUntil = 0, lastInput = 0;
+document.addEventListener("visibilitychange", () => { if (!document.hidden) snapUntil = Date.now() + 400; });
+// A webview may report "hidden" for a window on screen: input in the last
+// minute means someone is looking, whatever the flag says.
+for (const ev of ["pointermove", "pointerdown", "keydown", "wheel", "focus"])
+  window.addEventListener(ev, () => { lastInput = Date.now(); }, { passive: true, capture: true });
+const windowHidden = () => document.hidden && Date.now() - lastInput > 60000;
+function moving() {
+  return !reduceMotion.matches && !windowHidden() && Date.now() > snapUntil &&
+    !document.documentElement.classList.contains("boot") && typeof Element.prototype.animate === "function";
+}
+function anim(el, frames, opt) {
+  if (!el || !moving()) return null;
+  try { return el.animate(frames, opt); } catch (e) { return null; }
+}
+// A count that changes rolls in from below when it rises, from above when it falls
+// (the cell clips it). "–" to a value only fades: no count-up from zero, that would fake growth.
+function setNum(el, text, value) {
+  const old = el.dataset.v === undefined ? null : Number(el.dataset.v);
+  el.dataset.v = value === undefined || value === null || Number.isNaN(value) ? "" : String(value);
+  if (el.textContent === text) return;
+  const wasDash = el.textContent === "–";
+  el.textContent = text;
+  if (wasDash || text === "–" || old === null || el.dataset.v === "" || Number.isNaN(old)) {
+    if (wasDash && text !== "–") anim(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: EASE });
+    return;
+  }
+  if (Number(el.dataset.v) === old) return; // same count, other format (language switch)
+  const up = Number(el.dataset.v) > old ? 1 : -1;
+  anim(el, [{ transform: `translateY(${0.35 * up}em)`, opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 280, easing: EXPO });
+}
+// One ring that grows and fades once, around a marker on the map.
+function pulseAt(circle, colour, scaleTo) {
+  if (!moving()) return;
+  const p = circle.cloneNode(false);
+  p.setAttribute("class", "pulse");
+  if (colour) p.style.stroke = colour;
+  circle.after(p);
+  const a = anim(p, [{ transform: "scale(1)", opacity: 0.7 }, { transform: `scale(${scaleTo})`, opacity: 0 }], { duration: 900, easing: EXPO });
+  if (a) a.onfinish = () => p.remove(); else p.remove();
+}
+const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+// Marker sizes in screen pixels, converted into map units, so a narrow window
+// keeps readable dots instead of shrinking them with the map.
+let shownCc = null; // countries on the map so far; null: nothing drawn yet
+function renderDots(fresh) {
+  if (!netData) return;
+  const cs = netData.countries || [], map = $("mnMap");
+  const w = map.getBoundingClientRect().width || 600, k = 1000 / w, small = w < 420;
+  const ns = "http://www.w3.org/2000/svg", dots = [];
+  // Go sends the countries with the most nodes first: smaller dots land on top.
+  for (const c of cs) {
+    const pt = WORLD_POINTS[c.code];
+    if (!pt) continue;
+    const el = document.createElementNS(ns, "circle");
+    el.setAttribute("cx", pt[0]); el.setAttribute("cy", pt[1]);
+    const px = small ? 2.4 + 0.9 * Math.sqrt(c.seen) : 2.6 + 1.3 * Math.sqrt(c.seen);
+    el.setAttribute("r", (px * k).toFixed(1));
+    el.setAttribute("class", c.active > 0 ? "dot" : "ring");
+    el.dataset.cc = c.code;
+    const tip = document.createElementNS(ns, "title");
+    tip.textContent = T.mnTip(regionName(c.code), c.seen, c.active);
+    el.append(tip);
+    dots.push(el);
+  }
+  $("mnDots").replaceChildren(...dots);
+  map.classList.toggle("empty", !dots.length);
+  if (!fresh) return; // a resize redraws the same picture, without motion
+  const first = shownCc === null && !$("mnCard").classList.contains("hidden");
+  if (first) {
+    dots.forEach((el, i) => anim(el, [{ transform: "scale(.4)", opacity: 0 }, { transform: "scale(1)", opacity: 1 }],
+      { duration: 280, delay: Math.min(i * 14, 220), easing: EXPO, fill: "backwards" }));
+  } else if (shownCc) {
+    for (const el of dots) {
+      if (shownCc.has(el.dataset.cc)) continue;
+      anim(el, [{ transform: "scale(0)", opacity: 0 }, { transform: "scale(1)", opacity: 1 }], { duration: 560, easing: EXPO, fill: "backwards" });
+      pulseAt(el, "", 2.6);
+    }
+  }
+  if (first || shownCc) shownCc = new Set(dots.map((el) => el.dataset.cc));
+}
+function renderNet() {
+  const card = $("mnCard");
+  card.classList.toggle("hidden", !(netWanted() && netData));
+  if (!netData) return;
+  $("mnTitle").textContent = T.mnTitle;
+  $("mnSub").textContent = T.mnSub;
+  $("mnLConn").textContent = T.mnLConn;
+  $("mnLActive").textContent = T.mnLActive;
+  $("mnLSeen").textContent = T.mnLSeen;
+  $("mnLCountries").textContent = T.mnLCountries;
+  $("mnHead").textContent = T.mnHead;
+  $("mnSrc").textContent = T.mnSrc;
+  if (!$("mnLand").getAttribute("d")) $("mnLand").setAttribute("d", WORLD_PATH);
+  const cs = netData.countries || [];
+  $("mnMapLabel").textContent = T.mnMapLabel(cs.length);
+  renderDots(true);
+  setNum($("mnNActive"), nf(netData.active, 0), netData.active);
+  setNum($("mnNSeen"), nf(netData.seen, 0), netData.seen);
+  setNum($("mnNCountries"), nf(cs.length, 0), cs.length);
+  card.classList.toggle("is-empty", netData.seen === 0);
+  const top = cs.slice(0, 8), rest = cs.slice(8);
+  $("mnList").replaceChildren(...top.map(netLi));
+  $("mnListMore").replaceChildren(...rest.map(netLi));
+  $("mnAll").classList.toggle("hidden", !rest.length);
+  if (rest.length) $("mnAllQ").textContent = T.mnMore(rest.length);
+  $("mnFoot").textContent = netData.unplaced > 0 ? T.mnUnplaced(netData.unplaced) : "";
+  renderNetStatus();
+}
+// State line (mono, one line) + one plain sentence + the router tip folded away.
+let lastIn = -1; // inbound seen at the last status: -1 unknown, 0 none, 1 some
+function renderNetStatus() {
+  if (!netData) return;
+  const on = !!(netSt && netSt.nodeOn);
+  setNum($("mnNConn"), on && netSt.peers >= 0 ? nf(netSt.peers, 0) : "–", on && netSt.peers >= 0 ? netSt.peers : null);
+  $("mnNConn").classList.toggle("empty", $("mnNConn").textContent === "–");
+  let head = "", body = "", dot = "", port = false;
+  if ((netSt && !on) || (!netSt && netData.idle)) {
+    // A stopped node: the counts refer to its last run (Go reads them as of then).
+    const when = new Intl.DateTimeFormat(LOCALE[lang] || "en-US", { dateStyle: "medium", timeStyle: "short" }).format(netData.asOf * 1000);
+    head = T.mnOffHead; body = T.mnOffBody(when);
+  } else if (netData.seen === 0) {
+    head = T.mnEmptyHead; body = T.mnEmptyBody;
+  } else if (on && netSt.inbound > 0) {
+    head = T.mnInHead(nf(netSt.inbound, 0)); body = T.mnInBody; dot = "reach";
+  } else if (on && netSt.inbound === 0 && netSt.inboundEver) {
+    head = T.mnWasInHead; body = T.mnWasInBody; dot = "reach"; port = true;
+  } else if (on && netSt.inbound === 0 && netSt.runMin < 30) {
+    head = T.mnWaitHead; body = T.mnWaitBody; port = true;
+  } else if (on && netSt.inbound === 0) {
+    head = T.mnNoInHead; body = T.mnNoInBody; port = true;
+  }
+  const inNow = on && netSt.inbound > 0 ? 1 : on && netSt.inbound === 0 ? 0 : -1;
+  if (lastIn === 0 && inNow === 1) {
+    anim($("mnReachDot"), [{ transform: "scale(0)" }, { transform: "scale(1)" }], { duration: 280, easing: SPRING });
+    anim($("mnReachDot"), [{ boxShadow: `0 0 0 0 ${cssVar("--green-rule")}` }, { boxShadow: "0 0 0 12px transparent" }], { duration: 900, easing: EXPO });
+  }
+  if (inNow >= 0) lastIn = inNow;
+  if ($("mnReachHead").textContent !== head && $("mnReachHead").textContent) anim($("mnReach"), [{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: EASE });
+  $("mnReachHead").textContent = head;
+  $("mnReachDot").className = "dot " + dot;
+  $("mnReach").classList.toggle("hidden", !head);
+  $("mnReachBody").textContent = body;
+  $("mnPort").classList.toggle("hidden", !port);
+  if (port) { $("mnPortQ").textContent = T.mnPortQ; $("mnPortA").textContent = T.mnPortA(netSt.port || 30300); }
+}
+// Pointer over a list row outlines its country on the map (hover reward, canon §8 Rule 1d).
+for (const id of ["mnList", "mnListMore"]) {
+  const ul = document.getElementById(id);
+  ul.addEventListener("mouseover", (e) => {
+    const li = e.target.closest("li"); if (!li) return;
+    for (const c of $("mnDots").children) c.classList.toggle("hl", c.dataset.cc === li.dataset.cc);
+  });
+  ul.addEventListener("mouseleave", () => { for (const c of $("mnDots").children) c.classList.remove("hl"); });
+}
+let mnResize = 0;
+window.addEventListener("resize", () => { clearTimeout(mnResize); mnResize = setTimeout(() => renderDots(false), 120); });
+
 let view = "form";
-function showView(v) {
+// Tabs once installed and saved: Status (start), Miner (while mining is on), Settings.
+const tabsWanted = () => !!(init && init.mode === "settings" && init.hasSaved);
+function renderTabs() {
+  const show = tabsWanted() && view !== "done";
+  $("tabs").classList.toggle("hidden", !show);
+  $("mvSettings").classList.toggle("hidden", init.mode === "install" || tabsWanted()); // the tab does it
+  for (const [tab, panel] of [["tabStatus", "statusView"], ["tabMiner", "minerView"], ["tabForm", "form"]]) {
+    if (show) {
+      $(tab).setAttribute("aria-controls", panel);
+      $(panel).setAttribute("role", "tabpanel");
+      $(panel).setAttribute("aria-labelledby", tab);
+    } else {
+      $(panel).removeAttribute("role");
+      $(panel).removeAttribute("aria-labelledby");
+    }
+  }
+  if (!show) return;
+  const mining = init.miner && (init.settings.mine || !!(netSt && netSt.minerOn));
+  $("tabMiner").classList.toggle("hidden", !mining && view !== "miner");
+  for (const b of $("tabs").querySelectorAll("[role=tab]")) {
+    const sel = b.dataset.v === view;
+    b.setAttribute("aria-selected", String(sel));
+    b.tabIndex = sel ? 0 : -1;
+  }
+  placeTabLine();
+}
+function placeTabLine() {
+  const b = $("tabs").querySelector("[aria-selected=true]"), ind = $("tabInd");
+  if (!b || !b.offsetWidth) return;
+  ind.style.width = b.offsetWidth + "px";
+  ind.style.transform = `translateX(${b.offsetLeft}px)`;
+}
+window.addEventListener("resize", placeTabLine);
+$("tabs").addEventListener("click", (e) => {
+  const b = e.target.closest("[role=tab]");
+  if (b && b.dataset.v !== view) showView(b.dataset.v, true);
+});
+// Arrow keys move between tabs (WAI-ARIA tabs pattern), Home/End to the ends.
+$("tabs").addEventListener("keydown", (e) => {
+  const tabs = [...$("tabs").querySelectorAll("[role=tab]:not(.hidden)")];
+  const i = tabs.indexOf(document.activeElement);
+  if (i < 0) return;
+  const j = e.key === "ArrowRight" ? (i + 1) % tabs.length : e.key === "ArrowLeft" ? (i + tabs.length - 1) % tabs.length
+    : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : -1;
+  if (j < 0) return;
+  e.preventDefault();
+  tabs[j].focus();
+  showView(tabs[j].dataset.v, true);
+});
+function showView(v, fromTab) {
   const moved = v !== view; // setLang redraws the same view: the focus stays where it is
   view = v;
-  $("eyebrow").textContent = (v === "miner" ? T.mvEyebrow : init.mode === "install" ? T.eyebrowInstall : T.eyebrowSettings) + " · v" + init.version;
+  $("eyebrow").textContent = (v === "miner" ? T.mvEyebrow : v === "status" ? T.tabStatus : init.mode === "install" ? T.eyebrowInstall : T.eyebrowSettings) + " · v" + init.version;
+  $("statusView").classList.toggle("hidden", v !== "status");
   $("form").classList.toggle("hidden", v !== "form");
   $("done").classList.toggle("show", v === "done");
   $("minerView").classList.toggle("hidden", v !== "miner");
   window.scrollTo(0, 0);
+  renderTabs();
+  if (moved) {
+    const el = $(v === "miner" ? "minerView" : v === "done" ? "done" : v === "status" ? "statusView" : "form");
+    anim(el, init.platform === "linux" ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 280, easing: EASE });
+  }
   if (v === "miner") {
     showLog();
     refreshStatus(); pollLog();
-    if (moved) $("mvStateBox").focus({ preventScroll: true }); // screen readers start at the state, not at a hidden button
-  } else if (v === "form" && moved) {
+    if (moved && !fromTab) $("mvStateBox").focus({ preventScroll: true }); // screen readers start at the state, not at a hidden button
+  } else if (v === "status") {
+    refreshStatus(); // reads the address book itself once the status is in (Windows: 2-minute lock)
+    if (moved && !fromTab) $("stNodeTitle").focus({ preventScroll: true });
+  } else if (v === "form" && moved && !fromTab) {
     $("intro").setAttribute("tabindex", "-1");
     $("intro").focus({ preventScroll: true });
   }
 }
 window.showView = showView;
+// The tray brings an open window forward with "form" (its menu item): once
+// installed that item opens on Status, like a newly opened window.
+// A waiting mining consent goes to the form instead, where its box is.
+window.trayShow = (v) => showView(v === "form" && tabsWanted() && !(lastSt && lastSt.mineConsent) ? "status" : v);
 
 function drawChart(hist) {
   const n = 120; // samples in ten minutes, right-aligned: the newest is "now"
@@ -1818,6 +2648,7 @@ function drawChart(hist) {
   $("mvArea").setAttribute("points", pts.length ? pts.join(" ") + ` 120,40 ${x0},40` : "");
 }
 
+let lastAccepted = -1; // accepted shares at the last status (-1: unknown)
 let justStarted = 0; // mining was switched on here; the tray needs a few seconds to pick it up
 function renderMiner(st) {
   if (view !== "miner") return;
@@ -1848,7 +2679,10 @@ function renderMiner(st) {
   $("mvRate").textContent = mining ? nf(m.hashrate || 0, 0) : "–";
   $("mvThreads").textContent = m && m.maxThreads ? T.mvThreads(m.threads, m.maxThreads) + (st.throttled ? " · " + T.mvThrottled : "") : "";
   drawChart(on && st.history ? st.history : []);
-  $("mvSharesN").textContent = m ? nf(m.accepted, 0) : "–";
+  if (m && lastAccepted >= 0 && m.accepted > lastAccepted)
+    anim($("mvDot"), [{ boxShadow: `0 0 0 0 ${cssVar("--green-rule")}` }, { boxShadow: "0 0 0 10px transparent" }], { duration: 560, easing: EXPO });
+  lastAccepted = m ? m.accepted : -1;
+  setNum($("mvSharesN"), m ? nf(m.accepted, 0) : "–", m ? m.accepted : null);
   $("mvShares").textContent = m ? T.mvShares(m.rejected) : "";
   $("mvLast").textContent = st && st.lastShare ? T.mvAgo(Math.max(0, Math.round(Date.now() / 1000 - st.lastShare))) : on ? T.mvNone : "–";
   $("mvPoolN").textContent = m && m.pool ? m.pool.toUpperCase() : "–";
@@ -1965,7 +2799,8 @@ function renderEarnings(on, m) {
   $("mvEarnCard").classList.toggle("hidden", !on);
   if (!e) {
     $("mvEarnDay").textContent = "–";
-    $("mvEarn").textContent = T.mvEarnWait;
+    // A failed query says so (mining is not affected) instead of "being fetched".
+    $("mvEarn").textContent = m && m.earningsDown ? T.mvEarnDown(Math.max(1, Math.ceil((m.earningsRetrySecs || 0) / 60))) : T.mvEarnWait;
     $("mvBal").textContent = "–"; $("mvImm").textContent = "";
     $("mvPay").textContent = "–"; $("mvPayS").textContent = "";
     return;
@@ -1975,7 +2810,8 @@ function renderEarnings(on, m) {
   const imm = regions.reduce((a, r) => a + (r.account ? r.account.immature : 0), 0);
   const s = e.settings || {};
   $("mvEarnDay").textContent = "≈ " + nf(m.xcbPerDay || 0, 3);
-  $("mvEarn").textContent = T.mvEarn(nf(s.feePercent || 0, 1)) + (earningsOf(m).partial ? T.mvEarnPartial : "");
+  $("mvEarn").textContent = T.mvEarn(nf(s.feePercent || 0, 1)) + (earningsOf(m).partial ? T.mvEarnPartial : "") +
+    (m.earningsDown && e.fetched ? T.mvEarnStale(new Intl.DateTimeFormat(LOCALE[lang] || "en-US", { timeStyle: "short" }).format(new Date(e.fetched))) : "");
   $("mvBal").textContent = nf(bal, 3);
   $("mvImm").textContent = imm > 0 ? T.mvImm(nf(imm, 4)) : "";
   $("mvPay").textContent = s.payoutThreshold > 0 ? T.mvPay(nf(s.payoutThreshold, 3)) : "–";
@@ -2032,7 +2868,7 @@ function drawThreads(m) {
     el.classList.toggle("idle", idle);
     el.classList.toggle("slow", !idle && median > 0 && r < 0.75 * median);
     el.querySelector(".v").textContent = idle ? "–" : fmt(r);
-    el.querySelector(".bar i").style.width = idle ? "0" : (100 * r / max).toFixed(1) + "%";
+    el.querySelector(".bar i").style.transform = "scaleX(" + (idle ? 0 : (r / max).toFixed(3)) + ")";
     el.title = idle ? T.mvThreadIdle(i + 1) : T.mvThreadTip(i + 1, fmt(r), unit);
   });
   const avg = active.length ? active.reduce((a, b) => a + b, 0) / active.length : 0;
@@ -2082,10 +2918,33 @@ async function start() {
   applySettings(init.settings);
   updateSave();
   if (init.view === "miner") showView("miner");
+  else if (tabsWanted()) showView("status");
   refreshStatus();
-  setInterval(refreshStatus, 3000);
-  setInterval(pollLog, 2000);
+  // After the first picture; the timer covers a webview that delivers no frames (window not painted yet).
+  const booted = () => document.documentElement.classList.remove("boot");
+  requestAnimationFrame(() => requestAnimationFrame(booted));
+  setTimeout(booted, 300);
+  startPolling();
+  // Hidden window (minimised, behind others): poll every 15 s instead of 3 s. Not stopped,
+  // because a webview may report "hidden" for a window that is on screen (see the frame report).
+  document.addEventListener("visibilitychange", () => {
+    startPolling();
+    if (!document.hidden) { refreshStatus(); pollLog(); }
+  });
 }
+
+let pollTimers = [], pollSlow = 0, pollRecheck = 0;
+function startPolling() {
+  pollTimers.forEach(clearInterval);
+  clearTimeout(pollRecheck);
+  pollSlow = windowHidden() ? 5 : 1;
+  pollTimers = [setInterval(refreshStatus, 3000 * pollSlow), setInterval(pollLog, 2000 * pollSlow)];
+  // Hidden right after input (the click on "minimise"): check again once the input is a minute old.
+  if (document.hidden && pollSlow === 1) pollRecheck = setTimeout(startPolling, 61000);
+}
+// Input while polling slowly: back to the normal pace at once.
+for (const ev of ["pointermove", "pointerdown", "keydown", "focus"])
+  window.addEventListener(ev, () => { if (pollSlow > 1) { startPolling(); refreshStatus(); } }, { passive: true });
 
 $("mine").addEventListener("change", () => { $("mineFields").classList.toggle("open", $("mine").checked); renderConsent(); updateSave(); });
 $("autostart").addEventListener("change", () => { renderConsent(); updateSave(); });
@@ -2104,6 +2963,7 @@ $("worker").addEventListener("input", () => {
 $("power").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) setPower(Number(b.dataset.p)); });
 $("save").addEventListener("click", save);
 $("cancel").addEventListener("click", () => call("close"));
+$("stClose").addEventListener("click", () => call("close"));
 $("doneBtn").addEventListener("click", () => call("close"));
 $("mineLive").addEventListener("click", () => showView("miner"));
 $("mvCopy").addEventListener("click", copyAddress);

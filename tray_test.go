@@ -126,3 +126,63 @@ func TestSettledNode(t *testing.T) {
 		}
 	}
 }
+
+// A failed node names its cause; disk space wins, a plain crash is the rest.
+func TestFailCause(t *testing.T) {
+	cases := []struct {
+		st       NodeState
+		disk     bool
+		cause    string
+		want     string
+		wantHint string
+	}{
+		{NodeRunning, false, "foreign", "", ""},
+		{NodeFailed, true, "foreign", "disk", textsDE.diskFullHint},
+		{NodeFailed, false, "foreign", "foreign", textsDE.foreignHint},
+		{NodeFailed, false, "port", "port", textsDE.portHint},
+		{NodeFailed, false, "", "crash", textsDE.crashHint},
+	}
+	for _, c := range cases {
+		got, hint := failCause(textsDE, c.st, c.disk, c.cause)
+		if got != c.want || hint != c.wantHint {
+			t.Errorf("failCause(%v, disk=%v, %q) = %q, %q", c.st, c.disk, c.cause, got, hint)
+		}
+	}
+}
+
+// Counted from the first imported block of the run; the fast sync (head 0) counts nothing.
+func TestBlocksChecked(t *testing.T) {
+	start, n := blocksChecked(0, 0, &Snapshot{Head: 0})
+	if start != 0 || n != 0 {
+		t.Fatalf("fast sync: %d %d", start, n)
+	}
+	start, n = blocksChecked(start, n, &Snapshot{Head: 1000})
+	if start != 1000 || n != 0 {
+		t.Fatalf("first head: %d %d", start, n)
+	}
+	start, n = blocksChecked(start, n, &Snapshot{Head: 1250})
+	if start != 1000 || n != 250 {
+		t.Fatalf("later: %d %d", start, n)
+	}
+	if s2, n2 := blocksChecked(start, n, nil); s2 != 1000 || n2 != 250 {
+		t.Fatalf("missed poll must keep the count: %d %d", s2, n2)
+	}
+	if start, n = blocksChecked(start, n, &Snapshot{Head: 900}); start != 900 || n != 0 {
+		t.Fatalf("head below start: %d %d", start, n)
+	}
+}
+
+func TestNextPort(t *testing.T) {
+	if next, moved, cause := nextPort(defaultP2PPort, false); next != defaultP2PPort || moved || cause != "" {
+		t.Fatalf("port free: %d %v %q", next, moved, cause)
+	}
+	if next, moved, cause := nextPort(defaultP2PPort, true); next != defaultP2PPort+1 || !moved || cause != "" {
+		t.Fatalf("in use: %d %v %q", next, moved, cause)
+	}
+	if next, moved, cause := nextPort(defaultP2PPort+19, true); next != defaultP2PPort+20 || !moved || cause != "" {
+		t.Fatalf("last move: %d %v %q", next, moved, cause)
+	}
+	if next, moved, cause := nextPort(defaultP2PPort+20, true); next != defaultP2PPort+20 || moved || cause != "port" {
+		t.Fatalf("range used up: %d %v %q", next, moved, cause)
+	}
+}

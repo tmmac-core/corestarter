@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/netip"
 	"strconv"
 	"strings"
 )
@@ -19,6 +20,7 @@ type Snapshot struct {
 	Known    uint64 // state entries still to pull (fast sync)
 	Head     uint64 // xcb_blockNumber: last fully imported block
 	Peers    uint64
+	Inbound  int // peers that dialled this node; -1: not known
 }
 
 type rpcRequest struct {
@@ -80,7 +82,48 @@ func queryNode(rw io.ReadWriter) (Snapshot, error) {
 	if s.Peers, err = parseHexQuantity(raw); err != nil {
 		return s, fmt.Errorf("net_peerCount: %w", err)
 	}
+	// Only for the window's "reachable from outside" line: a node that does not
+	// answer this still has a status.
+	s.Inbound = -1
+	if raw, err = call(4, "admin_peers"); err == nil {
+		s.Inbound = countInbound(raw)
+	}
 	return s, nil
+}
+
+// countInbound counts the peers of admin_peers that connected to this node.
+func countInbound(raw json.RawMessage) int {
+	var peers []struct {
+		Network struct {
+			Inbound       bool   `json:"inbound"`
+			RemoteAddress string `json:"remoteAddress"`
+		} `json:"network"`
+	}
+	if err := json.Unmarshal(raw, &peers); err != nil {
+		return -1
+	}
+	n := 0
+	for _, p := range peers {
+		// A node from the own home network has not come in from outside. The
+		// address is only looked at here, never kept or logged.
+		if p.Network.Inbound && !localPeer(p.Network.RemoteAddress) {
+			n++
+		}
+	}
+	return n
+}
+
+var cgnatNet = netip.MustParsePrefix("100.64.0.0/10")
+
+// localPeer: a peer address from a private, loopback, link-local or carrier
+// network, which cannot have reached this node through the router.
+func localPeer(remote string) bool {
+	ap, err := netip.ParseAddrPort(remote)
+	if err != nil {
+		return false
+	}
+	a := ap.Addr().Unmap()
+	return a.IsPrivate() || a.IsLoopback() || a.IsLinkLocalUnicast() || cgnatNet.Contains(a)
 }
 
 // parseSyncing handles both answers of xcb_syncing: `false` or a progress object.

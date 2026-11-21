@@ -451,7 +451,7 @@ func uiWndProc(hwnd windows.Handle, msg uint32, wp, lp uintptr) uintptr {
 			w.view = view // a page still loading picks it up with "init"
 			w.mu.Unlock()
 			if w.chromium != nil && w.origin != "" {
-				w.chromium.Eval(`window.showView && showView("` + view + `")`)
+				w.chromium.Eval(`window.trayShow ? trayShow("` + view + `") : window.showView && showView("` + view + `")`)
 			}
 		}
 		return 0

@@ -258,6 +258,24 @@ func TestLinuxForeignNodeBlocks(t *testing.T) {
 	if _, _, err := findNode(p); !errors.Is(err, errForeignNode) {
 		t.Fatalf("findNode = %v, want errForeignNode", err)
 	}
+	// The supervisor gives up after its retries and names the cause.
+	sup := newSupervisor(p)
+	sup.Start()
+	defer sup.Stop()
+	deadline = time.Now().Add(3 * time.Minute)
+	for {
+		st, _, _, _, cause := sup.CurrentCause()
+		if st == NodeFailed {
+			if cause != "foreign" {
+				t.Fatalf("failed with cause %q, want foreign", cause)
+			}
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("state %v, want failed (foreign)", st)
+		}
+		time.Sleep(time.Second)
+	}
 }
 
 func TestLinuxControlSocket(t *testing.T) {
