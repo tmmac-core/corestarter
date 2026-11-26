@@ -23,10 +23,10 @@ var textsJA = texts{
 		return fmt.Sprintf("同期中：%d%%（ブロック %s / %s）", pct, cur, high)
 	},
 	syncState: func(pulled string) string {
-		return fmt.Sprintf("アカウント状態を読み込み中（%s件）– 最後の段階で、数時間かかることがあります", pulled)
+		return fmt.Sprintf("残高データを読み込み中（%s件）– 最後の段階で、数時間かかることがあります", pulled)
 	},
 	catchingUp: func(pct int, behind string) string {
-		return fmt.Sprintf("追いついています：%d%%（残り%sブロック）", pct, behind)
+		return fmt.Sprintf("追いつき中：%d%%（残り%sブロック）", pct, behind)
 	},
 	checking: func(head string) string {
 		return fmt.Sprintf("新しいブロックを確認中 · ブロック %s", head)
@@ -38,7 +38,7 @@ var textsJA = texts{
 
 	menuOpenData:  "データフォルダーを開く",
 	menuOpenLog:   "ログフォルダーを開く",
-	menuSettings:  "設定…",
+	menuSettings:  "ステータスと設定…",
 	menuMiner:     "マイナーを表示…",
 	tipMining:     func(rate string) string { return "マイニング " + rate + " H/s" },
 	menuRestart:   "ノードを再起動",
@@ -46,11 +46,11 @@ var textsJA = texts{
 	menuQuit:      "終了",
 
 	nodeOff:         "ノードはオフです",
-	setupNeeded:     "セットアップが未完了です – 「設定…」を開いてください",
+	setupNeeded:     "セットアップが未完了です – 「ステータスと設定…」を開いてください",
 	minerStarting:   "マイニング：起動中（セルフテスト中）…",
 	minerConnecting: "マイニング：プールに接続中…",
 	minerPaused:     "マイニング一時停止中（バッテリー駆動）",
-	minerConsent:    "マイニングは同意待ちです（設定…）",
+	minerConsent:    "マイニングは同意待ちです（ステータスと設定…）",
 	minerHot:        "マイニング一時停止中（高温）",
 	minerFailed: func(code string) string {
 		r := map[string]string{
@@ -89,7 +89,7 @@ var textsJA = texts{
 		"• インターネット：初回同期で数GBをダウンロードし、その後もバックグラウンドで常に少し通信します。\n" +
 		"• ネットワーク：他のノードが接続できるよう、ノードはUPnPでルーターのポートを自動で開放します。他のノード、タイムサーバー（pool.ntp.org）、DNSサーバーにはIPアドレスが見えます。\n" +
 		"• CoreStarter自体はTMMACや第三者にデータを送信しません。\n" +
-		"• Windowsファイアウォール：確認が表示されたら「許可」を選んでください（管理者パスワードが必要な場合があります）。許可しなくてもノードは動作しますが、ネットワークへの貢献は小さくなります。\n" +
+		"• Windowsファイアウォール：確認が表示されたら「アクセスを許可する」（または「許可」）を選んでください（管理者パスワードが必要な場合があります）。許可しなくてもノードは動作しますが、ネットワークへの貢献は小さくなります。\n" +
 		"• CoreStarterはWindowsと同時に自動では起動しません。\n\n" +
 		"「はい」を選ぶと、これらの注意事項を読み、同意したことになります。インストールして開始しますか？",
 	alreadyRunning: "CoreStarterはすでに動作しています。タスクバー右下にアイコンがあります（^ の矢印の下に隠れている場合があります）。",
@@ -103,7 +103,7 @@ var textsJA = texts{
 	unsupportedPath: "ユーザーフォルダーのパスに「$」が含まれています。この場合、ノードはデータフォルダーを確実に見つけられないため、インストールを中止します。",
 	installFailed:   func(err error) string { return "インストールに失敗しました：\n\n" + err.Error() },
 	uninstallFailed: func(err error) string {
-		return "アンインストールに失敗しました：\n\n" + err.Error() + "\n\n「アプリと機能」からもう一度実行できます。"
+		return "アンインストールに失敗しました：\n\n" + err.Error() + "\n\n「設定」→「アプリ」→「インストールされているアプリ」（Windows 10では「アプリと機能」）からもう一度実行できます。"
 	},
 	installedHint: "CoreStarterが動作を開始しました。タスクバー右下のアイコンに進行状況が表示されます（^ の矢印の下に隠れている場合は、そこからタスクバーへドラッグできます）。\n\n" +
 		"初回同期には、PCとインターネット環境によって数時間かかります。",
@@ -120,5 +120,9 @@ var textsJA = texts{
 	},
 	updateTimeout: "実行中のバージョンが時間内に終了しませんでした。タスクバーのアイコンからCoreStarterを終了し（右クリック → 終了）、もう一度お試しください。",
 	crashHint:     "ノードが繰り返しクラッシュしました。CoreStarterは30分ごとに再試行します。原因はログで確認できます（アイコンを右クリック → ログフォルダーを開く）。",
+	failedForeign: "別のgocoreが実行中 – ノードは待機中、ログを参照",
+	failedPort:    "空きP2Pポートなし – ノードは待機中、ログを参照",
+	foreignHint:   "このコンピューターでは、CoreStarterが制御できないgocoreがすでに実行されています（手動や管理者として起動した場合など）。2つのノードが同じデータに書き込まないよう、CoreStarterは2つ目を起動しません。もう一方のgocoreを終了するか、コンピューターを再起動してください。CoreStarterは30分ごとに再試行します。",
+	portHint:      "ポート30300〜30320はすべて使用中です。おそらく他のノードやプログラムが使っています。それらを終了するか、コンピューターを再起動してください。CoreStarterは30分ごとに再試行します。",
 	diskFullHint:  "ドライブの空き容量がほとんどありません。システムが通常どおり動作するよう、CoreStarterはノードを一時停止しました。2 GB以上の空き容量を確保してください。CoreStarterは30分ごとに再試行します。",
 }

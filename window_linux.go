@@ -80,7 +80,7 @@ func runWindow(t texts, p paths, mode uiMode, view string, onSave func(Settings)
 		w.calls = append(w.calls, func() {
 			C.cs_present()
 			if w.origin != "" {
-				w.eval(`window.showView && showView("` + view + `")`)
+				w.eval(`window.trayShow ? trayShow("` + view + `") : window.showView && showView("` + view + `")`)
 			}
 		})
 		w.mu.Unlock()

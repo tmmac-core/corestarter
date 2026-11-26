@@ -48,7 +48,7 @@ func TestQueryNodeSyncing(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !s.Syncing || s.Current != 0x868a40 || s.Highest != 0x127bc32 || s.Peers != 12 || s.Head != 0 {
+	if !s.Syncing || s.Current != 0x868a40 || s.Highest != 0x127bc32 || s.Peers != 12 || s.Head != 0 || s.Inbound != -1 {
 		t.Fatalf("unexpected snapshot %+v", s)
 	}
 }
@@ -83,5 +83,32 @@ func TestParseHex(t *testing.T) {
 	}
 	if v, err := parseHex("0xff"); err != nil || v != 255 {
 		t.Fatalf("got %d, %v", v, err)
+	}
+}
+
+func TestQueryNodeInbound(t *testing.T) {
+	c := fakeNode(t, map[string]string{
+		"xcb_syncing":     `false`,
+		"xcb_blockNumber": `"0x1"`,
+		"net_peerCount":   `"0x3"`,
+		"admin_peers": `[{"id":"a","network":{"inbound":false,"remoteAddress":"8.8.8.8:30300"}},` +
+			`{"id":"b","network":{"inbound":true,"remoteAddress":"8.8.4.4:41234"}},` +
+			`{"id":"c","network":{}},` +
+			`{"id":"d","network":{"inbound":true,"remoteAddress":"192.168.178.20:30300"}},` +
+			`{"id":"e","network":{"inbound":true,"remoteAddress":"[::ffff:10.0.0.7]:30300"}},` +
+			`{"id":"f","network":{"inbound":true,"remoteAddress":"100.70.1.2:30300"}},` +
+			`{"id":"g","network":{"inbound":true,"remoteAddress":"[2a01:4f8::1]:30300"}}]`,
+	})
+	defer c.Close()
+	s, err := queryNode(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// b and g came in from outside; d, e (home network) and f (carrier NAT) did not.
+	if s.Peers != 3 || s.Inbound != 2 {
+		t.Fatalf("peers %d inbound %d, want 3 and 2", s.Peers, s.Inbound)
+	}
+	if got := countInbound([]byte(`{"not":"a list"}`)); got != -1 {
+		t.Fatalf("countInbound on a wrong shape = %d, want -1", got)
 	}
 }

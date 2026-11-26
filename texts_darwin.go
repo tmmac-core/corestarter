@@ -98,7 +98,7 @@ var macTexts = map[string]macText{
 	"ro": {
 		minerHot:         "Minare în pauză (Mac prea fierbinte)",
 		noRoot:           "CoreStarter rulează fără drepturi de administrator, pentru contul tău de utilizator. Te rugăm să-l deschizi normal (nu cu sudo).",
-		crashHint:        "Nodul s-a blocat de mai multe ori. Starterul reîncearcă la fiecare 30 de minute. Motivul se află în jurnal (pictograma din bara de meniu → Deschide folderul de jurnale).",
+		crashHint:        "Nodul s-a oprit neașteptat de mai multe ori. CoreStarter reîncearcă la fiecare 30 de minute. Motivul se află în jurnal (pictograma din bara de meniu → Deschide folderul de jurnale).",
 		minerPrefix:      "Minare oprită: ",
 		minerMissing:     "programul minerului lipsește – CoreStarter este deteriorat sau înlocuit doar parțial. Te rugăm să tragi din nou CoreStarter din DMG în dosarul Aplicații.",
 		minerGuard:       "supravegherea minerului nu a putut porni. Închide CoreStarter și deschide-l din nou.",

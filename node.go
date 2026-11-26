@@ -210,12 +210,20 @@ type supervisor struct {
 	port     int // P2P port; moves up when another program holds the default
 	proc     *nodeProc
 	diskFull bool
+	cause    string // why starts fail: "foreign" (another gocore), "port" (no free port), "" otherwise
 	stopReq  chan struct{}
 	done     chan struct{}
 }
 
 func newSupervisor(p paths) *supervisor {
 	return &supervisor{p: p, state: NodeStopped}
+}
+
+// P2PPort is the port the node listens on (0: not started yet).
+func (s *supervisor) P2PPort() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.port
 }
 
 // Current returns what the tray needs: state, running node (pid + pipe) and disk status.
@@ -226,6 +234,18 @@ func (s *supervisor) Current() (st NodeState, pid uint32, ipc string, diskFull b
 		pid, ipc = s.proc.pid, s.proc.ipc
 	}
 	return s.state, pid, ipc, s.diskFull
+}
+
+// CurrentCause is Current plus what tells a failing start apart from a crash
+// ("foreign", "port" or ""), read under one lock with the state: a restart
+// between two reads would pair "failed" with an empty cause and show a crash.
+func (s *supervisor) CurrentCause() (st NodeState, pid uint32, ipc string, diskFull bool, cause string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.proc != nil {
+		pid, ipc = s.proc.pid, s.proc.ipc
+	}
+	return s.state, pid, ipc, s.diskFull, s.cause
 }
 
 func (s *supervisor) setState(st NodeState) {
@@ -276,7 +296,7 @@ func (s *supervisor) startLocked() {
 	s.mu.Lock()
 	s.stopReq = make(chan struct{})
 	s.done = make(chan struct{})
-	s.state = NodeStarting
+	s.state, s.cause = NodeStarting, ""
 	stopReq, done := s.stopReq, s.done
 	s.mu.Unlock()
 	go s.loop(stopReq, done)
@@ -313,6 +333,9 @@ func (s *supervisor) loop(stopReq, done chan struct{}) {
 	var crashes []time.Time
 	for {
 		s.setState(NodeStarting)
+		// Why this attempt failed; written with NodeFailed under one lock, so
+		// the tray never reads a failure with the previous attempt's cause.
+		failCause := ""
 		np, err := adoptNode(s.p)
 		if np == nil {
 			// Adopting can take minutes (Linux: an outdated gocore is stopped
@@ -325,12 +348,18 @@ func (s *supervisor) loop(stopReq, done chan struct{}) {
 		}
 		if err != nil {
 			log.Printf("adopt gocore: %v", err)
+			if errors.Is(err, errForeignNode) {
+				failCause = "foreign"
+			}
 			crashes = append(crashes, time.Now())
 		} else if np == nil {
+			s.mu.Lock()
 			if s.port == 0 {
 				s.port = defaultP2PPort
 			}
-			np, err = startNode(s.p, s.port)
+			port := s.port
+			s.mu.Unlock()
+			np, err = startNode(s.p, port)
 			s.mu.Lock()
 			s.diskFull = errors.Is(err, errDiskFull)
 			s.mu.Unlock()
@@ -345,7 +374,7 @@ func (s *supervisor) loop(stopReq, done chan struct{}) {
 		}
 		if np != nil {
 			s.mu.Lock()
-			s.proc, s.state = np, NodeRunning
+			s.proc, s.state, s.cause = np, NodeRunning, ""
 			s.mu.Unlock()
 			lowDisk := false
 			tick := time.NewTicker(diskCheckEvery)
@@ -388,12 +417,21 @@ func (s *supervisor) loop(stopReq, done chan struct{}) {
 				continue
 			}
 			log.Printf("gocore pid %d exited with code %d", np.pid, np.exitCode())
-			if portInUse(s.p.nodeLog) && s.port < defaultP2PPort+20 {
-				s.port++
-				log.Printf("P2P port in use, next start uses port %d", s.port)
+			inUse := portInUse(s.p.nodeLog)
+			s.mu.Lock()
+			next, moved, pc := nextPort(s.port, inUse) // moved: another port to try, not a crash
+			s.port = next
+			s.mu.Unlock()
+			if moved {
+				log.Printf("P2P port in use, next start uses port %d", next)
+			}
+			if pc != "" {
+				failCause = pc
 			}
 			s.finish(np)
-			crashes = append(crashes, time.Now())
+			if !moved {
+				crashes = append(crashes, time.Now())
+			}
 		}
 		delay := restartDelay
 		if crashes = recent(crashes, crashWindow); len(crashes) >= maxCrashes {
@@ -402,7 +440,9 @@ func (s *supervisor) loop(stopReq, done chan struct{}) {
 				s.diskFull = true
 				s.mu.Unlock()
 			}
-			s.setState(NodeFailed)
+			s.mu.Lock()
+			s.state, s.cause = NodeFailed, failCause
+			s.mu.Unlock()
 			delay, crashes = failedRetry, nil
 		} else {
 			s.setState(NodeStarting)
@@ -412,6 +452,20 @@ func (s *supervisor) loop(stopReq, done chan struct{}) {
 			return
 		case <-time.After(delay):
 		}
+	}
+}
+
+// nextPort decides after gocore exited: with its P2P port in use by another
+// program the next start tries the next port (not a crash) while 20 remain,
+// after that the failure has the cause "port".
+func nextPort(port int, inUse bool) (next int, moved bool, cause string) {
+	switch {
+	case !inUse:
+		return port, false, ""
+	case port < defaultP2PPort+20:
+		return port + 1, true, ""
+	default:
+		return port, false, "port"
 	}
 }
 

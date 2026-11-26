@@ -84,6 +84,7 @@ install -m 0755 "$CACHE/gocore-$GOCORE_VERSION-$MAC_ARCH" "$MACOS/gocore"
 fetch "$GOCORE_LICENSE_URL" "$CACHE/LICENSE-gocore-$GOCORE_VERSION.txt" "$GOCORE_LICENSE_SHA"
 cp "$CACHE/LICENSE-gocore-$GOCORE_VERSION.txt" "$DOC/LICENSE-gocore.txt"
 cp third_party/licenses/LGPL-3.0.txt "$DOC/LICENSE-gocore-LGPL3.txt" # go-core's file headers (NOTICE.md)
+cp third_party/licenses/LICENSE-data-DB-IP.txt "$DOC/LICENSE-data-DB-IP.txt" # country data of the network map
 for f in Barlow Manrope SplineSansMono; do cp "third_party/fonts/$f-OFL.txt" "$DOC/LICENSE-font-$f.txt"; done
 cp LICENSE "$DOC/LICENSE-core-starter.txt"
 cp NOTICE.md "$DOC/NOTICE-core-starter.txt"

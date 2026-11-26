@@ -164,6 +164,7 @@ type miner struct {
 	threadMu     sync.Mutex
 	threadRates  []float64 // H/s per thread, smoothed; guarded by threadMu
 	earnings     atomic.Pointer[minercore.Earnings]
+	earnWatch    minercore.EarningsWatch
 	stopOnce     sync.Once
 	stopped      chan struct{}
 	exitCode     atomic.Int32
@@ -494,13 +495,13 @@ func (m *miner) earningsLoop() {
 			host = cur.Host
 		}
 		e, err := minercore.FetchEarnings(host, m.address, nil)
+		wait = earningsInterval
+		m.earnWatch.Result(err, m.mono()+int64(wait))
 		if err != nil {
-			m.out.logf("pool API: %v", err)
-			wait = earningsInterval
+			m.out.logf("pool API: %v", err) // keeps the last earnings; mining is not affected
 			continue
 		}
 		m.earnings.Store(&e)
-		wait = earningsInterval
 	}
 }
 
@@ -556,6 +557,7 @@ func (m *miner) status(state, errMsg string) {
 		// After the pool fee and the support share, as the window says.
 		s.XCBPerDay = minercore.XCBPerDay(s.Hashrate, e.Network, e.Settings.FeePercent) * (1 - minercore.SupportFraction)
 	}
+	m.earnWatch.Fill(s, m.mono())
 	m.out.line(minercore.MinerLine{Type: "status", Status: s})
 }
 

@@ -2,6 +2,15 @@
 
 Die Texte stehen in `ui/index.html` (`L.ja`, `L.nl`, `L.ro`) und `texts_ja.go`, `texts_nl.go`, `texts_ro.go`. Begriffe folgen dem Core Mobile Miner. Die Übersetzungen sind maschinell erstellt; unten die Stellen, bei denen sie unsicher sind. Hinweise von Muttersprachlern sind willkommen (Issue oder Pull Request).
 
+## Gegenlesung 21.11.2026 (KI, kein Muttersprachler)
+
+Daniel kann die drei Sprachen nicht selbst prüfen (21.11.2026: „prüfe das alles selbst“). Drei unabhängige Opus-Prüfer haben je eine Sprache gegen den deutschen Ausgangstext gelesen (JA 28, NL 35, RO 32 Funde: Bedeutung, Grammatik, natürliche Formulierung, einheitliche Begriffe), die Bedeutungsfunde wurden am Ausgangstext nachgeprüft. Eingebaut ist alles außer:
+
+- **Texte der Mining-Zustimmung** (`CONSENT.mine*` und die Schlüssel ohne `node`/`mine`-Präfix wie `needAgree`, `mvConsent`): Eine Änderung hebt `consentMineVersion`, und dann pausiert das Minen bei allen, bis sie neu bestätigen. Vorschläge für die nächste ohnehin nötige Änderung: NL `mineLoad` „De stroomkosten komen voor jouw rekening.“, NL `minePool` „De pool ziet je Core-adres …“, NL `needAgree` „… en zet een vinkje.“, JA `mineShare` 「この割合はあらかじめ組み込まれており、オフにはできません」, RO `mineLoad` „consumul de energie electrică … Costurile cu electricitatea le suporți tu.“, RO `mineShare` „integrată permanent“, RO `mineEarn` „Monedele XCB minate pot fi impozabile.“, RO `mvConsent` „… acordul tău privind informațiile …“, RO `powerAll` „Toate“ (nur zusammen mit `mineLoad`, das „Tot“ zitiert).
+- **Ungeprüft am echten System:** Windows-Dialognamen (Firewall-Knopf NL „Toegang toestaan“, RO „Permiteți accesul“, JA 「アクセスを許可する」/「許可」), Windows-11-Einstellungspfade, macOS-Namen (NL „Apps“ oder „Programma’s“, RO „Element de fundal adăugat“, „Mergi → Mergi la dosar“), RO-SmartScreen-Titel.
+
+Die Tabellen unten sind der ältere Stand vor dieser Gegenlesung; ein Muttersprachler bleibt besser.
+
 ## CoreStarter ja – Punkte fuer Muttersprachler-Review
 
 | Key | Text (ja) | Warum unsicher |
@@ -10,7 +19,7 @@ Die Texte stehen in `ui/index.html` (`L.ja`, `L.nl`, `L.ro`) und `texts_ja.go`, 
 | L.about[3] | 「スマート アプリ コントロール」 | Offizieller Name in der japanischen Windows-Oberflaeche statt „Smart App Control“ – bitte bestaetigen. |
 | installBody (Go) | 「許可」 | Beschriftung des Firewall-Buttons in japanischem Windows angenommen als 許可 (DE „Zulassen“). |
 | uninstallFailed (Go) | 「アプリと機能」 | Japanischer Windows-Name fuer „Apps & Features“ angenommen. |
-| L.nodeSubData, L.mvEarnPartial | (ohne fuehrendes Leerzeichen) | DE beginnt mit Leerzeichen zum Anhaengen; im Japanischen keine Leerzeichen zwischen Saetzen, daher entfernt. |
+| L.nodeSubData, L.mvEarnPartial, L.mvEarnStale | (ohne fuehrendes Leerzeichen) | DE beginnt mit Leerzeichen zum Anhaengen; im Japanischen keine Leerzeichen zwischen Saetzen, daher entfernt. |
 | L.mvSecs/mvMins/mvAgo/mvAxisFrom, Go minerOffline | 秒 / 分 / 時間 | Statt „s“/„min“/„h“ japanische Zeiteinheiten wie in der Mobile-App; H/s, GB, ms, % unveraendert. „%“ ohne Leerzeichen (0.42%) wie Mobile-App. |
 | L.mvThreads | 毎秒ハッシュ数 · ${b}スレッド中${a} | Reihenfolge „b中a“ (Mobile-Muster コア中) – Lesbarkeit pruefen. |
 | L.mvShares | 承認 · ${r}件拒否 / 承認、拒否なし | Steht hinter einer grossen Zahl; ob „承認“ allein als Nachsatz natuerlich wirkt. |
@@ -134,7 +143,8 @@ Die Texte sind rechtliche Hinweise: Bedeutung vor Eleganz. Eine Aenderung nach d
 | ro | CONSENT.mineEarn | XCB minați pot fi impozabili | Genus von XCB (m. Pl.) wie in CorePulse; pruefen. |
 | ro | CONSENT.mineShare | Această cotă este integrată fix | „fest eingebaut“; Alternative „este integrată permanent“. |
 | ro | CONSENT.nodeAuto | „${title}” este activat | Titel ist ein Verb („Pornește…“); „este activat“ evtl. „este activă (opțiunea)“. |
-| alle | minerConsent (Taskleiste) | „… (Einstellungen …)“ | Muss zum Menuepunkt menuSettings passen. |
+| alle | minerConsent (Taskleiste) | „… (Status und Einstellungen …)“ | Muss zum Menuepunkt menuSettings passen. |
+| alle | failCopyNo, tabsL (Fenster, 20.11.) | Kopieren fehlgeschlagen; Name der Reiterleiste | Neu, JA/NL/RO maschinell. |
 
 ## Nachtrag 1.0.2 (06.11.2026): Adresse in der Miner-Ansicht, Kopieren, Link zum Pool
 
@@ -146,3 +156,36 @@ Die Texte sind rechtliche Hinweise: Bedeutung vor Eleganz. Eine Aenderung nach d
 | nl | mvPoolPage | Bekijken in de pool (Catch That Rabbit) | Alternative „Bekijk in de pool“ (Imperativ wie andere Knöpfe?). |
 | ro | mvCopied | Copiată. | Bezieht sich auf „adresa“ (f.); allein stehend evtl. „Copiat.“ natürlicher. |
 | ro | mvPoolHint | …le adună pe toate mai sus. | „zählt oben alle zusammen“; prüfen ob klar. |
+
+## Karte „Mein Netz“ (mn…, JA/NL/RO maschinell, 19.11.2026)
+
+| Key | Warum unsicher |
+|---|---|
+| L.ja.mnLCountries, mnHead, mnMapLabel | 国・地域 statt か国 (Zaehlendung allein ist kein Label; HK/TW erscheinen als Regionen). |
+| L.ja.mnInHead | 着信${n}件 fuer eingehende Verbindungen. |
+| L.ja.mnPortA | Router-Begriffe 転送, DMZ, Exposed Host; Firewall-Hinweis. |
+| L.nl.mnPortA | „doorsturen“, „exposed host“, glasvezelaansluitingen. |
+| L.ro.mnInHead | „${n} de intrare“ (Kurzform fuer conexiuni de intrare), Lesbarkeit pruefen. |
+| L.ro.mnSrc | „agenda de adrese“ fuer das Adressbuch der Node. |
+| L.*.mnSub | Neuer Satz zur Grenze („nicht das ganze Netz“) und zur Dezentralitaet. |
+
+## Sync-Fortschritt und Ausfälle (sync…, fail…, Go: failedForeign/failedPort/foreignHint/portHint; JA/NL/RO maschinell, 20.11.2026)
+
+| Key | Warum unsicher |
+|---|---|
+| L.ja.syncStep1/2 | ステップ 1/2 als Schreibweise; アカウント状態 für Kontostände. |
+| L.ja.syncLeftH/M | 残り約…時間/分, Rundung im Satz. |
+| L.nl.syncStep2 | „accountstatus“ für Kontostände. |
+| L.ro.syncCatch | „Recuperează“ (holt auf), evtl. „Se recuperează“. |
+| L.*.failCopied | Zusatz „ohne Adressen oder Schlüssel“, Ton prüfen. |
+| texts_ja.go foreignHint/portHint | Länge und Ton der Meldung. |
+| texts_ro.go failedForeign | „Rulează alt gocore“ als Taskleisten-Zeile. |
+
+## Reiter und „Dein Beitrag“ (tab…, stNode…, cb…, dur…, Go: menuSettings; JA/NL/RO maschinell, 20.11.2026)
+
+| Key | Warum unsicher |
+|---|---|
+| L.ro.tabStatus | „Stare“ für den Reiter Status. |
+| L.ja.cbBlocksL | 自分で検証した新しいブロック, ob „verifiziert“ zu technisch klingt. |
+| L.*.durDays/durHours | Einheiten-Kürzel (Std., h, 時間, uur, h). |
+| texts_*.go menuSettings | „Status und Einstellungen …“ als Menüeintrag, Länge im Windows-Menü. |

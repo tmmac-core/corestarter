@@ -24,10 +24,10 @@ MSYS=https://repo.msys2.org/mingw/sources
 SOURCES=(
   "$MSYS mingw-w64-gcc-16.2.0-6.src.tar.zst a901d8afb78438abcff9ed020cd9aa9431db76de1992171c2454c3c07ad289e8"
   "$MSYS mingw-w64-winpthreads-14.0.0.r426.g4564ee4b5-2.src.tar.zst d2d540bb20b227f5d920d8f509e4e0c413e8310d08a96347c1bdeb9af8844d72"
-  "$LP glibc_2.39-0ubuntu8.9.dsc 1b73a89e0910eb3e5920cde639ac7eb606256d8ee809688ff9b5912b67002711"
+  "$LP glibc_2.39-0ubuntu8.12.dsc 2dd63e1aef4623627bd67c1b8479baa585a68e98f27d2d4fe60d7cde57bcf7fc"
   "$LP glibc_2.39.orig.tar.xz f77bd47cf8170c57365ae7bf86696c118adb3b120d3259c64c502d3dc1e2d926"
   "$LP glibc_2.39.orig.tar.xz.asc 2cce427ef7933c17379f5514e4f0ccf8dffae5bf8c72f0f7e0bf8b8401f34be5"
-  "$LP glibc_2.39-0ubuntu8.9.debian.tar.xz d6114f2302896a3c8612453e1bf1d0e61603e3029ba4a7c246fbb1ab4c48d2b0"
+  "$LP glibc_2.39-0ubuntu8.12.debian.tar.xz cc7cf38a3060a282011e83c946b6cec1aebe9b04e21e133449abe28340a710f6"
   "$LP gcc-14_14.2.0-4ubuntu2~24.04.1.dsc 50950080874a6ec6780dd60c243e21d9cda9d736bb32bca98d16095d27cc01b5"
   "$LP gcc-14_14.2.0.orig.tar.gz 768c314c11eeab56ccebb91eb42ec4a41122fa94f0d83400126401942622197b"
   "$LP gcc-14_14.2.0-4ubuntu2~24.04.1.debian.tar.xz cfece214c2fb790ef5f3baffb9a53e40618e7ae12d053610b251e94d77d08ade"
@@ -120,7 +120,7 @@ git -C third_party/RandomY archive --format=tar.gz --prefix="RandomY-${RANDOMY_C
   echo "  libwinpthread 14.0.0.r426.g4564ee4b5-2; source: MSYS2 source packages."
   echo "Linux (.deb, .rpm, .tar.gz): glibc 2.39 (LGPL-2.1) and libstdc++ / libgcc_s"
   echo "  (GCC 14.2.0, GPL-3.0 with GCC Runtime Library Exception), Ubuntu 24.04 packages"
-  echo "  libc6 2.39-0ubuntu8.9 and gcc-14 14.2.0-4ubuntu2~24.04.1; source: Ubuntu source"
+  echo "  libc6 2.39-0ubuntu8.12 and gcc-14 14.2.0-4ubuntu2~24.04.1; source: Ubuntu source"
   echo "  packages (unpack with dpkg-source -x <file>.dsc)."
   echo
   echo "The runtime libraries are used unchanged. SHA-256 of their distribution packages:"

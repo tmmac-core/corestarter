@@ -1,0 +1,13 @@
+Country data of the "My network" card (internal/netmap/country.bin.gz)
+
+Source: "IP to Country Lite" by DB-IP, https://db-ip.com
+Edition: November 2026 (dbip-country-lite-2026-11)
+Licence: Creative Commons Attribution 4.0 International (CC BY 4.0),
+https://creativecommons.org/licenses/by/4.0/
+
+Changes: only the IPv4 rows are used; neighbouring ranges of one country are
+merged and the table is stored in a compact binary form (tools/geogen). The
+data is used as is otherwise; DB-IP does not endorse CoreStarter.
+
+The country outlines of the map come from Natural Earth (public domain),
+https://www.naturalearthdata.com

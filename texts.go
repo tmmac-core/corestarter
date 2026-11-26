@@ -47,6 +47,9 @@ type texts struct {
 	keystoreKept                   func(dir string) string
 	updateTimeout                  string
 	crashHint, diskFullHint        string
+	// another gocore holds the data folder / no free P2P port (30300–30320)
+	failedForeign, failedPort string
+	foreignHint, portHint     string
 }
 
 var textsDE = texts{
@@ -84,7 +87,7 @@ var textsDE = texts{
 
 	menuOpenData:  "Daten-Ordner öffnen",
 	menuOpenLog:   "Log-Ordner öffnen",
-	menuSettings:  "Einstellungen …",
+	menuSettings:  "Status und Einstellungen …",
 	menuMiner:     "Miner anzeigen …",
 	tipMining:     func(rate string) string { return "Minen " + rate + " H/s" },
 	menuRestart:   "Node neu starten",
@@ -92,11 +95,11 @@ var textsDE = texts{
 	menuQuit:      "Beenden",
 
 	nodeOff:         "Node ausgeschaltet",
-	setupNeeded:     "Einrichtung offen – „Einstellungen …“ öffnen",
+	setupNeeded:     "Einrichtung offen – „Status und Einstellungen …“ öffnen",
 	minerStarting:   "Minen: startet (Selbsttest läuft) …",
 	minerConnecting: "Minen: verbinde mit dem Pool …",
 	minerPaused:     "Minen pausiert (Akkubetrieb)",
-	minerConsent:    "Minen wartet auf deine Zustimmung (Einstellungen …)",
+	minerConsent:    "Minen wartet auf deine Zustimmung (Status und Einstellungen …)",
 	minerHot:        "Minen pausiert (zu heiß)",
 	minerFailed: func(code string) string {
 		r := map[string]string{
@@ -166,6 +169,10 @@ var textsDE = texts{
 	},
 	updateTimeout: "Die laufende Version hat sich nicht rechtzeitig beendet. Bitte beende CoreStarter über das Symbol in der Taskleiste (Rechtsklick → Beenden) und versuche es erneut.",
 	crashHint:     "Die Node ist mehrfach abgestürzt. Der Starter versucht es alle 30 Minuten erneut. Im Log steht der Grund (Rechtsklick auf das Symbol → Log-Ordner öffnen).",
+	failedForeign: "Andere gocore läuft – Node wartet, siehe Log",
+	failedPort:    "Kein freier P2P-Port – Node wartet, siehe Log",
+	foreignHint:   "Auf diesem Computer läuft schon eine gocore, die CoreStarter nicht steuern kann (zum Beispiel von Hand oder als Administrator gestartet). Damit nicht zwei Nodes dieselben Daten schreiben, startet CoreStarter keine zweite. Beende die andere gocore oder starte den Computer neu; der Starter versucht es alle 30 Minuten erneut.",
+	portHint:      "Die Ports 30300 bis 30320 sind alle belegt, vermutlich durch andere Nodes oder Programme. Beende diese oder starte den Computer neu; der Starter versucht es alle 30 Minuten erneut.",
 	diskFullHint:  "Auf dem Laufwerk ist kaum noch Speicherplatz frei. Damit das System normal weiterarbeitet, hat CoreStarter die Node angehalten. Gib mindestens 2 GB frei; der Starter versucht es alle 30 Minuten erneut.",
 }
 
@@ -204,7 +211,7 @@ var textsEN = texts{
 
 	menuOpenData:  "Open data folder",
 	menuOpenLog:   "Open log folder",
-	menuSettings:  "Settings …",
+	menuSettings:  "Status and settings …",
 	menuMiner:     "Show miner …",
 	tipMining:     func(rate string) string { return "mining " + rate + " H/s" },
 	menuRestart:   "Restart node",
@@ -212,11 +219,11 @@ var textsEN = texts{
 	menuQuit:      "Quit",
 
 	nodeOff:         "Node switched off",
-	setupNeeded:     "Setup not finished – open “Settings …”",
+	setupNeeded:     "Setup not finished – open “Status and settings …”",
 	minerStarting:   "Mining: starting (self-test running) …",
 	minerConnecting: "Mining: connecting to the pool …",
 	minerPaused:     "Mining paused (on battery)",
-	minerConsent:    "Mining waits for your consent (Settings …)",
+	minerConsent:    "Mining waits for your consent (Status and settings …)",
 	minerHot:        "Mining paused (too hot)",
 	minerFailed: func(code string) string {
 		r := map[string]string{
@@ -286,6 +293,10 @@ var textsEN = texts{
 	},
 	updateTimeout: "The running version did not quit in time. Please quit CoreStarter via its taskbar icon (right-click → Quit) and try again.",
 	crashHint:     "The node crashed repeatedly. The starter retries every 30 minutes. The log shows why (right-click the icon → Open log folder).",
+	failedForeign: "Another gocore is running – node waits, see log",
+	failedPort:    "No free P2P port – node waits, see log",
+	foreignHint:   "A gocore that CoreStarter cannot control is already running on this computer (started by hand or as administrator, for example). So that two nodes never write the same data, CoreStarter does not start a second one. Quit the other gocore or restart the computer; the starter retries every 30 minutes.",
+	portHint:      "Ports 30300 to 30320 are all in use, probably by other nodes or programs. Quit them or restart the computer; the starter retries every 30 minutes.",
 	diskFullHint:  "The drive is almost full. So that the system keeps working normally, CoreStarter has paused the node. Free up at least 2 GB; the starter retries every 30 minutes.",
 }
 

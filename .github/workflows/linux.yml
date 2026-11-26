@@ -2,10 +2,21 @@
 # and tested in a matrix of distro containers. The node runs offline
 # (--nodiscover --maxpeers 0 --nat none) and the miner only talks to a pool on
 # loopback: no contact with the Core network or Catch That Rabbit.
+#
+# Private repositories pay for runner minutes (included quota $12 a month on
+# GitHub Free, used up on 20.11.2026). So a push only builds the packages and
+# runs the unit tests (~5 min); the distro matrix and the systemd test (~26
+# min) run when a pull request to main is opened or marked ready for review,
+# and on a manual run (Actions > linux > Run workflow), e.g. before a merge
+# after further pushes and for every draft or release build.
 name: linux
 
 on:
   push:
+    paths-ignore: ["**.md", "docs/**"]
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, ready_for_review]
     paths-ignore: ["**.md", "docs/**"]
   workflow_dispatch:
     inputs:
@@ -13,6 +24,10 @@ on:
         description: "Build + systemd test only (skips the distro matrix)"
         type: boolean
         default: false
+      draft_tag:
+        description: "Test tag of an existing draft release (vX.Y.Z-testN): attach the tested packages"
+        type: string
+        default: ""
 
 # A newer push to the same branch cancels the run still going (saves minutes).
 concurrency:
@@ -24,12 +39,14 @@ permissions:
 
 jobs:
   build:
+    # A draft pull request waits until it is marked ready.
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
     runs-on: ubuntu-24.04
     container: ubuntu:22.04
     timeout-minutes: 40
     steps:
-      - name: git (checkout with submodules needs it)
-        run: apt-get update -qq && apt-get install -y -qq git ca-certificates >/dev/null
+      - name: git (checkout with submodules needs it), tar and zstd for the cache
+        run: apt-get update -qq && apt-get install -y -qq git ca-certificates tar zstd >/dev/null
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           submodules: true
@@ -51,18 +68,31 @@ jobs:
         run: go test -race -count=1 . ./internal/...
       - name: Test binary and script for the distro matrix
         run: go test -c -o dist/tests/starter-linux.test . && cp ci/distro-test.sh dist/tests/
+      # Packages reach the test jobs through the Actions cache (own 10 GB per
+      # repository), not as an artifact: artifacts count against the
+      # organisation's monthly storage, and a full quota stopped every test run.
+      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          key: linux-packages-${{ github.run_id }}
+          path: |
+            dist/core-starter*
+            dist/SHA256SUMS-linux
+            dist/tests/
+      # A downloadable copy only on a manual run.
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true
         with:
           name: linux-packages
           path: |
             dist/core-starter*
             dist/SHA256SUMS-linux
             dist/tests/
-          retention-days: 7
+          retention-days: 3
 
   distros:
     needs: build
-    if: ${{ !inputs.only_systemd }}
+    if: github.event_name != 'push' && !inputs.only_systemd
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     strategy:
@@ -80,16 +110,29 @@ jobs:
       # WebKit's own sandbox (bubblewrap) needs user namespaces.
       options: --security-opt seccomp=unconfined
     steps:
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      # The cache is a tar archive, compressed with zstd: the same tools on
+      # both sides, or the restore misses (the cache key includes the method).
+      - name: tar and zstd for the cache
+        run: |
+          if command -v apt-get >/dev/null; then apt-get update -qq && apt-get install -y -qq tar zstd >/dev/null
+          elif command -v dnf >/dev/null; then dnf -y -q install tar zstd
+          elif command -v zypper >/dev/null; then zypper -n -q in tar zstd
+          fi
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
-          name: linux-packages
-          path: dist
+          key: linux-packages-${{ github.run_id }}
+          fail-on-cache-miss: true
+          path: |
+            dist/core-starter*
+            dist/SHA256SUMS-linux
+            dist/tests/
       - name: Install the package, integration tests as a normal user, refuses root
         env:
           EXPECT: ${{ matrix.runtime }}
         run: bash dist/tests/distro-test.sh
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always()
+        if: failure()
+        continue-on-error: true
         with:
           name: screenshots-${{ strategy.job-index }}
           path: /shots/
@@ -99,14 +142,19 @@ jobs:
   # without network: tray crash and adoption, package update, stop, removal.
   systemd:
     needs: build
+    if: github.event_name != 'push'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
-          name: linux-packages
-          path: dist
+          key: linux-packages-${{ github.run_id }}
+          fail-on-cache-miss: true
+          path: |
+            dist/core-starter*
+            dist/SHA256SUMS-linux
+            dist/tests/
       - name: Image (network only for its packages)
         run: docker build -q -t cs-systemd -f ci/systemd/Dockerfile .
       - name: Unit tests under systemd, no network
@@ -114,3 +162,32 @@ jobs:
           docker run -d --name cs --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
             --tmpfs /run --tmpfs /run/lock --network none cs-systemd
           docker exec cs /ci/test.sh
+
+  # Tested packages for testers, attached to a draft release (not public).
+  # Only this job may write, and only on a manual run with a test tag; it
+  # builds nothing itself and runs after the distro and systemd tests passed.
+  draft:
+    needs: [build, distros, systemd]
+    if: github.event_name == 'workflow_dispatch' && inputs.draft_tag != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          key: linux-packages-${{ github.run_id }}
+          fail-on-cache-miss: true
+          path: |
+            dist/core-starter*
+            dist/SHA256SUMS-linux
+            dist/tests/
+      - name: Attach to the draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ inputs.draft_tag }}
+        run: |
+          [[ $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+-test[0-9]+$ ]] || { echo "not a test tag: $TAG" >&2; exit 1; }
+          [ "$(gh release view "$TAG" --json isDraft -q .isDraft)" = true ] || { echo "$TAG is no draft release" >&2; exit 1; }
+          gh release upload "$TAG" dist/core-starter[-_]* dist/SHA256SUMS-linux --clobber

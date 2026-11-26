@@ -29,7 +29,7 @@ func init() {
 		},
 		"ro": {
 			"CoreStarter rulează fără drepturi root, pentru contul tău de utilizator. Te rugăm să-l pornești normal (nu cu sudo).",
-			"Nodul s-a blocat de mai multe ori. Starterul reîncearcă la fiecare 30 de minute. Motivul se află în jurnal (deschide CoreStarter → Jurnale).",
+			"Nodul s-a oprit neașteptat de mai multe ori. CoreStarter reîncearcă la fiecare 30 de minute. Motivul se află în jurnal (deschide CoreStarter → Jurnale).",
 		},
 	} {
 		if t, ok := textsByLang[lang]; ok {
@@ -96,6 +96,6 @@ var noTrayHint = map[string]string{
 	"de": "CoreStarter läuft im Hintergrund. Stand, Einstellungen und Beenden: „CoreStarter“ im App-Menü.",
 	"en": "CoreStarter is running in the background. Progress, settings and quit: “CoreStarter” in the app menu.",
 	"ja": "CoreStarterはバックグラウンドで動作しています。状況・設定・終了は、アプリメニューの「CoreStarter」から行えます。",
-	"nl": "CoreStarter draait op de achtergrond. Stand, instellingen en afsluiten: “CoreStarter” in het app-menu.",
+	"nl": "CoreStarter draait op de achtergrond. Status, instellingen en afsluiten: “CoreStarter” in het app-menu.",
 	"ro": "CoreStarter rulează în fundal. Stare, setări și ieșire: „CoreStarter” în meniul de aplicații.",
 }

@@ -5,3 +5,7 @@ payload_gen_windows.go
 
 # macOS
 .DS_Store
+
+# go build im Repo-Wurzelordner
+/corestarter
+/corestarter.exe
